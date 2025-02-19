@@ -1010,3 +1010,6 @@ amocas_w    00101 . . ..... ..... 010 ..... 0101111 @atom_st
 amocas_d    00101 . . ..... ..... 011 ..... 0101111 @atom_st
 # *** RV64 Zacas Standard Extension ***
 amocas_q    00101 . . ..... ..... 100 ..... 0101111 @atom_st
+
+# *** P Standard Extension ***
+padd_h    1000000 ..... ..... 000 ..... 0111011 @r
