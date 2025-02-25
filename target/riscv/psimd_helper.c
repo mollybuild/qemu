@@ -25,6 +25,7 @@
 #include "fpu/softfloat.h"
 #include "internals.h"
 
+/*
 static target_long signed_saturate(target_long arg, int range)
 {
     target_long max = (1 << (range - 1))-1;
@@ -45,6 +46,7 @@ static target_long unsigned_saturate(target_ulong arg, int range)
         arg = max;
     return arg;
 }
+*/
 
 target_ulong helper_padd_h(target_ulong rs1, target_ulong rs2)
 {
