@@ -15,3 +15,14 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+static bool trans_padd_h(DisasContext *ctx, arg_padd_h *a)
+ {
+    TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);
+    TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);
+    TCGv dest = dest_gpr(ctx, a->rd);
+
+    gen_helper_padd_h(dest, src1, src2);
+    gen_set_gpr(ctx, a->rd, dest);
+    return true;
+ }
