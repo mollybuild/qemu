@@ -1294,4 +1294,5 @@ DEF_HELPER_1(ssamoswap_disabled, void, env)
 #endif
 
 /* Packed SIMD */
-DEF_HELPER_FLAGS_2(padd_h, TCG_CALL_NO_RWG, tl, tl, tl)
+DEF_HELPER_3(padd_h, tl, env, tl, tl)
+DEF_HELPER_3(padd_b, tl, env, tl, tl)
