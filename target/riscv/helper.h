@@ -1286,4 +1286,5 @@ DEF_HELPER_4(vsm4r_vv, void, ptr, ptr, env, i32)
 DEF_HELPER_4(vsm4r_vs, void, ptr, ptr, env, i32)
 
 /* Packed SIMD */
-DEF_HELPER_FLAGS_2(padd_h, TCG_CALL_NO_RWG, tl, tl, tl)
+DEF_HELPER_3(padd_h, tl, env, tl, tl)
+DEF_HELPER_3(padd_b, tl, env, tl, tl)

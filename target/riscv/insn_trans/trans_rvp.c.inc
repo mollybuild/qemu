@@ -16,13 +16,37 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-static bool trans_padd_h(DisasContext *ctx, arg_padd_h *a)
- {
-    TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);
-    TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);
-    TCGv dest = dest_gpr(ctx, a->rd);
 
-    gen_helper_padd_h(dest, src1, src2);
-    gen_set_gpr(ctx, a->rd, dest);
-    return true;
- }
+#define GEN_SIMD_TRANS(NAME)                                \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
+{                                                           \
+   TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);              \
+   TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);              \
+   TCGv dest = dest_gpr(ctx, a->rd);                        \
+   gen_helper_##NAME(dest, tcg_env, src1, src2);            \
+   return true;
+}
+
+#if defined(TARGET_RISCV32)                                 \
+#define GEN_SIMD_TRANS_64(NAME)                             \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a)  \
+{                                                           \
+   REQUIRE_64BIT(ctx);                                      \
+   return true;                                             \
+}                                                           \
+#else                                                       \
+#define GEN_SIMD_TRANS_64(NAME)                             \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a)  \
+{                                                           \
+    REQUIRE_64BIT(ctx);                                     \
+    TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
+    TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);             \
+    TCGv dest = dest_gpr(ctx, a->rd);                       \
+    gen_helper_##NAME(dest, tcg_env, src1, src2);           \
+    return true;                                            \
+}
+#endif
+
+GEN_SIMD_TRANS(padd_b)
+GEN_SIMD_TRANS(padd_h)
+
