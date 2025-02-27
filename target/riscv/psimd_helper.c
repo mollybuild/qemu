@@ -25,7 +25,21 @@
 #include "fpu/softfloat.h"
 #include "internals.h"
 
-target_ulong helper_padd_h(target_ulong rs1, target_ulong rs2)
+target_ulong HELPER(padd_h)(CPURISCVState *env, target_ulong rs1, target_ulong rs2)
+{
+    target_ulong rd = 0;
+    uint16_t *rs1_p = (uint16_t*)&rs1;
+    uint16_t *rs2_p = (uint16_t*)&rs2;
+    uint16_t *rd_p = (uint16_t*)&rd;
+
+    for(int i=0; i < TARGET_LONG_SIZE / 2; i++){
+        rd_p[i] = rs1_p[i] + rs2_p[i];
+    }
+
+    return rd;
+}
+
+target_ulong HELPER(padd_b)(CPURISCVState *env, target_ulong rs1, target_ulong rs2)
 {
     target_ulong rd = 0;
     uint16_t *rs1_p = (uint16_t*)&rs1;
