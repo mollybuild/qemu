@@ -24,17 +24,17 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
    TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);              \
    TCGv dest = dest_gpr(ctx, a->rd);                        \
    gen_helper_##NAME(dest, tcg_env, src1, src2);            \
-   return true;
-}
+   return true;                                             \
+}                                                              
 
-#if defined(TARGET_RISCV32)                                 \
+#if defined(TARGET_RISCV32)
 #define GEN_SIMD_TRANS_64(NAME)                             \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a)  \
 {                                                           \
    REQUIRE_64BIT(ctx);                                      \
    return true;                                             \
-}                                                           \
-#else                                                       \
+}                                                           
+#else
 #define GEN_SIMD_TRANS_64(NAME)                             \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a)  \
 {                                                           \
