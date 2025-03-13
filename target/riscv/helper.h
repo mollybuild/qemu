@@ -1286,5 +1286,56 @@ DEF_HELPER_4(vsm4r_vv, void, ptr, ptr, env, i32)
 DEF_HELPER_4(vsm4r_vs, void, ptr, ptr, env, i32)
 
 /* Packed SIMD */
-DEF_HELPER_3(padd_h, tl, env, tl, tl)
+// instructions without multiplications
+//pli_b
+DEF_HELPER_3(padd_bs, tl, env, tl, tl)
 DEF_HELPER_3(padd_b, tl, env, tl, tl)
+DEF_HELPER_3(psub_b, tl, env, tl, tl)
+DEF_HELPER_3(psadd_b, tl, env, tl, tl)
+DEF_HELPER_3(psaddu_b, tl, env, tl, tl)
+DEF_HELPER_3(pssub_b, tl, env, tl, tl)
+DEF_HELPER_3(pssubu_b, tl, env, tl, tl)
+DEF_HELPER_3(paadd_b, tl, env, tl, tl)
+DEF_HELPER_3(paaddu_b, tl, env, tl, tl)
+DEF_HELPER_3(pasub_b, tl, env, tl, tl)
+DEF_HELPER_3(pasubu_b, tl, env, tl, tl)
+
+DEF_HELPER_3(pdif_b, tl, env, tl, tl)
+DEF_HELPER_3(pdifu_b, tl, env, tl, tl)
+DEF_HELPER_2(psabs_b, tl, env, tl)
+
+DEF_HELPER_3(predsum_bs, tl, env, tl, tl)
+DEF_HELPER_3(predsumu_bs, tl, env, tl, tl)
+
+DEF_HELPER_3(pdifsumu_b, tl, env, tl, tl)
+DEF_HELPER_4(pdifsumau_b, tl, env, tl, tl, tl)
+
+
+DEF_HELPER_3(padd_hs, tl, env, tl, tl)
+DEF_HELPER_3(padd_h, tl, env, tl, tl)
+DEF_HELPER_3(psub_h, tl, env, tl, tl)
+DEF_HELPER_3(psadd_h, tl, env, tl, tl)
+DEF_HELPER_3(psaddu_h, tl, env, tl, tl)
+DEF_HELPER_3(pssub_h, tl, env, tl, tl)
+DEF_HELPER_3(pssubu_h, tl, env, tl, tl)
+DEF_HELPER_3(paadd_h, tl, env, tl, tl)
+DEF_HELPER_3(paaddu_h, tl, env, tl, tl)
+DEF_HELPER_3(pasub_h, tl, env, tl, tl)
+DEF_HELPER_3(pasubu_h, tl, env, tl, tl)
+
+DEF_HELPER_3(psh1add_h, tl, env, tl, tl)
+DEF_HELPER_3(pssh1sadd_h, tl, env, tl, tl)
+
+DEF_HELPER_3(pas_hx, tl, env, tl, tl)
+DEF_HELPER_3(psa_hx, tl, env, tl, tl)
+DEF_HELPER_3(psas_hx, tl, env, tl, tl)
+DEF_HELPER_3(pssa_hx, tl, env, tl, tl)
+DEF_HELPER_3(paas_hx, tl, env, tl, tl)
+DEF_HELPER_3(pasa_hx, tl, env, tl, tl)
+
+DEF_HELPER_3(pdif_h, tl, env, tl, tl)
+DEF_HELPER_3(pdifu_h, tl, env, tl, tl)
+DEF_HELPER_2(psabs_h, tl, env, tl)
+
+DEF_HELPER_3(predsum_hs, tl, env, tl, tl)
+DEF_HELPER_3(predsumu_hs, tl, env, tl, tl)
