@@ -775,6 +775,7 @@ EX_SH(3)
 EX_SH(4)
 EX_SH(6)
 EX_SH(12)
+EX_SH(22)
 
 #define REQUIRE_EXT(ctx, ext) do { \
     if (!has_ext(ctx, ext)) {      \
