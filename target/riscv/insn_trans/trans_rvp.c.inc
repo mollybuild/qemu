@@ -132,6 +132,59 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 }
 #endif
 
+#define GEN_SIMD_TRANS_IMM(NAME)                          \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
+{                                                           \
+    TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
+    TCGv imm = tcg_constant_tl(a->imm);                 \
+    TCGv dest = dest_gpr(ctx, a->rd);                       \
+    gen_helper_##NAME(dest, tcg_env, src1, imm);          \
+    gen_set_gpr(ctx, a->rd, dest);                          \
+    return true;                                            \
+}
+
+#if defined(TARGET_RISCV32)
+#define GEN_SIMD_TRANS_IMM_32(NAME)                       \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
+{                                                           \
+    REQUIRE_32BIT(ctx);                                     \
+    TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
+    TCGv imm = tcg_constant_tl(a->imm);                 \
+    TCGv dest = dest_gpr(ctx, a->rd);                       \
+    gen_helper_##NAME(dest, tcg_env, src1, imm);          \
+    gen_set_gpr(ctx, a->rd, dest);                          \
+    return true;                                            \
+}
+#else
+#define GEN_SIMD_TRANS_IMM_32(NAME)                       \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
+{                                                           \
+    REQUIRE_32BIT(ctx);                                     \
+    return true;                                            \
+}
+#endif
+
+#if defined(TARGET_RISCV32)
+#define GEN_SIMD_TRANS_IMM_64(NAME)                       \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
+{                                                           \
+    REQUIRE_64BIT(ctx);                                     \
+    return true;                                            \
+}
+#else
+#define GEN_SIMD_TRANS_IMM_64(NAME)                       \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
+{                                                           \
+    REQUIRE_64BIT(ctx);                                     \
+    TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
+    TCGv imm = tcg_constant_tl(a->imm);                 \
+    TCGv dest = dest_gpr(ctx, a->rd);                       \
+    gen_helper_##NAME(dest, tcg_env, src1, imm);          \
+    gen_set_gpr(ctx, a->rd, dest);                          \
+    return true;                                            \
+}
+#endif
+
 GEN_SIMD_TRANS(padd_b)
 GEN_SIMD_TRANS(padd_bs)
 GEN_SIMD_TRANS(psub_b)
@@ -214,6 +267,79 @@ GEN_SIMD_TRANS_64(paas_wx)
 GEN_SIMD_TRANS_64(pasa_wx)
 GEN_SIMD_TRANS_64(predsum_ws)
 GEN_SIMD_TRANS_64(predsumu_ws)
+
+GEN_SIMD_TRANS_IMM(pslli_b)
+GEN_SIMD_TRANS(psll_bs)
+GEN_SIMD_TRANS_IMM(psrli_b)
+GEN_SIMD_TRANS(psrl_bs)
+GEN_SIMD_TRANS_IMM(psrai_b)
+GEN_SIMD_TRANS(psra_bs)
+GEN_SIMD_TRANS(pmin_b)
+GEN_SIMD_TRANS(pminu_b)
+GEN_SIMD_TRANS(pmax_b)
+GEN_SIMD_TRANS(pmaxu_b)
+GEN_SIMD_TRANS(pmseq_b)
+GEN_SIMD_TRANS(pmslt_b)
+GEN_SIMD_TRANS(pmsltu_b)
+
+GEN_SIMD_TRANS_R1(psext_h_b)
+GEN_SIMD_TRANS_IMM(psati_h)
+GEN_SIMD_TRANS_IMM(pusati_h)
+GEN_SIMD_TRANS_IMM(pslli_h)
+GEN_SIMD_TRANS(psll_hs)
+GEN_SIMD_TRANS_IMM(psrli_h)
+GEN_SIMD_TRANS(psrl_hs)
+GEN_SIMD_TRANS_IMM(psrai_h)
+GEN_SIMD_TRANS(psra_hs)
+GEN_SIMD_TRANS_IMM(psslai_h)
+GEN_SIMD_TRANS_IMM(psrari_h)
+GEN_SIMD_TRANS(pssha_hs)
+GEN_SIMD_TRANS(psshar_hs)
+GEN_SIMD_TRANS(pmin_h)
+GEN_SIMD_TRANS(pminu_h)
+GEN_SIMD_TRANS(pmax_h)
+GEN_SIMD_TRANS(pmaxu_h)
+GEN_SIMD_TRANS(pmseq_h)
+GEN_SIMD_TRANS(pmslt_h)
+GEN_SIMD_TRANS(pmsltu_h)
+
+GEN_SIMD_TRANS_IMM_32(sati_32)
+GEN_SIMD_TRANS_IMM_32(usati_32)
+GEN_SIMD_TRANS_IMM_32(sslai)
+GEN_SIMD_TRANS_IMM_32(srari_32)
+GEN_SIMD_TRANS_32(ssha)
+GEN_SIMD_TRANS_32(sshar)
+GEN_SIMD_TRANS_32(mseq)
+GEN_SIMD_TRANS_32(mslt)
+GEN_SIMD_TRANS_32(msltu)
+
+GEN_SIMD_TRANS_R1_64(psext_w_b)
+GEN_SIMD_TRANS_R1_64(psext_w_h)
+GEN_SIMD_TRANS_IMM_64(psati_w)
+GEN_SIMD_TRANS_IMM_64(pusati_w)
+GEN_SIMD_TRANS_IMM_64(pslli_w)
+GEN_SIMD_TRANS_64(psll_ws)
+GEN_SIMD_TRANS_IMM_64(psrli_w)
+GEN_SIMD_TRANS_64(psrl_ws)
+GEN_SIMD_TRANS_IMM_64(psrai_w)
+GEN_SIMD_TRANS_64(psra_ws)
+GEN_SIMD_TRANS_IMM_64(psslai_w)
+GEN_SIMD_TRANS_IMM_64(psrari_w)
+GEN_SIMD_TRANS_64(pssha_ws)
+GEN_SIMD_TRANS_64(psshar_ws)
+GEN_SIMD_TRANS_64(pmin_w)
+GEN_SIMD_TRANS_64(pminu_w)
+GEN_SIMD_TRANS_64(pmax_w)
+GEN_SIMD_TRANS_64(pmaxu_w)
+GEN_SIMD_TRANS_64(pmseq_w)
+GEN_SIMD_TRANS_64(pmslt_w)
+GEN_SIMD_TRANS_64(pmsltu_w)
+
+GEN_SIMD_TRANS_IMM_64(sati_64)
+GEN_SIMD_TRANS_IMM_64(usati_64)
+GEN_SIMD_TRANS_IMM_64(srari_64)
+GEN_SIMD_TRANS_64(sha)
+GEN_SIMD_TRANS_64(shar)
 
 static bool trans_pli_b(DisasContext *ctx, arg_pli_b *a)
 {
