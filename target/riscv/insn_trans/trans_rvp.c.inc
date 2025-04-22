@@ -36,14 +36,13 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a)  \
     TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);             \
     TCGv dest = dest_gpr(ctx, a->rd);                       \
     gen_helper_##NAME(dest, tcg_env, src1, src2);           \
-    return true;                                             \
+    return true;                                            \
 }                                                           
 #else
 #define GEN_SIMD_TRANS_32(NAME)                             \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a)  \
 {                                                           \
-
-    REQUIRE_32BIT(ctx);                                      \
+    REQUIRE_32BIT(ctx);                                     \
     return true;                                            \
 }
 #endif
@@ -242,10 +241,7 @@ GEN_SIMD_TRANS_32(aaddu)
 GEN_SIMD_TRANS_32(asub)
 GEN_SIMD_TRANS_32(asubu)
 GEN_SIMD_TRANS_32(ssh1sadd)
-GEN_SIMD_TRANS(sh1add)
 
-GEN_SIMD_TRANS_64(pli_w)
-GEN_SIMD_TRANS_64(plui_w)
 GEN_SIMD_TRANS_64(padd_ws)
 GEN_SIMD_TRANS_64(padd_w)
 GEN_SIMD_TRANS_64(psub_w)
@@ -363,7 +359,7 @@ static bool trans_pli_h(DisasContext *ctx, arg_pli_h *a)
     return true;
 }
 
-static bool trans_plui_h(DisasContext *ctx, arg_pli_h *a)
+static bool trans_plui_h(DisasContext *ctx, arg_plui_h *a)
 {
     int i = 1;
     target_long imm = a->imm;
@@ -376,8 +372,9 @@ static bool trans_plui_h(DisasContext *ctx, arg_pli_h *a)
 
 static bool trans_pli_w(DisasContext *ctx, arg_pli_w *a)
 {
+    REQUIRE_64BIT(ctx);
     int i = 1;
-    target_long imm = a->imm;
+    int64_t imm = a->imm;
     while (i < TARGET_LONG_SIZE / 4){
         imm =( imm << 32 ) + (a->imm & 0xFFFFFFFF);
     }
@@ -385,10 +382,11 @@ static bool trans_pli_w(DisasContext *ctx, arg_pli_w *a)
     return true;
 }
 
-static bool trans_plui_w(DisasContext *ctx, arg_pli_w *a)
+static bool trans_plui_w(DisasContext *ctx, arg_plui_w *a)
 {
+    REQUIRE_64BIT(ctx);
     int i = 1;
-    target_long imm = a->imm;
+    int64_t imm = a->imm;
     while (i < TARGET_LONG_SIZE / 4){
         imm =( imm << 32 ) + (a->imm & 0xFFFFFFFF);
     }
