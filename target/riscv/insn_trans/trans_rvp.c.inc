@@ -337,13 +337,56 @@ GEN_SIMD_TRANS_IMM_64(srari_64)
 GEN_SIMD_TRANS_64(sha)
 GEN_SIMD_TRANS_64(shar)
 
+GEN_SIMD_TRANS(ppack_h)
+GEN_SIMD_TRANS(ppackbt_h)
+GEN_SIMD_TRANS(ppacktb_h)
+GEN_SIMD_TRANS(ppackt_h)
+
+GEN_SIMD_TRANS_32(packbt_32)
+GEN_SIMD_TRANS_32(packtb_32)
+GEN_SIMD_TRANS_32(packt_32)
+GEN_SIMD_TRANS_R1_32(rev8_32)
+
+GEN_SIMD_TRANS_64(ppack_w)
+GEN_SIMD_TRANS_64(ppackbt_w)
+GEN_SIMD_TRANS_64(ppacktb_w)
+GEN_SIMD_TRANS_64(ppackt_w)
+
+GEN_SIMD_TRANS_64(packbt_64)
+GEN_SIMD_TRANS_64(packtb_64)
+GEN_SIMD_TRANS_64(packt_64)
+
+GEN_SIMD_TRANS_64(zip8p)
+GEN_SIMD_TRANS_64(zip8hp)
+GEN_SIMD_TRANS_64(unzip8p)
+GEN_SIMD_TRANS_64(unzip8hp)
+
+GEN_SIMD_TRANS_R1_64(rev16)
+GEN_SIMD_TRANS_R1_64(rev8_64)
+GEN_SIMD_TRANS_64(zip16p)
+GEN_SIMD_TRANS_64(zip16hp)
+GEN_SIMD_TRANS_64(unzip16p)
+GEN_SIMD_TRANS_64(unzip16hp)
+
+GEN_SIMD_TRANS_R1(abs)
+GEN_SIMD_TRANS_R1(cls)
+GEN_SIMD_TRANS_R1(rev)
+GEN_SIMD_TRANS(slx)
+GEN_SIMD_TRANS(srx)
+GEN_SIMD_TRANS(mvm)
+GEN_SIMD_TRANS(mvmn)
+GEN_SIMD_TRANS(merge)
+
+GEN_SIMD_TRANS_R1_64(absw)
+GEN_SIMD_TRANS_R1_64(clsw)
+
 static bool trans_pli_b(DisasContext *ctx, arg_pli_b *a)
 {
     int i = 1;
     target_long imm = a->imm;
     while (i < TARGET_LONG_SIZE){
         imm = (( imm << 8 ) + a->imm);
-	i++;
+	    i++;
     }
     gen_set_gpri(ctx, a->rd, imm);
     return true;
@@ -355,7 +398,7 @@ static bool trans_pli_h(DisasContext *ctx, arg_pli_h *a)
     target_long imm = a->imm;
     while (i < TARGET_LONG_SIZE / 2){
         imm =( imm << 16 ) + (a->imm & 0xFFFF);
-	i++;
+	    i++;
     }
     gen_set_gpri(ctx, a->rd, imm);
     return true;
@@ -367,7 +410,7 @@ static bool trans_plui_h(DisasContext *ctx, arg_plui_h *a)
     target_long imm = a->imm;
     while (i < TARGET_LONG_SIZE / 2){
         imm =( imm << 16 ) + (a->imm & 0xFFFF);
-	i++;
+	    i++;
     }
     gen_set_gpri(ctx, a->rd, imm);
     return true;
@@ -380,7 +423,7 @@ static bool trans_pli_w(DisasContext *ctx, arg_pli_w *a)
     int64_t imm = a->imm;
     while (i < TARGET_LONG_SIZE / 4){
         imm =( imm << 32 ) + (a->imm & 0xFFFFFFFF);
-	i++;
+	    i++;
     }
     gen_set_gpri(ctx, a->rd, imm);
     return true;
@@ -393,7 +436,7 @@ static bool trans_plui_w(DisasContext *ctx, arg_plui_w *a)
     int64_t imm = a->imm;
     while (i < TARGET_LONG_SIZE / 4){
         imm =( imm << 32 ) + (a->imm & 0xFFFFFFFF);
-	i++;
+	    i++;
     }
     gen_set_gpri(ctx, a->rd, imm);
     return true;
