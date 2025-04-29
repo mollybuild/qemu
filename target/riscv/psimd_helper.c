@@ -2626,3 +2626,464 @@ uint64_t HELPER(shar)(CPURISCVState *env, uint64_t rs1,
 
     return (uint64_t)rd;    
 }
+
+target_ulong HELPER(ppack_h)(CPURISCVState *env, target_ulong rs1,
+    target_ulong rs2)
+{
+    target_ulong rd = 0;
+    uint16_t *rs1_p = (uint16_t *)&rs1;
+    uint16_t *rs2_p = (uint16_t *)&rs2;
+    uint16_t *rd_p = (uint16_t *)&rd;
+    uint16_t t1 = 0;
+    uint16_t t2 = 0;
+
+    for (int i = 0; i < TARGET_LONG_SIZE / 2; i++) {
+        t1 = extract16(rs1_p[i], 0, 8);
+        t2 = extract16(rs2_p[2], 0, 8);
+        rd_p[i] = (t2 << 8) | (t1 & 0xFF);
+    }
+
+    return rd;
+}
+
+target_ulong HELPER(ppackbt_h)(CPURISCVState *env, target_ulong rs1,
+    target_ulong rs2)
+{
+    target_ulong rd = 0;
+    uint16_t *rs1_p = (uint16_t *)&rs1;
+    uint16_t *rs2_p = (uint16_t *)&rs2;
+    uint16_t *rd_p = (uint16_t *)&rd;
+    uint16_t t1 = 0;
+    uint16_t t2 = 0;
+
+    for (int i = 0; i < TARGET_LONG_SIZE / 2; i++) {
+        t1 = extract16(rs1_p[i], 0, 8);
+        t2 = extract16(rs2_p[2], 8, 8);
+        rd_p[i] = (t2 << 8) | (t1 & 0xFF);
+    }
+
+    return rd;
+}
+
+target_ulong HELPER(ppacktb_h)(CPURISCVState *env, target_ulong rs1,
+    target_ulong rs2)
+{
+    target_ulong rd = 0;
+    uint16_t *rs1_p = (uint16_t *)&rs1;
+    uint16_t *rs2_p = (uint16_t *)&rs2;
+    uint16_t *rd_p = (uint16_t *)&rd;
+    uint16_t t1 = 0;
+    uint16_t t2 = 0;
+
+    for (int i = 0; i < TARGET_LONG_SIZE / 2; i++) {
+        t1 = extract16(rs1_p[i], 8, 8);
+        t2 = extract16(rs2_p[2], 0, 8);
+        rd_p[i] = (t2 << 8) | (t1 & 0xFF);
+    }
+
+    return rd;
+}
+
+target_ulong HELPER(ppackt_h)(CPURISCVState *env, target_ulong rs1,
+    target_ulong rs2)
+{
+    target_ulong rd = 0;
+    uint16_t *rs1_p = (uint16_t *)&rs1;
+    uint16_t *rs2_p = (uint16_t *)&rs2;
+    uint16_t *rd_p = (uint16_t *)&rd;
+    uint16_t t1 = 0;
+    uint16_t t2 = 0;
+
+    for (int i = 0; i < TARGET_LONG_SIZE / 2; i++) {
+        t1 = extract16(rs1_p[i], 8, 8);
+        t2 = extract16(rs2_p[2], 8, 8);
+        rd_p[i] = (t2 << 8) | (t1 & 0xFF);
+    }
+
+    return rd;  
+}
+
+uint32_t HELPER(packbt_32)(CPURISCVState *env, uint32_t rs1,
+    uint32_t rs2)
+{
+    uint32_t rd = 0;
+    uint32_t t1 = extract32(rs1, 0, 16);
+    uint32_t t2 = extract32(rs2, 16, 16);
+    rd = (t2 << 16) | (t1 & 0xFFFF);
+    
+    return rd;
+}
+
+uint32_t HELPER(packtb_32)(CPURISCVState *env, uint32_t rs1,
+    uint32_t rs2)
+{
+    uint32_t rd = 0;
+    uint32_t t1 = extract32(rs1, 16, 16);
+    uint32_t t2 = extract32(rs2, 0, 16);
+    rd = (t2 << 16) | (t1 & 0xFFFF);
+    
+    return rd;
+}
+
+uint32_t HELPER(packt_32)(CPURISCVState *env, uint32_t rs1,
+    uint32_t rs2)
+{
+    uint32_t rd = 0;
+    uint32_t t1 = extract32(rs1, 16, 16);
+    uint32_t t2 = extract32(rs2, 16, 16);
+    rd = (t2 << 16) | (t1 & 0xFFFF);
+    
+    return rd;
+}
+
+uint64_t HELPER(ppack_w)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint32_t *rs1_p = (uint32_t *)&rs1;
+    uint32_t *rs2_p = (uint32_t *)&rs2;
+    uint32_t *rd_p = (uint32_t *)&rd;
+    uint32_t t1 = 0;
+    uint32_t t2 = 0;
+
+    for (int i = 0; i < TARGET_LONG_SIZE / 4; i++) {
+        t1 = extract16(rs1_p[i], 0, 16);
+        t2 = extract16(rs2_p[i], 0, 16);
+        rd_p[i] = (t2 << 16) | (t1 & 0xFFFF);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(ppackbt_w)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint32_t *rs1_p = (uint32_t *)&rs1;
+    uint32_t *rs2_p = (uint32_t *)&rs2;
+    uint32_t *rd_p = (uint32_t *)&rd;
+    uint32_t t1 = 0;
+    uint32_t t2 = 0;
+
+    for (int i = 0; i < TARGET_LONG_SIZE / 4; i++) {
+        t1 = extract16(rs1_p[i], 0, 16);
+        t2 = extract16(rs2_p[2], 16, 16);
+        rd_p[i] = (t2 << 16) | (t1 & 0xFFFF);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(ppacktb_w)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint32_t *rs1_p = (uint32_t *)&rs1;
+    uint32_t *rs2_p = (uint32_t *)&rs2;
+    uint32_t *rd_p = (uint32_t *)&rd;
+    uint32_t t1 = 0;
+    uint32_t t2 = 0;
+
+    for (int i = 0; i < TARGET_LONG_SIZE / 4; i++) {
+        t1 = extract16(rs1_p[i], 16, 16);
+        t2 = extract16(rs2_p[2], 0, 16);
+        rd_p[i] = (t2 << 16) | (t1 & 0xFFFF);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(ppackt_w)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint32_t *rs1_p = (uint32_t *)&rs1;
+    uint32_t *rs2_p = (uint32_t *)&rs2;
+    uint32_t *rd_p = (uint32_t *)&rd;
+    uint32_t t1 = 0;
+    uint32_t t2 = 0;
+
+    for (int i = 0; i < TARGET_LONG_SIZE / 4; i++) {
+        t1 = extract16(rs1_p[i], 16, 16);
+        t2 = extract16(rs2_p[2], 16, 16);
+        rd_p[i] = (t2 << 16) | (t1 & 0xFFFF);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(packbt_64)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = extract64(rs1, 0, 32);
+    uint64_t t2 = extract64(rs2, 32, 32);
+    rd = (t2 << 32) | (t1 & 0xFFFFFFFF);
+    
+    return rd;
+}
+
+uint64_t HELPER(packtb_64)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = extract64(rs1, 32, 32);
+    uint64_t t2 = extract64(rs2, 0, 32);
+    rd = (t2 << 32) | (t1 & 0xFFFFFFFF);
+    
+    return rd;
+}
+
+uint64_t HELPER(packt_64)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = extract64(rs1, 32, 32);
+    uint64_t t2 = extract64(rs2, 32, 32);
+    rd = (t2 << 32) | (t1 & 0xFFFFFFFF);
+    
+    return rd;
+}
+
+uint64_t HELPER(zip8p)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = 0;
+    uint64_t t2 = 0;
+    
+    for(int i = 0; i < 4; i++){
+        t1 = extract64(rs1, 8*(3-i), 8);
+        t2 = extract64(rs2, 8*(3-i), 8);
+        rd = (rd <<16) | (t2 << 8) | (t1 & 0xFF);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(zip8hp)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = 0;
+    uint64_t t2 = 0;
+    
+    for(int i = 0; i < 4; i++){
+        t1 = extract64(rs1, 8*(7-i), 8);
+        t2 = extract64(rs2, 8*(7-i), 8);
+        rd = (rd <<16) | (t2 << 8) | (t1 & 0xFF);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(unzip8p)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = 0;
+    uint64_t t2 = 0;
+    
+    for(int i = 0; i < 4; i++){
+        t1 = extract64(rs1, 16*(3-i), 8);
+        t2 = extract64(rs2, 16*(3-i), 8);
+        rd = (rd <<8) | (t2 << 32) | (t1 & 0xFF);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(unzip8hp)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = 0;
+    uint64_t t2 = 0;
+    
+    for(int i = 0; i < 4; i++){
+        t1 = extract64(rs1, 16*(3-i)+8, 8);
+        t2 = extract64(rs2, 16*(3-i)+8, 8);
+        rd = (rd <<8) | (t2 << 32) | (t1 & 0xFF);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(zip16p)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = 0;
+    uint64_t t2 = 0;
+    
+    for(int i = 0; i < 2; i++){
+        t1 = extract64(rs1, 16*(1-i), 16);
+        t2 = extract64(rs2, 16*(1-i), 16);
+        rd = (rd <<32) | (t2 << 16) | (t1 & 0xFFFF);
+    }
+
+    return rd;   
+}
+
+uint64_t HELPER(zip16hp)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = 0;
+    uint64_t t2 = 0;
+    
+    for(int i = 0; i < 2; i++){
+        t1 = extract64(rs1, 16*(3-i), 16);
+        t2 = extract64(rs2, 16*(3-i), 16);
+        rd = (rd <<32) | (t2 << 16) | (t1 & 0xFFFF);
+    }
+
+    return rd;   
+}
+
+uint64_t HELPER(unzip16p)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = 0;
+    uint64_t t2 = 0;
+    
+    for(int i = 0; i < 2; i++){
+        t1 = extract64(rs1, 32*(1-i), 16);
+        t2 = extract64(rs2, 32*(1-i), 16);
+        rd = (rd <<16) | (t2 << 32) | (t1 & 0xFFFF);
+    }
+
+    return rd;   
+}
+
+uint64_t HELPER(unzip16hp)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = 0;
+    uint64_t t2 = 0;
+    
+    for(int i = 0; i < 2; i++){
+        t1 = extract64(rs1, 32*(1-i)+16, 16);
+        t2 = extract64(rs2, 32*(1-i)+16, 16);
+        rd = (rd << 16) | (t2 << 32) | (t1 & 0xFF);
+    }
+
+    return rd;
+}
+
+target_ulong HELPER(abs)(CPURISCVState *env, target_ulong rs1)
+{
+    target_long signed_rs1 = (target_long)rs1;
+    return (signed_rs1 < 0) ? (0 - signed_rs1) : signed_rs1;
+}
+
+target_ulong HELPER(cls)(CPURISCVState *env, target_ulong rs1)
+{
+    target_ulong rd = 0;
+    target_long v = (target_long)rs1;
+    target_long lo_bound = 
+
+    for (int i = 0; i < TARGET_LONG_SIZE / 4; i++) {
+        int cnt = 0;
+        v1 = rs1_p[i];
+
+        for (int j = 31; j >= 0; j--) {
+            if ((v1 >> j) == 0) {
+                cnt++;
+            } else {
+                break;
+            }
+        }
+
+        rd_p[i] = cnt;
+    }
+
+    return rd;
+}
+
+target_ulong HELPER(rev)(CPURISCVState *env, target_ulong rs1)
+{
+
+}
+
+uint64_t HELPER(rev16)(CPURISCVState *env, uint64_t rs1)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = 0;
+
+    for(int i = 0; i < 4; i++){
+        t1 = extract64(rs1, 16*i, 16);
+        rd = (rd << 16) | (t1 & 0xFFFF);        
+    }
+
+    return rd;
+
+}
+
+uint32_t HELPER(rev8_32)(CPURISCVState *env, uint32_t rs1)
+{
+    uint32_t rd = 0;
+    uint32_t t1 = 0;
+
+    for(int i = 0; i < 4; i++){
+        t1 = extract32(rs1, 8*i, 8);
+        rd = (rd << 8) | (t1 & 0xFF);        
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(rev8_64)(CPURISCVState *env, uint64_t rs1)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = 0;
+
+    for(int i = 0; i < 4; i++){
+        t1 = extract64(rs1, 16*i, 16);
+        rd = (rd << 16) | (t1 & 0xFFFF);        
+    }
+
+    return rd;
+}
+
+target_ulong HELPER(slx)(CPURISCVState *env, target_ulong rs1,
+    target_ulong rs2)
+{
+
+}
+
+target_ulong HELPER(srx)(CPURISCVState *env, target_ulong rs1,
+    target_ulong rs2)
+{
+
+}
+
+target_ulong HELPER(mvm)(CPURISCVState *env, target_ulong rs1,
+    target_ulong rs2)
+{
+
+}
+
+target_ulong HELPER(mvmn)(CPURISCVState *env, target_ulong rs1,
+    target_ulong rs2)
+{
+
+}
+
+target_ulong HELPER(merge)(CPURISCVState *env, target_ulong rs1,
+    target_ulong rs2)
+{
+
+}
+
+uint64_t HELPER(absw)(CPURISCVState *env, uint64_t rs1)
+{
+
+}
+
+uint64_t HELPER(clsw)(CPURISCVState *env, uint64_t rs1)
+{
+
+}
