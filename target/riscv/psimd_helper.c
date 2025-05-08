@@ -2983,21 +2983,12 @@ target_ulong HELPER(cls)(CPURISCVState *env, target_ulong rs1)
 {
     target_ulong rd = 0;
     target_long v = (target_long)rs1;
-    target_long lo_bound = 
+    target_long lo_bound = -(1 << (TARGET_LONG_BITS - 2));
+    target_long hi_bound = (1ull << (TARGET_LONG_BITS - 2)) - 1;
 
-    for (int i = 0; i < TARGET_LONG_SIZE / 4; i++) {
-        int cnt = 0;
-        v1 = rs1_p[i];
-
-        for (int j = 31; j >= 0; j--) {
-            if ((v1 >> j) == 0) {
-                cnt++;
-            } else {
-                break;
-            }
-        }
-
-        rd_p[i] = cnt;
+    while ( rd < TARGET_LONG_BITS && v >= lo_bound && v <= hi_bound ) {
+        rd = rd + 1;
+        v = v << 1;
     }
 
     return rd;
@@ -3005,7 +2996,13 @@ target_ulong HELPER(cls)(CPURISCVState *env, target_ulong rs1)
 
 target_ulong HELPER(rev)(CPURISCVState *env, target_ulong rs1)
 {
+    target_ulong rd = 0;
+    for (int i = 0; i < TARGET_LONG_BITS; i++){
+        rd = (rd << 1) | (rs1 & 1);
+        rs1 >>= 1;
+    }
 
+    return rd;
 }
 
 uint64_t HELPER(rev16)(CPURISCVState *env, uint64_t rs1)
@@ -3019,7 +3016,6 @@ uint64_t HELPER(rev16)(CPURISCVState *env, uint64_t rs1)
     }
 
     return rd;
-
 }
 
 uint32_t HELPER(rev8_32)(CPURISCVState *env, uint32_t rs1)
@@ -3049,41 +3045,69 @@ uint64_t HELPER(rev8_64)(CPURISCVState *env, uint64_t rs1)
 }
 
 target_ulong HELPER(slx)(CPURISCVState *env, target_ulong rs1,
-    target_ulong rs2)
+    target_ulong rs2, target_ulong rd)
 {
+    int shamt = (TARGET_LONG_BITS == 32) ? (rs2 & 0x1F) : (rs2 & 0x3F);
+    target_ulong xrs1 = 0; 
+    target_ulong xrd = 0; 
+    if(shamt <= TARGET_LONG_BITS){
+        xrs1 = rs1 >> (TARGET_LONG_BITS - shamt);
+        xrd = (rd << shamt) + xrs1;
+    }else{
+        xrd = rs1 << (shamt - TARGET_LONG_BITS);
+    }
 
+    return xrd;
 }
 
 target_ulong HELPER(srx)(CPURISCVState *env, target_ulong rs1,
-    target_ulong rs2)
+    target_ulong rs2, target_ulong rd)
 {
+    int shamt = (TARGET_LONG_BITS == 32) ? (rs2 & 0x1F) : (rs2 & 0x3F);
+    target_ulong xrs1 = 0; 
+    target_ulong xrd = 0; 
+    if(shamt <= TARGET_LONG_BITS){
+        xrs1 = rs1 << (TARGET_LONG_BITS - shamt);
+        xrd = (rd >> shamt) + xrs1;
+    }else{
+        xrd = rs1 >> (shamt - TARGET_LONG_BITS);
+    }
 
+    return xrd;
 }
 
 target_ulong HELPER(mvm)(CPURISCVState *env, target_ulong rs1,
-    target_ulong rs2)
+    target_ulong rs2, target_ulong rd)
 {
-
+    return (~rs2 & rd) | (rs2 & rs1);
 }
 
 target_ulong HELPER(mvmn)(CPURISCVState *env, target_ulong rs1,
-    target_ulong rs2)
+    target_ulong rs2, target_ulong rd)
 {
-
+    return (~rs2 & rs1) | (rs2 & rd);
 }
 
 target_ulong HELPER(merge)(CPURISCVState *env, target_ulong rs1,
-    target_ulong rs2)
+    target_ulong rs2, target_ulong rd)
 {
-
+    return (~rd & rs1) | (rd & rs2);
 }
 
 uint64_t HELPER(absw)(CPURISCVState *env, uint64_t rs1)
 {
-
+    int32_t rs1_w = rs1 & 0xFFFFFFFF;
+    return (rs1_w < 0) ? (0 - rs1_w) : rs1_w;
 }
 
 uint64_t HELPER(clsw)(CPURISCVState *env, uint64_t rs1)
 {
+    int32_t rs1_w = rs1 & 0xFFFFFFFF;
+    int c = 0;
+    while( c < 32 && rs1_w >= 0xC0000000 && rs1_w <= 0x3FFFFFFF){
+        c = c + 1;
+        rs1_w = rs1_w << 1;
+    }
 
+    return (uint64_t) c;
 }
