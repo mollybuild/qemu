@@ -2639,7 +2639,7 @@ target_ulong HELPER(ppack_h)(CPURISCVState *env, target_ulong rs1,
 
     for (int i = 0; i < TARGET_LONG_SIZE / 2; i++) {
         t1 = extract16(rs1_p[i], 0, 8);
-        t2 = extract16(rs2_p[2], 0, 8);
+        t2 = extract16(rs2_p[i], 0, 8);
         rd_p[i] = (t2 << 8) | (t1 & 0xFF);
     }
 
@@ -2658,7 +2658,7 @@ target_ulong HELPER(ppackbt_h)(CPURISCVState *env, target_ulong rs1,
 
     for (int i = 0; i < TARGET_LONG_SIZE / 2; i++) {
         t1 = extract16(rs1_p[i], 0, 8);
-        t2 = extract16(rs2_p[2], 8, 8);
+        t2 = extract16(rs2_p[i], 8, 8);
         rd_p[i] = (t2 << 8) | (t1 & 0xFF);
     }
 
@@ -2677,7 +2677,7 @@ target_ulong HELPER(ppacktb_h)(CPURISCVState *env, target_ulong rs1,
 
     for (int i = 0; i < TARGET_LONG_SIZE / 2; i++) {
         t1 = extract16(rs1_p[i], 8, 8);
-        t2 = extract16(rs2_p[2], 0, 8);
+        t2 = extract16(rs2_p[i], 0, 8);
         rd_p[i] = (t2 << 8) | (t1 & 0xFF);
     }
 
@@ -2696,7 +2696,7 @@ target_ulong HELPER(ppackt_h)(CPURISCVState *env, target_ulong rs1,
 
     for (int i = 0; i < TARGET_LONG_SIZE / 2; i++) {
         t1 = extract16(rs1_p[i], 8, 8);
-        t2 = extract16(rs2_p[2], 8, 8);
+        t2 = extract16(rs2_p[i], 8, 8);
         rd_p[i] = (t2 << 8) | (t1 & 0xFF);
     }
 
@@ -2983,8 +2983,13 @@ target_ulong HELPER(cls)(CPURISCVState *env, target_ulong rs1)
 {
     target_ulong rd = 0;
     target_long v = (target_long)rs1;
-    target_long lo_bound = -(1 << (TARGET_LONG_BITS - 2));
-    target_long hi_bound = (1ull << (TARGET_LONG_BITS - 2)) - 1;
+    #if defined(TARGET_RISCV64)
+    int64_t lo_bound =  0xC000000000000000;
+    int64_t hi_bound =  0x3FFFFFFFFFFFFFFF;
+    #elif defined(TARGET_RISCV32)
+    int32_t lo_bound =  0xC0000000;
+    int32_t hi_bound =  0x3FFFFFFF;
+    #endif
 
     while ( rd < TARGET_LONG_BITS && v >= lo_bound && v <= hi_bound ) {
         rd = rd + 1;
@@ -3006,32 +3011,6 @@ target_ulong HELPER(rev)(CPURISCVState *env, target_ulong rs1)
 }
 
 uint64_t HELPER(rev16)(CPURISCVState *env, uint64_t rs1)
-{
-    uint64_t rd = 0;
-    uint64_t t1 = 0;
-
-    for(int i = 0; i < 4; i++){
-        t1 = extract64(rs1, 16*i, 16);
-        rd = (rd << 16) | (t1 & 0xFFFF);        
-    }
-
-    return rd;
-}
-
-uint32_t HELPER(rev8_32)(CPURISCVState *env, uint32_t rs1)
-{
-    uint32_t rd = 0;
-    uint32_t t1 = 0;
-
-    for(int i = 0; i < 4; i++){
-        t1 = extract32(rs1, 8*i, 8);
-        rd = (rd << 8) | (t1 & 0xFF);        
-    }
-
-    return rd;
-}
-
-uint64_t HELPER(rev8_64)(CPURISCVState *env, uint64_t rs1)
 {
     uint64_t rd = 0;
     uint64_t t1 = 0;
