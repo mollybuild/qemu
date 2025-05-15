@@ -3090,3 +3090,545 @@ uint64_t HELPER(clsw)(CPURISCVState *env, uint64_t rs1)
 
     return (uint64_t) c;
 }
+
+uint64_t HELPER(pwadd_b)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    int64_t rd = 0;
+    int8_t *rs1_p = (int8_t*)&rs1;
+    int8_t *rs2_p = (int8_t*)&rs2;
+    int16_t *rd_p = (int16_t*)&rd;
+    int16_t v1 = 0;
+    int16_t v2 = 0;
+
+    for(int i=0; i < 4; i++){
+        v1 = (int16_t)rs1_p[i];
+        v2 = (int16_t)rs2_p[i];
+        rd_p[i] = v1 + v2;
+    }
+
+    return (uint64_t)rd;
+}
+
+uint64_t HELPER(pwadda_b)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t rd)
+{
+    int64_t rd = 0;
+    int8_t *rs1_p = (int8_t*)&rs1;
+    int8_t *rs2_p = (int8_t*)&rs2;
+    int16_t *rd_p = (int16_t*)&rd;
+    int16_t v1 = 0;
+    int16_t v2 = 0;
+
+    for(int i=0; i < 4; i++){
+        v1 = (int16_t)rs1_p[i];
+        v2 = (int16_t)rs2_p[i];
+        rd_p[i] = rd_p[i] + v1 + v2;
+    }
+
+    return (uint64_t)rd;
+}
+
+uint64_t HELPER(pwaddu_b)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint8_t *rs1_p = (uint8_t*)&rs1;
+    uint8_t *rs2_p = (uint8_t*)&rs2;
+    uint16_t *rd_p = (uint16_t*)&rd;
+    uint16_t v1 = 0;
+    uint16_t v2 = 0;
+
+    for(int i=0; i < 4; i++){
+        v1 = (uint16_t)rs1_p[i];
+        v2 = (uint16_t)rs2_p[i];
+        rd_p[i] = v1 + v2;
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pwaddau_b)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t rd)
+{
+    uint64_t rd = 0;
+    uint8_t *rs1_p = (uint8_t*)&rs1;
+    uint8_t *rs2_p = (uint8_t*)&rs2;
+    uint16_t *rd_p = (uint16_t*)&rd;
+    uint16_t v1 = 0;
+    uint16_t v2 = 0;
+
+    for(int i=0; i < 4; i++){
+        v1 = (uint16_t)rs1_p[i];
+        v2 = (uint16_t)rs2_p[i];
+        rd_p[i] = rd_p[i] + v1 + v2;
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pwsub_b)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    int64_t rd = 0;
+    int8_t *rs1_p = (int8_t*)&rs1;
+    int8_t *rs2_p = (int8_t*)&rs2;
+    int16_t *rd_p = (int16_t*)&rd;
+    int16_t v1 = 0;
+    int16_t v2 = 0;
+
+    for(int i=0; i < 4; i++){
+        v1 = (int16_t)rs1_p[i];
+        v2 = (int16_t)rs2_p[i];
+        rd_p[i] = v1 - v2;
+    }
+
+    return (uint64_t)rd;
+}
+
+uint64_t HELPER(pwsuba_b)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t rd)
+{
+    int64_t rd = 0;
+    int8_t *rs1_p = (int8_t*)&rs1;
+    int8_t *rs2_p = (int8_t*)&rs2;
+    int16_t *rd_p = (int16_t*)&rd;
+    int16_t v1 = 0;
+    int16_t v2 = 0;
+
+    for(int i=0; i < 4; i++){
+        v1 = (int16_t)rs1_p[i];
+        v2 = (int16_t)rs2_p[i];
+        rd_p[i] = rd_p[i] + (v1 - v2);
+    }
+
+    return (uint64_t)rd;
+}
+
+uint64_t HELPER(pwsubu_b)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint8_t *rs1_p = (uint8_t*)&rs1;
+    uint8_t *rs2_p = (uint8_t*)&rs2;
+    uint16_t *rd_p = (uint16_t*)&rd;
+    uint16_t v1 = 0;
+    uint16_t v2 = 0;
+
+    for(int i=0; i < 4; i++){
+        v1 = (uint16_t)rs1_p[i];
+        v2 = (uint16_t)rs2_p[i];
+        rd_p[i] = v1 - v2;
+    }
+
+    return (uint64_t)rd;
+}
+
+uint64_t HELPER(pwsubau_b)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint8_t *rs1_p = (uint8_t*)&rs1;
+    uint8_t *rs2_p = (uint8_t*)&rs2;
+    uint16_t *rd_p = (uint16_t*)&rd;
+    uint16_t v1 = 0;
+    uint16_t v2 = 0;
+
+    for(int i=0; i < 4; i++){
+        v1 = (uint16_t)rs1_p[i];
+        v2 = (uint16_t)rs2_p[i];
+        rd_p[i] = rd_p[i] + (v1 - v2);
+    }
+
+    return (uint64_t)rd;
+}
+
+uint64_t HELPER(pwslli_b)(CPURISCVState *env, uint64_t rs1,
+    uint64_t imm)
+{
+    uint64_t rd = 0;
+    uint8_t *rs1_p = (uint8_t *)&rs1;
+    uint16_t *rd_p = (uint16_t *)&rd;
+    uint16_t v1 = 0;
+
+    for (int i = 0; i < 4; i++) {
+        v1 = rs1_p[i];
+        rd_p[i] = v1 << imm;
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pwsll_bs)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint8_t *rs1_p = (uint8_t *)&rs1;
+    uint16_t *rd_p = (uint16_t *)&rd;
+    uint32_t v1 = 0;
+    uint8_t imm = rs2 & 0x1F; //extract rs2[4..0]
+
+    for (int i = 0; i < 4; i++) {
+        v1 = (uint32_t) rs1_p[i];
+        rd_p[i] = (uint16_t)(v1 << imm);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pwslai_b)(CPURISCVState *env, uint64_t rs1,
+    uint64_t imm)
+{
+    uint64_t rd = 0;
+    int8_t *rs1_p = (int8_t *)&rs1;
+    int16_t *rd_p = (int16_t *)&rd;
+    int16_t v1 = 0;
+
+    for (int i = 0; i < 4; i++) {
+        v1 = rs1_p[i];
+        rd_p[i] = v1 << imm;
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pwsla_bs)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    int8_t *rs1_p = (int8_t *)&rs1;
+    int16_t *rd_p = (int16_t *)&rd;
+    int32_t v1 = 0;
+    uint8_t imm = rs2 & 0x1F; //extract rs2[4..0]
+
+    for (int i = 0; i < 4; i++) {
+        v1 = (int32_t) rs1_p[i];
+        rd_p[i] = (int16_t)(v1 << imm);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pwadd_h)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    int64_t rd = 0;
+    int16_t *rs1_p = (int16_t*)&rs1;
+    int16_t *rs2_p = (int16_t*)&rs2;
+    int32_t *rd_p = (int32_t*)&rd;
+    int32_t v1 = 0;
+    int32_t v2 = 0;
+
+    for(int i=0; i < 2; i++){
+        v1 = (int32_t)rs1_p[i];
+        v2 = (int32_t)rs2_p[i];
+        rd_p[i] = v1 + v2;
+    }
+
+    return (uint64_t)rd;
+}
+
+uint64_t HELPER(pwadda_h)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t rd)
+{
+    int64_t rd = 0;
+    int16_t *rs1_p = (int16_t*)&rs1;
+    int16_t *rs2_p = (int16_t*)&rs2;
+    int32_t *rd_p = (int32_t*)&rd;
+    int32_t v1 = 0;
+    int32_t v2 = 0;
+
+    for(int i=0; i < 2; i++){
+        v1 = (int32_t)rs1_p[i];
+        v2 = (int32_t)rs2_p[i];
+        rd_p[i] = rd_p[i] + v1 + v2;
+    }
+
+    return (uint64_t)rd;
+}
+
+uint64_t HELPER(pwaddu_h)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint16_t *rs1_p = (uint16_t*)&rs1;
+    uint16_t *rs2_p = (uint16_t*)&rs2;
+    uint32_t *rd_p = (uint32_t*)&rd;
+    uint32_t v1 = 0;
+    uint32_t v2 = 0;
+
+    for(int i=0; i < 2; i++){
+        v1 = (uint32_t)rs1_p[i];
+        v2 = (uint32_t)rs2_p[i];
+        rd_p[i] = v1 + v2;
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pwaddau_h)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t rd)
+{
+    uint64_t rd = 0;
+    uint16_t *rs1_p = (uint16_t*)&rs1;
+    uint16_t *rs2_p = (uint16_t*)&rs2;
+    uint32_t *rd_p = (uint32_t*)&rd;
+    uint32_t v1 = 0;
+    uint32_t v2 = 0;
+
+    for(int i=0; i < 2; i++){
+        v1 = (uint32_t)rs1_p[i];
+        v2 = (uint32_t)rs2_p[i];
+        rd_p[i] = rd_p[i] + v1 + v2;
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pwsub_h)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    int64_t rd = 0;
+    int16_t *rs1_p = (int16_t*)&rs1;
+    int16_t *rs2_p = (int16_t*)&rs2;
+    int32_t *rd_p = (int32_t*)&rd;
+    int32_t v1 = 0;
+    int32_t v2 = 0;
+
+    for(int i=0; i < 2; i++){
+        v1 = (int32_t)rs1_p[i];
+        v2 = (int32_t)rs2_p[i];
+        rd_p[i] = v1 - v2;
+    }
+
+    return (uint64_t)rd;
+}
+
+uint64_t HELPER(pwsuba_h)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t rd)
+{
+    int64_t rd = 0;
+    int16_t *rs1_p = (int16_t*)&rs1;
+    int16_t *rs2_p = (int16_t*)&rs2;
+    int32_t *rd_p = (int32_t*)&rd;
+    int32_t v1 = 0;
+    int32_t v2 = 0;
+
+    for(int i=0; i < 2; i++){
+        v1 = (int32_t)rs1_p[i];
+        v2 = (int32_t)rs2_p[i];
+        rd_p[i] = rd_p[i] + (v1 - v2);
+    }
+
+    return (uint64_t)rd;
+}
+
+uint64_t HELPER(pwsubu_h)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint16_t *rs1_p = (uint16_t*)&rs1;
+    uint16_t *rs2_p = (uint16_t*)&rs2;
+    uint32_t *rd_p = (uint32_t*)&rd;
+    uint32_t v1 = 0;
+    uint32_t v2 = 0;
+
+    for(int i=0; i < 2; i++){
+        v1 = (uint32_t)rs1_p[i];
+        v2 = (uint32_t)rs2_p[i];
+        rd_p[i] = v1 - v2;
+    }
+
+    return (uint64_t)rd;
+}
+
+uint64_t HELPER(pwsubau_h)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t rd)
+{
+    uint64_t rd = 0;
+    uint16_t *rs1_p = (uint16_t*)&rs1;
+    uint16_t *rs2_p = (uint16_t*)&rs2;
+    uint32_t *rd_p = (uint32_t*)&rd;
+    uint32_t v1 = 0;
+    uint32_t v2 = 0;
+
+    for(int i=0; i < 4; i++){
+        v1 = (uint32_t)rs1_p[i];
+        v2 = (uint32_t)rs2_p[i];
+        rd_p[i] = rd_p[i] + (v1 - v2);
+    }
+
+    return (uint64_t)rd;
+}
+
+uint64_t HELPER(pwslli_h)(CPURISCVState *env, uint64_t rs1,
+    uint64_t imm)
+{
+    uint64_t rd = 0;
+    uint16_t *rs1_p = (uint16_t *)&rs1;
+    uint32_t *rd_p = (uint32_t *)&rd;
+    uint32_t v1 = 0;
+
+    for (int i = 0; i < 2; i++) {
+        v1 = rs1_p[i];
+        rd_p[i] = v1 << imm;
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pwsll_hs)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint16_t *rs1_p = (uint16_t *)&rs1;
+    uint32_t *rd_p = (uint32_t *)&rd;
+    uint64_t v1 = 0;
+    uint8_t imm = rs2 & 0x1F; //extract rs2[4..0]
+
+    for (int i = 0; i < 2; i++) {
+        v1 = (uint64_t) rs1_p[i];
+        rd_p[i] = (uint32_t)(v1 << imm);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pwslai_h)(CPURISCVState *env, uint64_t rs1,
+    uint64_t imm)
+{
+    uint64_t rd = 0;
+    int16_t *rs1_p = (int16_t *)&rs1;
+    int32_t *rd_p = (int32_t *)&rd;
+    int32_t v1 = 0;
+
+    for (int i = 0; i < 2; i++) {
+        v1 = rs1_p[i];
+        rd_p[i] = v1 << imm;
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pwsla_hs)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    int16_t *rs1_p = (int16_t *)&rs1;
+    int32_t *rd_p = (int32_t *)&rd;
+    int64_t v1 = 0;
+    uint8_t imm = rs2 & 0x1F; //extract rs2[4..0]
+
+    for (int i = 0; i < 2; i++) {
+        v1 = (int64_t) rs1_p[i];
+        rd_p[i] = (int32_t)(v1 << imm);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(wadd)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    return (uint64_t)((int64_t)rs1 + (int64_t)rs2);
+}
+
+uint64_t HELPER(wadda)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t rd)
+{
+    return (uint64_t)((int64_t)rd+(int64_t)rs1 + (int64_t)rs2);
+}
+
+uint64_t HELPER(waddu)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    return (uint64_t)rs1 + (uint64_t)rs2;
+}
+
+uint64_t HELPER(waddau)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t rd)
+{
+    return rd + rs1 + rs2;
+}
+
+uint64_t HELPER(wsub)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    return (uint64_t)((int64_t)rs1 - (int64_t)rs2);
+}
+
+uint64_t HELPER(wsuba)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    return (uint64_t)( (int64_t)rd + (int64_t)rs1 - (int64_t)rs2 );
+}
+
+uint64_t HELPER(wsubu)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    return (uint64_t)rs1 - (uint64_t)rs2;
+}
+
+uint64_t HELPER(wsubau)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    return rd + rs1 - rs2;
+}
+
+uint64_t HELPER(wslli)(CPURISCVState *env, uint64_t rs1,
+    uint64_t imm)
+{
+    return rs1 << imm;
+}
+
+uint64_t HELPER(wsll)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint8_t imm = rs2 & 0x3F; //extract rs2[5..0]
+    return rs1 << imm;
+}
+
+uint64_t HELPER(wslai)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    return (int64_t)rs1 << imm;
+}
+
+uint64_t HELPER(wsla)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint8_t imm = rs2 & 0x3F; //extract rs2[5..0]
+    return (int64_t)rs1 << imm;
+}
+
+uint64_t HELPER(wzip8p)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = 0;
+    uint64_t t2 = 0;
+    
+    for(int i = 0; i < 4; i++){
+        t1 = extract64(rs1, 8*(3-i), 8);
+        t2 = extract64(rs2, 8*(3-i), 8);
+        rd = (rd <<16) | (t2 << 8) | (t1 & 0xFF);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(wzip16p)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2)
+{
+    uint64_t rd = 0;
+    uint64_t t1 = 0;
+    uint64_t t2 = 0;
+    
+    for(int i = 0; i < 2; i++){
+        t1 = extract64(rs1, 16*(1-i), 16);
+        t2 = extract64(rs2, 16*(1-i), 16);
+        rd = (rd <<32) | (t2 << 16) | (t1 & 0xFFFF);
+    }
+
+    return rd;
+}
