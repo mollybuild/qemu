@@ -3113,7 +3113,6 @@ uint64_t HELPER(pwadd_b)(CPURISCVState *env, uint64_t rs1,
 uint64_t HELPER(pwadda_b)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t rd)
 {
-    int64_t rd = 0;
     int8_t *rs1_p = (int8_t*)&rs1;
     int8_t *rs2_p = (int8_t*)&rs2;
     int16_t *rd_p = (int16_t*)&rd;
@@ -3151,7 +3150,6 @@ uint64_t HELPER(pwaddu_b)(CPURISCVState *env, uint64_t rs1,
 uint64_t HELPER(pwaddau_b)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t rd)
 {
-    uint64_t rd = 0;
     uint8_t *rs1_p = (uint8_t*)&rs1;
     uint8_t *rs2_p = (uint8_t*)&rs2;
     uint16_t *rd_p = (uint16_t*)&rd;
@@ -3189,7 +3187,6 @@ uint64_t HELPER(pwsub_b)(CPURISCVState *env, uint64_t rs1,
 uint64_t HELPER(pwsuba_b)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t rd)
 {
-    int64_t rd = 0;
     int8_t *rs1_p = (int8_t*)&rs1;
     int8_t *rs2_p = (int8_t*)&rs2;
     int16_t *rd_p = (int16_t*)&rd;
@@ -3225,9 +3222,8 @@ uint64_t HELPER(pwsubu_b)(CPURISCVState *env, uint64_t rs1,
 }
 
 uint64_t HELPER(pwsubau_b)(CPURISCVState *env, uint64_t rs1,
-    uint64_t rs2)
+    uint64_t rs2, uint64_t rd)
 {
-    uint64_t rd = 0;
     uint8_t *rs1_p = (uint8_t*)&rs1;
     uint8_t *rs2_p = (uint8_t*)&rs2;
     uint16_t *rd_p = (uint16_t*)&rd;
@@ -3331,7 +3327,6 @@ uint64_t HELPER(pwadd_h)(CPURISCVState *env, uint64_t rs1,
 uint64_t HELPER(pwadda_h)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t rd)
 {
-    int64_t rd = 0;
     int16_t *rs1_p = (int16_t*)&rs1;
     int16_t *rs2_p = (int16_t*)&rs2;
     int32_t *rd_p = (int32_t*)&rd;
@@ -3369,7 +3364,6 @@ uint64_t HELPER(pwaddu_h)(CPURISCVState *env, uint64_t rs1,
 uint64_t HELPER(pwaddau_h)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t rd)
 {
-    uint64_t rd = 0;
     uint16_t *rs1_p = (uint16_t*)&rs1;
     uint16_t *rs2_p = (uint16_t*)&rs2;
     uint32_t *rd_p = (uint32_t*)&rd;
@@ -3407,7 +3401,6 @@ uint64_t HELPER(pwsub_h)(CPURISCVState *env, uint64_t rs1,
 uint64_t HELPER(pwsuba_h)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t rd)
 {
-    int64_t rd = 0;
     int16_t *rs1_p = (int16_t*)&rs1;
     int16_t *rs2_p = (int16_t*)&rs2;
     int32_t *rd_p = (int32_t*)&rd;
@@ -3445,7 +3438,6 @@ uint64_t HELPER(pwsubu_h)(CPURISCVState *env, uint64_t rs1,
 uint64_t HELPER(pwsubau_h)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t rd)
 {
-    uint64_t rd = 0;
     uint16_t *rs1_p = (uint16_t*)&rs1;
     uint16_t *rs2_p = (uint16_t*)&rs2;
     uint32_t *rd_p = (uint32_t*)&rd;
@@ -3558,7 +3550,7 @@ uint64_t HELPER(wsub)(CPURISCVState *env, uint64_t rs1,
 }
 
 uint64_t HELPER(wsuba)(CPURISCVState *env, uint64_t rs1,
-    uint64_t rs2)
+    uint64_t rs2, uint64_t rd)
 {
     return (uint64_t)( (int64_t)rd + (int64_t)rs1 - (int64_t)rs2 );
 }
@@ -3570,7 +3562,7 @@ uint64_t HELPER(wsubu)(CPURISCVState *env, uint64_t rs1,
 }
 
 uint64_t HELPER(wsubau)(CPURISCVState *env, uint64_t rs1,
-    uint64_t rs2)
+    uint64_t rs2, uint64_t rd)
 {
     return rd + rs1 - rs2;
 }
@@ -3589,7 +3581,7 @@ uint64_t HELPER(wsll)(CPURISCVState *env, uint64_t rs1,
 }
 
 uint64_t HELPER(wslai)(CPURISCVState *env, uint64_t rs1,
-    uint64_t rs2)
+    uint64_t imm)
 {
     return (int64_t)rs1 << imm;
 }
