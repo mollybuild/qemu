@@ -629,8 +629,6 @@ GEN_SIMD_TRANS_DX_P(pasa, d, hx)
 GEN_SIMD_TRANS_DX_P(pdif, d, h)
 GEN_SIMD_TRANS_DX_P(pdifu, d, h)
 GEN_SIMD_TRANS_DX_R1_P(psabs, d, h)
-//GEN_SIMD_TRANS_DW_P(add)
-//GEN_SIMD_TRANS_DW_P(sub)
 GEN_SIMD_TRANS_DW_P(sadd)
 GEN_SIMD_TRANS_DW_P(saddu)
 GEN_SIMD_TRANS_DW_P(ssub)
@@ -639,8 +637,66 @@ GEN_SIMD_TRANS_DW_P(aadd)
 GEN_SIMD_TRANS_DW_P(aaddu)
 GEN_SIMD_TRANS_DW_P(asub)
 GEN_SIMD_TRANS_DW_P(asubu)
-//GEN_SIMD_TRANS_DW_P(sh1add)
 GEN_SIMD_TRANS_DW_P(ssh1sadd)
+
+static bool trans_padd_dw(DisasContext *ctx, arg_padd_dw * a)
+{
+    REQUIRE_32BIT(ctx);
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);
+    TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);
+    TCGv src2_1 = get_gpr(ctx, (a->rs2)*2+1, EXT_NONE);
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);
+    tcg_gen_add_tl(dest_0, src1_0, src2_0);
+    tcg_gen_add_tl(dest_1, src1_1, src2_1);
+    gen_set_gpr(ctx, (a->rd)*2, dest_0);
+    gen_set_gpr(ctx, (a->rd)*2+1, dest_1);
+    return true;
+}
+
+static bool trans_psub_dw(DisasContext *ctx, arg_psub_dw * a)
+{
+    REQUIRE_32BIT(ctx);
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);
+    TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);
+    TCGv src2_1 = get_gpr(ctx, (a->rs2)*2+1, EXT_NONE);
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);
+    tcg_gen_sub_tl(dest_0, src1_0, src2_0);
+    tcg_gen_sub_tl(dest_1, src1_1, src2_1);
+    gen_set_gpr(ctx, (a->rd)*2, dest_0);
+    gen_set_gpr(ctx, (a->rd)*2+1, dest_1);
+    return true;
+}
+
+#define GEN_SHADD(SHAMT)                                       \
+static void gen_sh##SHAMT##add(TCGv ret, TCGv arg1, TCGv arg2) \
+{                                                              \
+    TCGv t = tcg_temp_new();                                   \
+                                                               \
+    tcg_gen_shli_tl(t, arg1, SHAMT);                           \
+    tcg_gen_add_tl(ret, t, arg2);                              \
+}
+
+GEN_SHADD(1)
+
+static bool trans_psh1add_dw(DisasContext *ctx, arg_psh1add_dw * a)
+{
+    REQUIRE_32BIT(ctx);
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);
+    TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);
+    TCGv src2_1 = get_gpr(ctx, (a->rs2)*2+1, EXT_NONE);
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);
+    gen_sh1add(dest_0, src1_0, src2_0);
+    gen_sh1add(dest_0, src1_0, src2_0);
+    gen_set_gpr(ctx, (a->rd)*2, dest_0);
+    gen_set_gpr(ctx, (a->rd)*2+1, dest_1);
+    return true;
+}
 
 /* wzip8p and wzip16p need to verify rd is not zero register in trans functions */
 static bool trans_wzip8p(DisasContext *ctx, arg_wzip8p * a)
