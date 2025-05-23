@@ -291,55 +291,55 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 #endif
 
 #if defined(TARGET_RISCV32)
-#define GEN_SIMD_TRANS_DX_P(NAME1, NAME2, NAME3)                                            \
-static bool trans_##NAME1_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1_##NAME2##NAME3 * a) \
-{                                                                                           \
-    REQUIRE_32BIT(ctx);                                                                     \
-    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                       \
-    TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);                                       \
-    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                 \
-    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                     \
-    TCGv src2_1 = get_gpr(ctx, (a->rs2)*2+1, EXT_NONE);                                     \
-    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                               \
-    gen_helper_##NAME1_##NAME3(dest_0, tcg_env, src1_0, src2_0);                            \
-    gen_helper_##NAME1_##NAME3(dest_1, tcg_env, src1_1, src2_1);                            \
-    return true;                                                                            \
+#define GEN_SIMD_TRANS_DX_P(NAME1, NAME2, NAME3)                                                \
+static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
+{                                                                                               \
+    REQUIRE_32BIT(ctx);                                                                         \
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                           \
+    TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);                                           \
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                     \
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                         \
+    TCGv src2_1 = get_gpr(ctx, (a->rs2)*2+1, EXT_NONE);                                         \
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                                   \
+    gen_helper_##NAME1##_##NAME3(dest_0, tcg_env, src1_0, src2_0);                                \
+    gen_helper_##NAME1##_##NAME3(dest_1, tcg_env, src1_1, src2_1);                                \
+    return true;                                                                                \
 }
 #else
-#define GEN_SIMD_TRANS_DX_P(NAME1, NAME2, NAME3)                                            \
-static bool trans_##NAME1_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1_##NAME2##NAME3 * a) \
-{                                                                                           \
-    REQUIRE_32BIT(ctx);                                                                     \
-    return true;                                                                            \
+#define GEN_SIMD_TRANS_DX_P(NAME1, NAME2, NAME3)                                                \
+static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
+{                                                                                               \
+    REQUIRE_32BIT(ctx);                                                                         \
+    return true;                                                                                \
 }
 #endif
 
 #if defined(TARGET_RISCV32)
-#define GEN_SIMD_TRANS_DX_R1_P(NAME1, NAME2, NAME3)                                         \
-static bool trans_##NAME1_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1_##NAME2##NAME3 * a) \
-{                                                                                           \
-    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                       \
-    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                 \
-    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                     \
-    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                               \
-    gen_helper_##NAME1_##NAME3(dest_0, tcg_env, src1_0);                                    \
-    gen_set_gpr(ctx, (a->rd)*2, dest_0);                                                    \
-    gen_helper_##NAME1_##NAME3(dest_1, tcg_env, src1_1);                                    \
-    gen_set_gpr(ctx, (a->rd)*2+1, dest_1);                                                  \
-    return true;                                                                            \
+#define GEN_SIMD_TRANS_DX_R1_P(NAME1, NAME2, NAME3)                                             \
+static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
+{                                                                                               \
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                           \
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                     \
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                         \
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                                   \
+    gen_helper_##NAME1##_##NAME3(dest_0, tcg_env, src1_0);                                      \
+    gen_set_gpr(ctx, (a->rd)*2, dest_0);                                                        \
+    gen_helper_##NAME1##_##NAME3(dest_1, tcg_env, src1_1);                                      \
+    gen_set_gpr(ctx, (a->rd)*2+1, dest_1);                                                      \
+    return true;                                                                                \
 }
 #else
-#define GEN_SIMD_TRANS_DX_R1_P(NAME1, NAME2, NAME3)                                         \
-static bool trans_##NAME1_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1_##NAME2##NAME3 * a) \
-{                                                                                           \
-    REQUIRE_32BIT(ctx);                                                                     \
-    return true;                                                                            \
+#define GEN_SIMD_TRANS_DX_R1_P(NAME1, NAME2, NAME3)                                             \
+static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
+{                                                                                               \
+    REQUIRE_32BIT(ctx);                                                                         \
+    return true;                                                                                \
 }
 #endif
 
 #if defined(TARGET_RISCV32)
 #define GEN_SIMD_TRANS_DW_P(NAME)                                                           \
-static bool trans_p##NAME_dw(DisasContext *ctx, arg_p##NAME_dw * a)                         \
+static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)                     \
 {                                                                                           \
     REQUIRE_32BIT(ctx);                                                                     \
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                       \
@@ -354,7 +354,7 @@ static bool trans_p##NAME_dw(DisasContext *ctx, arg_p##NAME_dw * a)             
 }
 #else
 #define GEN_SIMD_TRANS_DW_P(NAME)                                                           \
-static bool trans_p##NAME_dw(DisasContext *ctx, arg_p##NAME_dw * a)                         \
+static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)                     \
 {                                                                                           \
     REQUIRE_32BIT(ctx);                                                                     \
     return true;                                                                            \
@@ -600,6 +600,7 @@ GEN_SIMD_TRANS_DX_P(psub, d, b)
 GEN_SIMD_TRANS_DX_P(psadd, d, b)
 GEN_SIMD_TRANS_DX_P(psaddu, d, b)
 GEN_SIMD_TRANS_DX_P(pssub, d, b)
+GEN_SIMD_TRANS_DX_P(pssubu, d, b)
 GEN_SIMD_TRANS_DX_P(paadd, d, b)
 GEN_SIMD_TRANS_DX_P(paaddu, d, b)
 GEN_SIMD_TRANS_DX_P(pasub, d, b)
@@ -628,8 +629,8 @@ GEN_SIMD_TRANS_DX_P(pasa, d, hx)
 GEN_SIMD_TRANS_DX_P(pdif, d, h)
 GEN_SIMD_TRANS_DX_P(pdifu, d, h)
 GEN_SIMD_TRANS_DX_R1_P(psabs, d, h)
-GEN_SIMD_TRANS_DW_P(add)
-GEN_SIMD_TRANS_DW_P(sub)
+//GEN_SIMD_TRANS_DW_P(add)
+//GEN_SIMD_TRANS_DW_P(sub)
 GEN_SIMD_TRANS_DW_P(sadd)
 GEN_SIMD_TRANS_DW_P(saddu)
 GEN_SIMD_TRANS_DW_P(ssub)
@@ -638,7 +639,7 @@ GEN_SIMD_TRANS_DW_P(aadd)
 GEN_SIMD_TRANS_DW_P(aaddu)
 GEN_SIMD_TRANS_DW_P(asub)
 GEN_SIMD_TRANS_DW_P(asubu)
-GEN_SIMD_TRANS_DW_P(sh1add)
+//GEN_SIMD_TRANS_DW_P(sh1add)
 GEN_SIMD_TRANS_DW_P(ssh1sadd)
 
 /* wzip8p and wzip16p need to verify rd is not zero register in trans functions */
@@ -783,7 +784,7 @@ static bool trans_plui_dh(DisasContext *ctx, arg_plui_dh *a)
     return true;
 }
 
-static bool trans_addd(DisasContext *ctx, arg_addd * a)
+static bool trans_addd_p(DisasContext *ctx, arg_addd_p * a)
 {
     REQUIRE_32BIT(ctx);
     TCGv_i64 src1 = tcg_temp_new_i64();
@@ -799,7 +800,7 @@ static bool trans_addd(DisasContext *ctx, arg_addd * a)
     return true; 
 }
 
-static bool trans_subd(DisasContext *ctx, arg_subd * a)
+static bool trans_subd_p(DisasContext *ctx, arg_subd_p * a)
 {
     REQUIRE_32BIT(ctx);
     TCGv_i64 src1 = tcg_temp_new_i64();
