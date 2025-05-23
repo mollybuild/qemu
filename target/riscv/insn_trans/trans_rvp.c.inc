@@ -671,17 +671,6 @@ static bool trans_psub_dw(DisasContext *ctx, arg_psub_dw * a)
     return true;
 }
 
-#define GEN_SHADD(SHAMT)                                       \
-static void gen_sh##SHAMT##add(TCGv ret, TCGv arg1, TCGv arg2) \
-{                                                              \
-    TCGv t = tcg_temp_new();                                   \
-                                                               \
-    tcg_gen_shli_tl(t, arg1, SHAMT);                           \
-    tcg_gen_add_tl(ret, t, arg2);                              \
-}
-
-GEN_SHADD(1)
-
 static bool trans_psh1add_dw(DisasContext *ctx, arg_psh1add_dw * a)
 {
     REQUIRE_32BIT(ctx);
@@ -692,7 +681,7 @@ static bool trans_psh1add_dw(DisasContext *ctx, arg_psh1add_dw * a)
     TCGv src2_1 = get_gpr(ctx, (a->rs2)*2+1, EXT_NONE);
     TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);
     gen_sh1add(dest_0, src1_0, src2_0);
-    gen_sh1add(dest_0, src1_0, src2_0);
+    gen_sh1add(dest_1, src1_1, src2_1);
     gen_set_gpr(ctx, (a->rd)*2, dest_0);
     gen_set_gpr(ctx, (a->rd)*2+1, dest_1);
     return true;
