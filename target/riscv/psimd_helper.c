@@ -3623,3 +3623,87 @@ uint64_t HELPER(wzip16p)(CPURISCVState *env, uint64_t rs1,
 
     return rd;
 }
+
+uint32_t HELPER(predsum_dbs)(CPURISCVState *env, uint32_t rs1_l,
+    uint32_t rs1_h, uint32_t rs2)
+{
+    int32_t rd = rs2;
+    int8_t *rs1_p = (int8_t *)&rs1_l;
+    int32_t v1 = 0;
+
+    for (int i = 0; i < 4; i++) {
+        v1 = rs1_p[i];
+        rd += v1;
+    }
+
+    rs1_p = (int8_t *)&rs1_h;
+
+    for (int i = 0; i < 4; i++) {
+        v1 = rs1_p[i];
+        rd += v1;
+    }
+    return (uint32_t)rd;
+}
+
+uint32_t HELPER(predsumu_dbs)(CPURISCVState *env, uint32_t rs1_l,
+    uint32_t rs1_h, uint32_t rs2)
+{
+    uint32_t rd = rs2;
+    uint8_t *rs1_p = (uint8_t *)&rs1_l;
+    uint32_t v1 = 0;
+
+    for (int i = 0; i < 4; i++) {
+        v1 = rs1_p[i];
+        rd += v1;
+    }
+
+    rs1_p = (uint8_t *)&rs1_h;
+
+    for (int i = 0; i < 4; i++) {
+        v1 = rs1_p[i];
+        rd += v1;
+    }
+    return rd;
+}
+
+uint32_t HELPER(predsum_dhs)(CPURISCVState *env, uint32_t rs1_l,
+    uint32_t rs1_h, uint32_t rs2)
+{
+    int32_t rd = rs2;
+    int16_t *rs1_p = (int16_t *)&rs1_l;
+    int16_t v1 = 0;
+
+    for (int i = 0; i < 2; i++) {
+        v1 = rs1_p[i];
+        rd += v1;
+    }
+
+    rs1_p = (int16_t *)&rs1_h;
+
+    for (int i = 0; i < 2; i++) {
+        v1 = rs1_p[i];
+        rd += v1;
+    }
+    return (uint32_t)rd;
+}
+
+uint32_t HELPER(predsumu_dbs)(CPURISCVState *env, uint32_t rs1_l,
+    uint32_t rs1_h, uint32_t rs2)
+{
+    uint32_t rd = rs2;
+    uint16_t *rs1_p = (uint16_t *)&rs1_l;
+    uint32_t v1 = 0;
+
+    for (int i = 0; i < 2; i++) {
+        v1 = rs1_p[i];
+        rd += v1;
+    }
+
+    rs1_p = (uint16_t *)&rs1_h;
+
+    for (int i = 0; i < 2; i++) {
+        v1 = rs1_p[i];
+        rd += v1;
+    }
+    return rd;
+}
