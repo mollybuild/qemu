@@ -1529,3 +1529,8 @@ DEF_HELPER_3(wsla, i64, env, i64, i64)
 
 DEF_HELPER_3(wzip8p, i64, env, i64, i64)
 DEF_HELPER_3(wzip16p, i64, env, i64, i64)
+
+DEF_HELPER_4(predsum_dbs, i32, env, i32, i32, i32)
+DEF_HELPER_4(predsumu_dbs, i32, env, i32, i32, i32)
+DEF_HELPER_4(predsum_dhs, i32, env, i32, i32, i32)
+DEF_HELPER_4(predsumu_dhs, i32, env, i32, i32, i32)
