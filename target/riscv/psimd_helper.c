@@ -3707,3 +3707,100 @@ uint32_t HELPER(predsumu_dbs)(CPURISCVState *env, uint32_t rs1_l,
     }
     return rd;
 }
+
+uint32_t HELPER(pnsrli_b)(CPURISCVState *env, uint64_t s1,
+    uint32_t shamt)
+{
+    uint32_t rd = 0;
+
+    for (int i = 0; i < 4; i++) {
+        uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+        uint8_t result = (s1_h >> (shamt & 0xF)) & 0xFF;
+        rd |= ((uint32_t)result) << (i * 8);
+    }
+
+    return rd;
+}
+
+uint32_t HELPER(pnsrai_b)(CPURISCVState *env, uint64_t s1,
+    uint32_t shamt)
+{
+    uint32_t rd = 0;
+
+    for (int i = 0; i < 4; i++) {
+        uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+        int32_t s1_h_s32 = (int16_t)s1_h;
+        int32_t s1_h_s24 = (s1_h_s32 << 8) >> 8;
+        uint8_t result = s1_h_s24 >> (shamt & 0xF) & 0xFF;
+        rd |= ((uint32_t)result) << (i * 8);
+    }
+
+    return rd;
+}
+
+uint32_t HELPER(pnsrari_b)(CPURISCVState *env, uint64_t s1,
+    uint32_t shamt)
+{
+     uint32_t rd = 0;
+
+    for (int i = 0; i < 4; i++) {
+        uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+        int32_t s1_h_s32 = (int16_t)s1_h;
+        int32_t s1_h_s24 = (s1_h_s32 << 8) >> 8;
+        uint32_t shx_25bit = ((uint32_t)s1_h_s24 << 1);
+        uint32_t shx = (shx_25bit >> (shamt & 0x1F)) & 0x1FF;
+        uint8_t result = ((shx + 1) >> 1) & 0xFF;
+        rd |= ((uint32_t)result) << (i * 8);
+    }
+
+    return rd;
+}
+
+uint32_t HELPER(pnsrl_bs)(CPURISCVState *env, uint64_t s1,
+    uint32_t shamt)
+{
+    uint32_t rd = 0;
+
+    for (int i = 0; i < 4; i++) {
+        uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+        uint32_t s1_h_z32 = (uint32_t)s1_h;
+        uint8_t result = (s1_h_z32 >> (shamt & 0x1F)) & 0xFF;
+        rd |= ((uint32_t)result) << (i * 8);
+    }
+
+    return rd;
+}
+
+unit32_t HELPER(pnsra_bs)(CPURISCVState *env, uint64_t s1,
+    uint32_t shamt)
+{
+    uint32_t rd = 0;
+
+    for (int i = 0; i < 4; i++) {
+        uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+        int64_t s1_h_s64 = (int16_t)s1_h;
+        s1_h_s64 = (s1_h_s64 << 24) >> 24;
+        uint8_t result = s1_h_s64 >> (shamt & 0x1F) & 0xFF;
+        rd |= ((uint32_t)result) << (i * 8);
+    }
+
+    return rd;
+}
+
+uint32_t HELPER(pnsrar_bs)(CPURISCVState *env, uint64_t s1,
+    uint32_t shamt)
+{
+    uint32_t rd = 0;
+
+    for (int i = 0; i < 4; i++) {
+        uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+        int64_t s1_h_s64 = (int16_t)s1_h;
+        int64_t s1_h_s40 = (s1_h_s64 << 24) >> 24;
+        uint64_t shx_41bit = ((uint64_t)s1_h_s40 << 1);
+        uint64_t shx = (shx_41bit >> (shamt & 0x1F)) & 0x1FF;
+        uint8_t result = ((shx + 1) >> 1) & 0xFF;
+        rd |= ((uint32_t)result) << (i * 8);
+    }
+
+    return rd;
+}
