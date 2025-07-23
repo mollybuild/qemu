@@ -1031,3 +1031,63 @@ GEN_SIMD_TRANS_PREDSUM_DX_P(predsum_dbs)
 GEN_SIMD_TRANS_PREDSUM_DX_P(predsumu_dbs)
 GEN_SIMD_TRANS_PREDSUM_DX_P(predsum_dhs)
 GEN_SIMD_TRANS_PREDSUM_DX_P(predsumu_dhs)
+
+#if defined(TARGET_RISCV32)
+#define GEN_SIMD_TRANS_PN_OP_IMM(NAME)                     \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a) \
+{                                                          \
+    REQUIRE_32BIT(ctx);                                    \
+    TCGv_i64 s1 = tcg_temp_new_i64();                      \
+    if (a->rs1 == 0) {                                     \
+        tcg_gen_mov_i64(s1, 0);                            \
+    } else {                                               \
+        get_pair_regs(ctx, s1, a->rs1 * 2);                \
+    }                                                      \
+    TCGv_i32 shamt = tcg_const_i32(a->imm);                \
+    TCGv_i32 dest = dest_gpr(ctx, a->rd);                  \
+    gen_helper_##NAME(dest, tcg_env, s1, shamt);           \
+    return true;                                           \
+}
+#else
+#define GEN_SIMD_TRANS_PN_OP_IMM(NAME)                     \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a) \
+{                                                          \
+    REQUIRE_32BIT(ctx);                                    \
+    return true;                                           \
+}
+#endif
+
+GEN_SIMD_TRANS_PN_OP_IMM(pnsrli_b)
+GEN_SIMD_TRANS_PN_OP_IMM(pnsrai_b)
+GEN_SIMD_TRANS_PN_OP_IMM(pnsrari_b)
+
+#if defined(TARGET_RISCV32)
+#define GEN_SIMD_TRANS_PN_OP_REG(NAME)                     \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a) \
+{                                                          \
+    REQUIRE_32BIT(ctx);                                    \
+    TCGv_i64 s1 = tcg_temp_new_i64();                      \
+    if (a->rs1 == 0) {                                     \
+        tcg_gen_mov_i64(s1, 0);                            \
+    } else {                                               \
+        get_pair_regs(ctx, s1, a->rs1 * 2);                \
+    }                                                      \
+    TCGv_i32 shamt = tcg_temp_new_i32();                   \
+    TCGv_i32 rs2 = get_gpr(ctx, a->rs2, EXT_NONE);         \
+    tcg_gen_andi_i32(shamt, rs2, 0x1F);                    \
+    TCGv_i32 dest = dest_gpr(ctx, a->rd);                  \
+    gen_helper_##NAME(dest, tcg_env, s1, shamt);           \
+    return true;                                           \
+}
+#else
+#define GEN_SIMD_TRANS_PN_OP_REG(NAME)                     \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a) \
+{                                                          \
+    REQUIRE_32BIT(ctx);                                    \
+    return true;                                           \
+}
+#endif
+
+GEN_SIMD_TRANS_PN_OP_REG(pnsrl_bs)
+GEN_SIMD_TRANS_PN_OP_REG(pnsra_bs)
+GEN_SIMD_TRANS_PN_OP_REG(pnsrar_bs)
