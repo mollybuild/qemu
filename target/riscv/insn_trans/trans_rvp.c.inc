@@ -1061,6 +1061,10 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a) \
 GEN_SIMD_TRANS_PN_OP_IMM(pnsrli_b)
 GEN_SIMD_TRANS_PN_OP_IMM(pnsrai_b)
 GEN_SIMD_TRANS_PN_OP_IMM(pnsrari_b)
+GEN_SIMD_TRANS_PN_OP_IMM(pnclipi_b)
+GEN_SIMD_TRANS_PN_OP_IMM(pnclipri_b)
+GEN_SIMD_TRANS_PN_OP_IMM(pnclipiu_b)
+GEN_SIMD_TRANS_PN_OP_IMM(pnclipriu_b)
 
 #if defined(TARGET_RISCV32)
 #define GEN_SIMD_TRANS_PN_OP_REG(NAME)                     \
@@ -1092,3 +1096,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a) \
 GEN_SIMD_TRANS_PN_OP_REG(pnsrl_bs)
 GEN_SIMD_TRANS_PN_OP_REG(pnsra_bs)
 GEN_SIMD_TRANS_PN_OP_REG(pnsrar_bs)
+GEN_SIMD_TRANS_PN_OP_REG(pnclip_bs)
+GEN_SIMD_TRANS_PN_OP_REG(pnclipr_bs)
+GEN_SIMD_TRANS_PN_OP_REG(pnclipu_bs)
+GEN_SIMD_TRANS_PN_OP_REG(pnclipru_bs)

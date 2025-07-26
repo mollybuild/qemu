@@ -3748,12 +3748,107 @@ uint32_t HELPER(pnsrari_b)(CPURISCVState *env, uint64_t s1,
         int32_t s1_h_s32 = (int16_t)s1_h;
         int32_t s1_h_s24 = (s1_h_s32 << 8) >> 8;
         uint32_t shx_25bit = ((uint32_t)s1_h_s24 << 1);
-        uint32_t shx = (shx_25bit >> (shamt & 0x1F)) & 0x1FF;
+        uint32_t shx = (shx_25bit >> (shamt & 0xF)) & 0x1FF;
         uint8_t result = ((shx + 1) >> 1) & 0xFF;
         rd |= ((uint32_t)result) << (i * 8);
     }
 
     return rd;
+}
+
+uint32_t HELPER(pnclipi_b)(CPURISCVState *env, uint64_t s1,
+	uint32_t shamt)
+{
+	uint32_t rd = 0;
+
+	for (int i = 0; i < 4; i++) {
+		uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+		int32_t s1_h_s32 = (int16_t)s1_h;
+		int16_t shx = (s1_h_s32 >> (shamt & 0xF)) & 0xFFFF;
+        uint8_t result = 0;
+        if (shx < -128) {
+            env->vxsat = 1;
+            result = 0x80; // -128
+        } else if (shx > 127) {
+            env->vxsat = 1;
+            result = 0x7F; // 127
+        } else {
+            result = (uint8_t)shx;
+        }
+        rd |= ((uint32_t)result << (i * 8));
+    }
+
+    return rd;
+}
+
+uint32_t HELPER(pnclipri_b)(CPURISCVState *env, uint64_t s1,
+	uint32_t shamt)
+{
+	uint32_t rd = 0;
+	for (int i = 0; i < 4; i++) {
+		uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+		int32_t s1_h_s32 = (int16_t)s1_h;
+        uint32_t shx_33bit = ((uint32_t)s1_h_s32 << 1);
+        uint32_t shx = (shx_33bit >> (shamt & 0xF)) & 0x1FFFF;
+		uint16_t round_shx = (uint16_t)((shx + 1) >> 1);
+		int16_t round_shx_s = (int16_t)round_shx;
+		uint8_t result = 0;
+		if (round_shx_s < -128) {
+            env->vxsat = 1;
+            result = 0x80; // -128
+        } else if (round_shx_s > 127) {
+            env->vxsat = 1;
+            result = 0x7F; // 127
+        } else {
+            result = (uint8_t)round_shx;
+        }
+
+        rd |= ((uint32_t)result) << (i * 8);
+	}
+
+	return rd;
+}
+
+uint32_t HELPER(pnclipiu_b)(CPURISCVState *env, uint64_t s1,
+	uint32_t shamt)
+{
+	uint32_t rd = 0;
+	for (int i = 0; i < 4; i++) {
+		uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+		uint16_t shx = s1_h >> (shamt & 0xF);
+		uint8_t result = 0;
+		if (shx > 0x00FF) {
+			env->vxsat = 1;
+			result = 0xFF;
+		}else{
+			result = (uint8_t)(shx & 0xFF);
+		}
+		rd |= ((uint32_t)result) << (i * 8);
+	}
+
+	return rd;
+}
+
+uint32_t HELPER(pnclipriu_b)(CPURISCVState *env, uint64_t s1,
+	uint32_t shamt)
+{
+	uint32_t rd = 0;
+	for (int i = 0; i < 4; i++) {
+		uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+		uint32_t shx_17bit = ((uint32_t)s1_h << 1);
+		uint32_t shx = shx_17bit >> (shamt & 0xF);
+		uint16_t round_shx = (uint16_t)((shx + 1) >> 1);
+		uint8_t result = 0;
+		if (round_shx > 0x00FF) {
+			env->vxsat = 1;
+			result = 0xFF;
+		}else{
+			result = (uint8_t)(shx & 0xFF);
+		}
+		rd |= ((uint32_t)result) << (i * 8);
+	}
+
+	return rd;
 }
 
 uint32_t HELPER(pnsrl_bs)(CPURISCVState *env, uint64_t s1,
@@ -3803,4 +3898,102 @@ uint32_t HELPER(pnsrar_bs)(CPURISCVState *env, uint64_t s1,
     }
 
     return rd;
+}
+
+uint32_t HELPER(pnclip_bs)(CPURISCVState *env, uint64_t s1,
+	uint32_t shamt)
+{
+	uint32_t rd = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+		int64_t s1_h_s64 = (int16_t)s1_h;
+		int64_t s1_h_s48 = (s1_h_s64 << 16) >> 16;
+		int16_t shx = (s1_h_s48 >> (shamt & 0x1F)) & 0xFFFF;
+		uint8_t result = 0;
+		if (shx < -128) {
+			env->vxsat = 1;
+			result = 0x80;
+		} else if (shx > 127) {
+			env->vxsat = 1;
+			result = 0x7F;
+		}else{
+			result = (uint8_t)shx;
+		}
+		rd |= ((uint32_t)result) << (i * 8);
+	}
+
+	return rd;
+}
+
+uint32_t HELPER(pnclipr_bs)(CPURISCVState *env, uint64_t s1,
+	uint32_t shamt)
+{
+	uint32_t rd = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+		int64_t s1_h_s64 = (int16_t)s1_h;
+		int64_t s1_h_s48 = (s1_h_s64 << 16) >> 16;
+		uint64_t shx_49bit = ((uint64_t)s1_h_s48 << 1);
+		uint32_t shx = (shx_49bit >> (shamt & 0x1F)) & 0x1FFFF;
+		uint16_t round_shx = (uint16_t)((shx + 1) >> 1);
+		int16_t round_shx_s = (int16_t)round_shx;
+		uint8_t result = 0;
+		if (round_shx_s < -128) {
+			env->vxsat = 1;
+			result = 0x80;
+		} else if (round_shx_s > 127) {
+			env->vxsat = 1;
+			result = 0x7F;
+		}else{
+			result = (uint8_t)round_shx;
+		}
+		rd |= ((uint32_t)result) << (i * 8);
+	}
+
+	return rd;
+}
+
+uint32_t HELPER(pnclipu_bs)(CPURISCVState *env, uint64_t s1,
+	uint32_t shamt)
+{
+	uint32_t rd = 0;
+	for (int i = 0; i < 4; i++){
+		uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+		uint32_t s1_h_z32 = (uint32_t)s1_h;
+		uint16_t shx = (s1_h_z32 >> (shamt & 0x1F)) & 0xFFFF;
+		uint8_t result = 0;
+		if (shx > 0x00FF) {
+			env->vxsat = 1;
+			result = 0xFF;
+		}else{
+			result = (uint8_t)(shx & 0xFF);
+		}
+		rd |= ((uint32_t)result) << (i * 8);
+	}
+
+	return rd;
+}
+
+uint32_t HELPER(pnclipru_bs)(CPURISCVState *env, uint64_t s1,
+	uint32_t shamt)
+{
+	uint32_t rd = 0;
+	for (int i = 0; i < 4; i++){
+		uint16_t s1_h = (s1 >> (i * 16)) & 0xFFFF;
+		uint32_t s1_h_z32 = (uint32_t)s1_h;
+		uint64_t shx_33bit = ((uint64_t)s1_h_z32 << 1);
+		uint32_t shx = (shx_33bit >> (shamt & 0x1F)) & 0x1FFFF;
+		uint16_t round_shx = (uint16_t)((shx + 1) >> 1);
+		uint8_t result = 0;
+		if (round_shx > 0x00FF) {
+			env->vxsat = 1;
+			result = 0xFF;
+		}else{
+			result = (uint8_t)(round_shx & 0xFF);
+		}
+		rd |= ((uint32_t)result) << (i * 8);
+	}
+	return rd;
 }
