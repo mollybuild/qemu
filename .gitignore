@@ -2,8 +2,6 @@
 /build/
 /.cache/
 /.vscode/
-/myenv/
-/.idea/
 *.pyc
 .sdk
 .stgit-*
