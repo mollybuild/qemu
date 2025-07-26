@@ -3687,7 +3687,7 @@ uint32_t HELPER(predsum_dhs)(CPURISCVState *env, uint32_t rs1_l,
     return (uint32_t)rd;
 }
 
-uint32_t HELPER(predsumu_dbs)(CPURISCVState *env, uint32_t rs1_l,
+uint32_t HELPER(predsumu_dhs)(CPURISCVState *env, uint32_t rs1_l,
     uint32_t rs1_h, uint32_t rs2)
 {
     uint32_t rd = rs2;
@@ -3771,7 +3771,7 @@ uint32_t HELPER(pnsrl_bs)(CPURISCVState *env, uint64_t s1,
     return rd;
 }
 
-unit32_t HELPER(pnsra_bs)(CPURISCVState *env, uint64_t s1,
+uint32_t HELPER(pnsra_bs)(CPURISCVState *env, uint64_t s1,
     uint32_t shamt)
 {
     uint32_t rd = 0;

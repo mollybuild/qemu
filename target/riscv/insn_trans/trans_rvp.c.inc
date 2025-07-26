@@ -372,8 +372,8 @@ static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NA
     TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                          \
     TCGv imm_1 = tcg_constant_tl(a->imm);                                                        \
     TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                                    \
-    gen_helper_##NAME1##_##NAME3(dest_0, tcg_env, src1_0, imm);                                  \
-    gen_helper_##NAME1##_##NAME3(dest_1, tcg_env, src1_1, imm);                                  \
+    gen_helper_##NAME1##_##NAME3(dest_0, tcg_env, src1_0, imm_0);                                \
+    gen_helper_##NAME1##_##NAME3(dest_1, tcg_env, src1_1, imm_1);                                \
     return true;                                                                                 \
 }
 #else
@@ -405,6 +405,7 @@ static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NA
     REQUIRE_32BIT(ctx);                                                                          \
     return true;                                                                                 \
 }
+#endif
 
 #if defined(TARGET_RISCV32)
 #define GEN_SIMD_TRANS_DXS_P(NAME1, NAME2, NAME3)                                                \
@@ -742,10 +743,10 @@ GEN_SIMD_TRANS_IMM_32_P(psrli, d, w)
 GEN_SIMD_TRANS_IMM_32_P(psrai, d, w)
 GEN_SIMD_TRANS_IMM_32_P(psslai, d, w)
 GEN_SIMD_TRANS_IMM_32_P(psrari, d, w)
-#pmin_dw
-#pminu_dw
-#pmax_dw
-#pmaxu_dw
+//#pmin_dw
+//#pminu_dw
+//#pmax_dw
+//#pmaxu_dw
 GEN_SIMD_TRANS_DX_P(pmseq, d, w)
 GEN_SIMD_TRANS_DX_P(pmslt, d, w)
 GEN_SIMD_TRANS_DX_P(pmsltu, d, w)
@@ -768,7 +769,7 @@ GEN_SIMD_TRANS_DXS_P(psshar, d, ws)
 
 GEN_SIMD_TRANS_DX_P(ppack, d, h)
 GEN_SIMD_TRANS_DX_P(ppackbt, d, h)
-GEN_SIMD_TRANS_DX_P(ppacktb, d, h)
+//GEN_SIMD_TRANS_DX_P(ppacktb, d, h)
 GEN_SIMD_TRANS_DX_P(ppacktb, d, h)
 GEN_SIMD_TRANS_DX_P(ppack, d, w)
 GEN_SIMD_TRANS_DX_P(ppackbt, d, w)
@@ -1014,9 +1015,9 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
     }else{                                                  \
         src1_l = get_gpr(ctx, (a->rs1)*2, EXT_NONE);        \
         src1_h = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);      \
-    }                                                       \ 
+    }                                                       \
     gen_helper_##NAME(dest, tcg_env, src1_l, src1_h, src2); \
-    return true;                                            \   
+    return true;                                            \
 }
 #else
 #define GEN_SIMD_TRANS_PREDSUM_DX_P(NAME)                   \
@@ -1043,7 +1044,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a) \
     } else {                                               \
         get_pair_regs(ctx, s1, a->rs1 * 2);                \
     }                                                      \
-    TCGv_i32 shamt = tcg_const_i32(a->imm);                \
+    TCGv shamt = tcg_constant_tl(a->imm);                  \
     TCGv_i32 dest = dest_gpr(ctx, a->rd);                  \
     gen_helper_##NAME(dest, tcg_env, s1, shamt);           \
     return true;                                           \
