@@ -4028,6 +4028,7 @@ uint32_t HELPER(pnsrai_h)(CPURISCVState *env, uint64_t s1,
     uint16_t rd_high = (s1_high_s48 >> (shamt & 0x1F)) & 0xFFFF;
 
     rd = ((uint32_t)rd_high << 16) | rd_low;
+    return rd;
 }
 
 uint32_t HELPER(pnsrari_h)(CPURISCVState *env, uint64_t s1,
@@ -4534,4 +4535,250 @@ uint32_t HELPER(nclipru)(CPURISCVState *env, uint64_t s1,
 	}
 
 	return rd;
+}
+
+target_ulong HELPER(pmulh_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF);
+        int16_t s2_h = (int16_t)((s2 >> (i * 16)) & 0xFFFF);
+
+        int32_t prod = (int32_t)s1_h * (int32_t)s2_h;
+        uint16_t high16 = (prod >> 16) & 0xFFFF;
+
+        rd |= ((target_ulong)high16) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmulhsu_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF);
+        uint16_t s2_h = (uint16_t)((s2 >> (i * 16)) & 0xFFFF);
+
+        int32_t prod = (int32_t)s1_h * (uint32_t)s2_h;
+        uint16_t high16 = (prod >> 16) & 0xFFFF;
+
+        rd |= ((target_ulong)high16) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmulhu_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        uint16_t s1_h = (uint16_t)((s1 >> (i * 16)) & 0xFFFF);
+        uint16_t s2_h = (uint16_t)((s2 >> (i * 16)) & 0xFFFF);
+
+        uint32_t prod = (uint32_t)s1_h * (uint32_t)s2_h;
+        uint16_t high16 = (prod >> 16) & 0xFFFF;
+
+        rd |= ((target_ulong)high16) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmulq_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF);
+        int16_t s2_h = (int16_t)((s2 >> (i * 16)) & 0xFFFF);
+        uint16_t result = 0;
+        if((s1_h == -32768) && (s2_h == -32768) ) {
+            env->vxsat = 1;
+            result = 0x7FFF;
+        }else{
+            int32_t prod = (int32_t)s1_h * (int32_t)s2_h;
+            result = (prod >> 15) & 0xFFFF;
+        }
+        rd |= ((target_ulong)result) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmulhr_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF);
+        int16_t s2_h = (int16_t)((s2 >> (i * 16)) & 0xFFFF);
+
+        int32_t prod = (int32_t)s1_h * (int32_t)s2_h + (1 << 15);
+        uint16_t high16 = (prod >> 16) & 0xFFFF;
+
+        rd |= ((target_ulong)high16) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmulhrsu_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF);
+        uint16_t s2_h = (uint16_t)((s2 >> (i * 16)) & 0xFFFF);
+
+        int32_t prod = (int32_t)s1_h * (uint32_t)s2_h + (1 << 15);
+        uint16_t high16 = (prod >> 16) & 0xFFFF;
+
+        rd |= ((target_ulong)high16) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmulhru_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        uint16_t s1_h = (uint16_t)((s1 >> (i * 16)) & 0xFFFF);
+        uint16_t s2_h = (uint16_t)((s2 >> (i * 16)) & 0xFFFF);
+
+        uint32_t prod = (uint32_t)s1_h * (uint32_t)s2_h + (1 << 15);
+        uint16_t high16 = (prod >> 16) & 0xFFFF;
+
+        rd |= ((target_ulong)high16) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmulqr_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF);
+        int16_t s2_h = (int16_t)((s2 >> (i * 16)) & 0xFFFF);
+        uint16_t result = 0;
+        if((s1_h == -32768) && (s2_h == -32768)) {
+            env->vxsat = 1;
+            result = 0x7FFF;
+        }else{
+            int32_t prod = (int32_t)s1_h * (int32_t)s2_h + (1 << 14);
+            result = (prod >> 15) & 0xFFFF;
+        }
+        rd |= ((target_ulong)result) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmhacc_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2, target_ulong d)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF);
+        int16_t s2_h = (int16_t)((s2 >> (i * 16)) & 0xFFFF);
+        int16_t d_h = (int16_t)((d >> (i * 16)) & 0xFFFF);
+        int32_t prod = (int32_t)s1_h * (int32_t)s2_h;
+        int16_t high16 = (int16_t)(prod >> 16);
+
+        rd |= ((target_ulong)(uint16_t)(high16 + d_h)) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmhaccsu_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2, target_ulong d)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF);
+        uint16_t s2_h = (uint16_t)((s2 >> (i * 16)) & 0xFFFF);
+        int16_t d_h = (int16_t)((d >> (i * 16)) & 0xFFFF);
+        int32_t prod = (int32_t)s1_h * (uint32_t)s2_h;
+        int16_t high16 = (int16_t)(prod >> 16);
+
+        rd |= ((target_ulong)(uint16_t)(high16 + d_h)) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmhaccu_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2, target_ulong d)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        uint16_t s1_h = (uint16_t)((s1 >> (i * 16)) & 0xFFFF);
+        uint16_t s2_h = (uint16_t)((s2 >> (i * 16)) & 0xFFFF);
+        uint16_t d_h = (uint16_t)((d >> (i * 16)) & 0xFFFF);
+        uint32_t prod = (uint32_t)s1_h * (uint32_t)s2_h;
+        uint16_t high16 = (uint16_t)(prod >> 16);
+
+        rd |= ((target_ulong)(uint16_t)(high16 + d_h)) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmhracc_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2, target_ulong d)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF);
+        int16_t s2_h = (int16_t)((s2 >> (i * 16)) & 0xFFFF);
+        int16_t d_h = (int16_t)((d >> (i * 16)) & 0xFFFF);
+        int32_t prod = (int32_t)s1_h * (int32_t)s2_h + (1 << 15);
+        int16_t high16 = (int16_t)(prod >> 16);
+
+        rd |= ((target_ulong)(uint16_t)(high16 + d_h)) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmhraccsu_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2, target_ulong d)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF);
+        uint16_t s2_h = (uint16_t)((s2 >> (i * 16)) & 0xFFFF);
+        int16_t d_h = (int16_t)((d >> (i * 16)) & 0xFFFF);
+        int32_t prod = (int32_t)s1_h * (uint32_t)s2_h + (1 << 15);
+        int16_t high16 = (int16_t)(prod >> 16);
+
+        rd |= ((target_ulong)(uint16_t)(high16 + d_h)) << (i * 16);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmhraccu_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2, target_ulong d)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        uint16_t s1_h = (uint16_t)((s1 >> (i * 16)) & 0xFFFF);
+        uint16_t s2_h = (uint16_t)((s2 >> (i * 16)) & 0xFFFF);
+        uint16_t d_h = (uint16_t)((d >> (i * 16)) & 0xFFFF);
+        uint32_t prod = (uint32_t)s1_h * (uint32_t)s2_h + (1 << 15);
+        uint16_t high16 = (uint16_t)(prod >> 16);
+
+        rd |= ((target_ulong)(uint16_t)(high16 + d_h)) << (i * 16);
+    }
+    return rd;
 }
