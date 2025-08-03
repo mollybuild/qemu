@@ -112,6 +112,28 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 }
 
 #if defined(TARGET_RISCV32)
+#define GEN_SIMD_TRANS_RD_32(NAME)                          \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
+{                                                           \
+    REQUIRE_32BIT(ctx);                                     \
+    TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
+    TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);             \
+    TCGv dest = dest_gpr(ctx, a->rd);                       \
+    TCGv t = tcg_temp_new();                                \
+    gen_helper_##NAME(t, tcg_env, src1, src2, dest);        \
+    gen_set_gpr(ctx, a->rd, t);                             \
+    return true;                                            \
+}
+#else
+#define GEN_SIMD_TRANS_RD_32(NAME)                          \
+static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
+{                                                           \
+    REQUIRE_32BIT(ctx);                                     \
+    return true;                                            \
+}
+#endif
+
+#if defined(TARGET_RISCV32)
 #define GEN_SIMD_TRANS_RD_64(NAME)                          \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
@@ -1148,3 +1170,33 @@ GEN_SIMD_TRANS_RD(pmhaccu_h)
 GEN_SIMD_TRANS_RD(pmhracc_h)
 GEN_SIMD_TRANS_RD(pmhraccsu_h)
 GEN_SIMD_TRANS_RD(pmhraccu_h)
+
+GEN_SIMD_TRANS_32(mulhr)
+GEN_SIMD_TRANS_32(mulhrsu)
+GEN_SIMD_TRANS_32(mulhru)
+GEN_SIMD_TRANS_32(mulq)
+GEN_SIMD_TRANS_32(mulqr)
+
+GEN_SIMD_TRANS_64(pmulhr_w)
+GEN_SIMD_TRANS_64(pmulhrsu_w)
+GEN_SIMD_TRANS_64(pmulhru_w)
+GEN_SIMD_TRANS_64(pmulq_w)
+GEN_SIMD_TRANS_64(pmulqr_w)
+GEN_SIMD_TRANS_64(pmulh_w)
+GEN_SIMD_TRANS_64(pmulhsu_w)
+GEN_SIMD_TRANS_64(pmulhu_w)
+
+GEN_SIMD_TRANS_RD_32(mhacc)
+GEN_SIMD_TRANS_RD_32(mhracc)
+GEN_SIMD_TRANS_RD_32(mhaccsu)
+GEN_SIMD_TRANS_RD_32(mhraccsu)
+GEN_SIMD_TRANS_RD_32(mhaccu)
+GEN_SIMD_TRANS_RD_32(mhraccu)
+
+GEN_SIMD_TRANS_RD_64(pmhacc_w)
+GEN_SIMD_TRANS_RD_64(pmhracc_w)
+GEN_SIMD_TRANS_RD_64(pmhaccsu_w)
+GEN_SIMD_TRANS_RD_64(pmhraccsu_w)
+GEN_SIMD_TRANS_RD_64(pmhaccu_w)
+GEN_SIMD_TRANS_RD_64(pmhraccu_w)
+
