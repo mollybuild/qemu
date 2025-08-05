@@ -5174,6 +5174,431 @@ uint64_t HELPER(pmhraccu_w)(CPURISCVState *env, uint64_t rs1,
     return rd;
 }
 
+uint32_t HELPER(mqacc_h00)(CPURISCVState *env, uint32_t rs1,
+    uint32_t rs2, uint32_t dest)
+{
+    uint32_t rd = 0;
+    int16_t s1_h0 = (int16_t)(rs1 & 0xFFFF);
+    int16_t s2_h0 = (int16_t)(rs2 & 0xFFFF);
+    int32_t d_h0 = (int32_t)dest;
+
+    int32_t mul = (int32_t)s1_h0 * (int32_t)s2_h0;
+    int64_t mul_47bit = ((int64_t)mul << 15) >> 15;
+    rd = (d_h0 + (int32_t)mul_47bit);
+    return rd;
+}
+
+uint32_t HELPER(mqacc_h01)(CPURISCVState *env, uint32_t rs1,
+    uint32_t rs2, uint32_t dest)
+{
+    uint32_t rd = 0;
+    int16_t s1_h0 = (int16_t)(rs1 & 0xFFFF);
+    int16_t s2_h1 = (int16_t)((rs2 >> 16) & 0xFFFF);
+    int32_t d_h0 = (int32_t)dest;
+
+    int32_t mul = (int32_t)s1_h0 * (int32_t)s2_h1;
+    int64_t mul_47bit = ((int64_t)mul << 15) >> 15;
+    rd = (d_h0 + (int32_t)mul_47bit);
+    return rd;
+}
+
+uint32_t HELPER(mqacc_h11)(CPURISCVState *env, uint32_t rs1,
+    uint32_t rs2, uint32_t dest)
+{
+    uint32_t rd = 0;
+    int16_t s1_h1 = (int16_t)((rs1 >> 16) & 0xFFFF);
+    int16_t s2_h1 = (int16_t)((rs2 >> 16) & 0xFFFF);
+    int32_t d_h0 = (int32_t)dest;
+
+    int32_t mul = (int32_t)s1_h1 * (int32_t)s2_h1;
+    int64_t mul_47bit = ((int64_t)mul << 15) >> 15;
+    rd = (d_h0 + (int32_t)mul_47bit);
+    return rd;
+}
+
+uint32_t HELPER(mqracc_h00)(CPURISCVState *env, uint32_t rs1,
+    uint32_t rs2, uint32_t dest)
+{
+    uint32_t rd = 0;
+    int16_t s1_h0 = (int16_t)(rs1 & 0xFFFF);
+    int16_t s2_h0 = (int16_t)(rs2 & 0xFFFF);
+    int32_t d_h0 = (int32_t)dest;
+
+    int32_t mul = (int32_t)s1_h0 * (int32_t)s2_h0 + (1LL << 14);
+    int64_t mul_47bit = ((int64_t)mul << 15) >> 15;
+    rd = (d_h0 + (int32_t)mul_47bit);
+    return rd;
+}
+
+uint32_t HELPER(mqracc_h01)(CPURISCVState *env, uint32_t rs1,
+    uint32_t rs2, uint32_t dest)
+{
+    uint32_t rd = 0;
+    int16_t s1_h0 = (int16_t)(rs1 & 0xFFFF);
+    int16_t s2_h1 = (int16_t)((rs2 >> 16) & 0xFFFF);
+    int32_t d_h0 = (int32_t)dest;
+
+    int32_t mul = (int32_t)s1_h0 * (int32_t)s2_h1 + (1LL << 14);
+    int64_t mul_47bit = ((int64_t)mul << 15) >> 15;
+    rd = (d_h0 + (int32_t)mul_47bit);
+    return rd;
+}
+
+uint32_t HELPER(mqracc_h11)(CPURISCVState *env, uint32_t rs1,
+    uint32_t rs2, uint32_t dest)
+{
+    uint32_t rd = 0;
+    int16_t s1_h1 = (int16_t)((rs1 >> 16) & 0xFFFF);
+    int16_t s2_h1 = (int16_t)((rs2 >> 16) & 0xFFFF);
+    int32_t d_h0 = (int32_t)dest;
+
+    int32_t mul = (int32_t)s1_h1 * (int32_t)s2_h1 + (1LL << 14);
+    int64_t mul_47bit = ((int64_t)mul << 15) >> 15;
+    rd = (d_h0 + (int32_t)mul_47bit);
+    return rd;
+}
+
+uint64_t HELPER(pmqacc_w_h00)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t dest)
+{
+    uint64_t rd = 0;
+
+    for (int i = 0; i < 2; i++) {
+        int16_t s1_h0 = (int16_t)((rs1 >> (i * 32)) & 0xFFFF);
+        int16_t s2_h0 = (int16_t)((rs2 >> (i * 32)) & 0xFFFF);
+        int32_t d_w = (int32_t)(dest >> (i * 32));
+        int32_t mul = (int32_t)s1_h0 * (int32_t)s2_h0;
+        int64_t mul_47bit = ((int64_t)mul << 15) >> 15;
+
+        rd |= ((uint32_t)(d_w + (int32_t)mul_47bit)) << (i * 32);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pmqacc_w_h01)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t dest)
+{
+    uint64_t rd = 0;
+
+    for (int i = 0; i < 2; i++) {
+        int16_t s1_h0 = (int16_t)((rs1 >> (i * 32)) & 0xFFFF);
+        int16_t s2_h1 = (int16_t)(((rs2 >> (i * 32)) >> 16) & 0xFFFF);
+        int32_t d_w = (int32_t)(dest >> (i * 32));
+        int32_t mul = (int32_t)s1_h0 * (int32_t)s2_h1;
+        int64_t mul_47bit = ((int64_t)mul << 15) >> 15;
+
+        rd |= ((uint32_t)(d_w + (int32_t)mul_47bit)) << (i * 32);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pmqacc_w_h11)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t dest)
+{
+    uint64_t rd = 0;
+
+    for (int i = 0; i < 2; i++) {
+        int16_t s1_h0 = (int16_t)(((rs1 >> (i * 32)) >> 16) & 0xFFFF);
+        int16_t s2_h1 = (int16_t)(((rs2 >> (i * 32)) >> 16) & 0xFFFF);
+        int32_t d_w = (int32_t)(dest >> (i * 32));
+        int32_t mul = (int32_t)s1_h0 * (int32_t)s2_h1;
+        int64_t mul_47bit = ((int64_t)mul << 15) >> 15;
+
+        rd |= ((uint32_t)(d_w + (int32_t)mul_47bit)) << (i * 32);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pmqracc_w_h00)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t dest)
+{
+    uint64_t rd = 0;
+
+    for (int i = 0; i < 2; i++) {
+        int16_t s1_h0 = (int16_t)((rs1 >> (i * 32)) & 0xFFFF);
+        int16_t s2_h0 = (int16_t)((rs2 >> (i * 32)) & 0xFFFF);
+        int32_t d_w = (int32_t)(dest >> (i * 32));
+        int32_t mul = (int32_t)s1_h0 * (int32_t)s2_h0 + (1LL << 14);
+        int64_t mul_47bit = ((int64_t)mul << 15) >> 15;
+
+        rd |= ((uint32_t)(d_w + (int32_t)mul_47bit)) << (i * 32);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pmqracc_w_h01)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t dest)
+{
+    uint64_t rd = 0;
+
+    for (int i = 0; i < 2; i++) {
+        int16_t s1_h0 = (int16_t)((rs1 >> (i * 32)) & 0xFFFF);
+        int16_t s2_h1 = (int16_t)(((rs2 >> (i * 32)) >> 16) & 0xFFFF);
+        int32_t d_w = (int32_t)(dest >> (i * 32));
+        int32_t mul = (int32_t)s1_h0 * (int32_t)s2_h1 + (1LL << 14);
+        int64_t mul_47bit = ((int64_t)mul << 15) >> 15;
+
+        rd |= ((uint32_t)(d_w + (int32_t)mul_47bit)) << (i * 32);
+    }
+
+    return rd;
+}
+
+uint64_t HELPER(pmqracc_w_h11)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t dest)
+{
+    uint64_t rd = 0;
+
+    for (int i = 0; i < 2; i++) {
+        int16_t s1_h0 = (int16_t)(((rs1 >> (i * 32)) >> 16) & 0xFFFF);
+        int16_t s2_h1 = (int16_t)(((rs2 >> (i * 32)) >> 16) & 0xFFFF);
+        int32_t d_w = (int32_t)(dest >> (i * 32));
+        int32_t mul = (int32_t)s1_h0 * (int32_t)s2_h1 + (1LL << 14);
+        int64_t mul_47bit = ((int64_t)mul << 15) >> 15;
+
+        rd |= ((uint32_t)(d_w + (int32_t)mul_47bit)) << (i * 32);
+    }
+
+    return rd;
+}
+
+target_ulong HELPER(pmq2add_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 4; i++) {
+        int16_t s1_h0 = (int16_t)((s1 >> (i * 32)) & 0xFFFF);
+        int16_t s1_h1 = (int16_t)(((s1 >> (i * 32)) >> 16) & 0xFFFF);
+        int16_t s2_h0 = (int16_t)((s2 >> (i * 32)) & 0xFFFF);
+        int16_t s2_h1 = (int16_t)(((s2 >> (i * 32)) >> 16) & 0xFFFF);
+        int32_t mul_00 = (int32_t)s1_h0 * (int32_t)s2_h0;
+        int64_t mul_00_47bit = ((int64_t)mul_00 << 15) >> 15;
+        int32_t mul_11 = (int32_t)s1_h1 * (int32_t)s2_h1;
+        int64_t mul_11_47bit = ((int64_t)mul_11 << 15) >> 15;
+        rd |= ((target_ulong)(mul_00_47bit + mul_11_47bit)) << (i * 32);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmqr2add_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 4; i++) {
+        int16_t s1_h0 = (int16_t)((s1 >> (i * 32)) & 0xFFFF);
+        int16_t s1_h1 = (int16_t)(((s1 >> (i * 32)) >> 16) & 0xFFFF);
+        int16_t s2_h0 = (int16_t)((s2 >> (i * 32)) & 0xFFFF);
+        int16_t s2_h1 = (int16_t)(((s2 >> (i * 32)) >> 16) & 0xFFFF);
+        int32_t mul_00 = (int32_t)s1_h0 * (int32_t)s2_h0 + (1LL << 14);
+        int64_t mul_00_47bit = ((int64_t)mul_00 << 15) >> 15;
+        int32_t mul_11 = (int32_t)s1_h1 * (int32_t)s2_h1 + (1LL << 14);
+        int64_t mul_11_47bit = ((int64_t)mul_11 << 15) >> 15;
+        rd |= ((target_ulong)(mul_00_47bit + mul_11_47bit)) << (i * 32);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmq2adda_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2, target_ulong dest)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 4; i++) {
+        int16_t s1_h0 = (int16_t)((s1 >> (i * 32)) & 0xFFFF);
+        int16_t s1_h1 = (int16_t)(((s1 >> (i * 32)) >> 16) & 0xFFFF);
+        int16_t s2_h0 = (int16_t)((s2 >> (i * 32)) & 0xFFFF);
+        int16_t s2_h1 = (int16_t)(((s2 >> (i * 32)) >> 16) & 0xFFFF);
+        int32_t d_h = (int32_t)dest >> (i * 32);
+        int32_t mul_00 = (int32_t)s1_h0 * (int32_t)s2_h0;
+        int64_t mul_00_47bit = ((int64_t)mul_00 << 15) >> 15;
+        int32_t mul_11 = (int32_t)s1_h1 * (int32_t)s2_h1;
+        int64_t mul_11_47bit = ((int64_t)mul_11 << 15) >> 15;
+        rd |= ((target_ulong)(mul_00_47bit + mul_11_47bit + d_h)) << (i * 32);
+    }
+    return rd;
+}
+
+target_ulong HELPER(pmqr2adda_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2, target_ulong dest)
+{
+    target_ulong rd = 0;
+
+    for (int i = 0; i < sizeof(target_ulong) / 4; i++) {
+        int16_t s1_h0 = (int16_t)((s1 >> (i * 32)) & 0xFFFF);
+        int16_t s1_h1 = (int16_t)(((s1 >> (i * 32)) >> 16) & 0xFFFF);
+        int16_t s2_h0 = (int16_t)((s2 >> (i * 32)) & 0xFFFF);
+        int16_t s2_h1 = (int16_t)(((s2 >> (i * 32)) >> 16) & 0xFFFF);
+        int32_t d_h = (int32_t)dest >> (i * 32);
+        int32_t mul_00 = (int32_t)s1_h0 * (int32_t)s2_h0 + (1LL << 14);
+        int64_t mul_00_47bit = ((int64_t)mul_00 << 15) >> 15;
+        int32_t mul_11 = (int32_t)s1_h1 * (int32_t)s2_h1 + (1LL << 14);
+        int64_t mul_11_47bit = ((int64_t)mul_11 << 15) >> 15;
+        rd |= ((target_ulong)(mul_00_47bit + mul_11_47bit + d_h)) << (i * 32);
+    }
+    return rd;
+}
+
+uint64_t HELPER(mqacc_w00)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t dest)
+{
+    uint64_t rd = 0;
+    int32_t s1_w0 = (int32_t)(rs1 & 0xFFFFFFFF);
+    int32_t s2_w0 = (int32_t)(rs2 & 0xFFFFFFFF);
+    int64_t d = (int64_t)dest;
+    int64_t mul = (int64_t)s1_w0 * (int64_t)s2_w0;
+    __int128_t mul_95bit = ((__int128_t)mul << 31) >> 31;
+
+    rd = ((uint64_t)(d + (int64_t)mul_95bit));
+    return rd;
+}
+
+uint64_t HELPER(mqacc_w01)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t dest)
+{
+    uint64_t rd = 0;
+    int32_t s1_w0 = (int32_t)(rs1 & 0xFFFFFFFF);
+    int32_t s2_w1 = (int32_t)((rs2 >> 32) & 0xFFFFFFFF);
+    int64_t d = (int64_t)dest;
+    int64_t mul = (int64_t)s1_w0 * (int64_t)s2_w1;
+    __int128_t mul_95bit = ((__int128_t)mul << 31) >> 31;
+
+    rd = ((uint64_t)(d + (int64_t)mul_95bit));
+    return rd;
+}
+
+uint64_t HELPER(mqacc_w11)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t dest)
+{
+    uint64_t rd = 0;
+    int32_t s1_w1 = (int32_t)((rs1 >> 32) & 0xFFFFFFFF);
+    int32_t s2_w1 = (int32_t)((rs2 >> 32) & 0xFFFFFFFF);
+    int64_t d = (int64_t)dest;
+    int64_t mul = (int64_t)s1_w1 * (int64_t)s2_w1;
+    __int128_t mul_95bit = ((__int128_t)mul << 31) >> 31;
+
+    rd = ((uint64_t)(d + (int64_t)mul_95bit));
+    return rd;
+}
+
+uint64_t HELPER(mqracc_w00)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t dest)
+{
+    uint64_t rd = 0;
+    int32_t s1_w0 = (int32_t)(rs1 & 0xFFFFFFFF);
+    int32_t s2_w0 = (int32_t)(rs2 & 0xFFFFFFFF);
+    int64_t d = (int64_t)dest;
+    int64_t mul = (int64_t)s1_w0 * (int64_t)s2_w0 + (1LL << 30);
+    __int128_t mul_95bit = ((__int128_t)mul << 31) >> 31;
+
+    rd = ((uint64_t)(d + (int64_t)mul_95bit));
+    return rd;
+}
+
+uint64_t HELPER(mqracc_w01)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t dest)
+{
+    uint64_t rd = 0;
+    int32_t s1_w0 = (int32_t)(rs1 & 0xFFFFFFFF);
+    int32_t s2_w1 = (int32_t)((rs2 >> 32) & 0xFFFFFFFF);
+    int64_t d = (int64_t)dest;
+    int64_t mul = (int64_t)s1_w0 * (int64_t)s2_w1 + (1LL << 30);
+    __int128_t mul_95bit = ((__int128_t)mul << 31) >> 31;
+
+    rd = ((uint64_t)(d + (int64_t)mul_95bit));
+    return rd;
+}
+
+uint64_t HELPER(mqracc_w11)(CPURISCVState *env, uint64_t rs1,
+    uint64_t rs2, uint64_t dest)
+{
+    uint64_t rd = 0;
+    int32_t s1_w1 = (int32_t)((rs1 >> 32) & 0xFFFFFFFF);
+    int32_t s2_w1 = (int32_t)((rs2 >> 32) & 0xFFFFFFFF);
+    int64_t d = (int64_t)dest;
+    int64_t mul = (int64_t)s1_w1 * (int64_t)s2_w1 + (1LL << 30);
+    __int128_t mul_95bit = ((__int128_t)mul << 31) >> 31;
+
+    rd = ((uint64_t)(d + (int64_t)mul_95bit));
+    return rd;
+}
+
+uint64_t HELPER(pmq2add_w)(CPURISCVState *env, uint64_t s1,
+    uint64_t s2)
+{
+    uint64_t rd = 0;
+
+    int32_t s1_w0 = (int32_t)(s1 & 0xFFFFFFFF);
+    int32_t s1_w1 = (int32_t)((s1 >> 32) & 0xFFFFFFFF);
+    int32_t s2_w0 = (int32_t)(s2 & 0xFFFFFFFF);
+    int32_t s2_w1 = (int32_t)((s2  >> 32) & 0xFFFFFFFF);
+     int64_t mul_00 = (int64_t)s1_w0 * (int64_t)s2_w0;
+    __int128_t mul_00_95bit = ((__int128_t)mul_00 << 31) >> 31;
+    int64_t mul_11 = (int64_t)s1_w1 * (int64_t)s2_w1;
+    __int128_t mul_11_95bit = ((__int128_t)mul_11 << 31) >> 31;
+
+    rd = ((uint64_t)(mul_00_95bit + mul_11_95bit));
+    return rd;
+}
+
+uint64_t HELPER(pmqr2add_w)(CPURISCVState *env, uint64_t s1,
+    uint64_t s2)
+{
+    uint64_t rd = 0;
+
+    int32_t s1_w0 = (int32_t)(s1 & 0xFFFFFFFF);
+    int32_t s1_w1 = (int32_t)((s1 >> 32) & 0xFFFFFFFF);
+    int32_t s2_w0 = (int32_t)(s2 & 0xFFFFFFFF);
+    int32_t s2_w1 = (int32_t)((s2  >> 32) & 0xFFFFFFFF);
+     int64_t mul_00 = (int64_t)s1_w0 * (int64_t)s2_w0 + (1LL << 30);
+    __int128_t mul_00_95bit = ((__int128_t)mul_00 << 31) >> 31;
+    int64_t mul_11 = (int64_t)s1_w1 * (int64_t)s2_w1 + (1LL << 30);
+    __int128_t mul_11_95bit = ((__int128_t)mul_11 << 31) >> 31;
+
+    rd = ((uint64_t)(mul_00_95bit + mul_11_95bit));
+    return rd;
+}
 
 
+uint64_t HELPER(pmq2adda_w)(CPURISCVState *env, uint64_t s1,
+    uint64_t s2, uint64_t dest)
+{
+    uint64_t rd = 0;
 
+    int32_t s1_w0 = (int32_t)(s1 & 0xFFFFFFFF);
+    int32_t s1_w1 = (int32_t)((s1 >> 32) & 0xFFFFFFFF);
+    int32_t s2_w0 = (int32_t)(s2 & 0xFFFFFFFF);
+    int32_t s2_w1 = (int32_t)((s2  >> 32) & 0xFFFFFFFF);
+    int64_t d_w = (int64_t)dest;
+     int64_t mul_00 = (int64_t)s1_w0 * (int64_t)s2_w0;
+    __int128_t mul_00_95bit = ((__int128_t)mul_00 << 31) >> 31;
+    int64_t mul_11 = (int64_t)s1_w1 * (int64_t)s2_w1;
+    __int128_t mul_11_95bit = ((__int128_t)mul_11 << 31) >> 31;
+
+    rd = ((uint64_t)(mul_00_95bit + mul_11_95bit + d_w));
+    return rd;
+}
+
+uint64_t HELPER(pmqr2adda_w)(CPURISCVState *env, uint64_t s1,
+    uint64_t s2, uint64_t dest)
+{
+    uint64_t rd = 0;
+
+    int32_t s1_w0 = (int32_t)(s1 & 0xFFFFFFFF);
+    int32_t s1_w1 = (int32_t)((s1 >> 32) & 0xFFFFFFFF);
+    int32_t s2_w0 = (int32_t)(s2 & 0xFFFFFFFF);
+    int32_t s2_w1 = (int32_t)((s2  >> 32) & 0xFFFFFFFF);
+    int64_t d_w = (int64_t)dest;
+     int64_t mul_00 = (int64_t)s1_w0 * (int64_t)s2_w0 + (1 << 30);
+    __int128_t mul_00_95bit = ((__int128_t)mul_00 << 31) >> 31;
+    int64_t mul_11 = (int64_t)s1_w1 * (int64_t)s2_w1 + (1 << 30);
+    __int128_t mul_11_95bit = ((__int128_t)mul_11 << 31) >> 31;
+
+    rd = ((uint64_t)(mul_00_95bit + mul_11_95bit + d_w));
+    return rd;
+}
