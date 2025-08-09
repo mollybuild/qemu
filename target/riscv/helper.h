@@ -1748,3 +1748,87 @@ DEF_HELPER_4(pm2addau_w, i64, env, i64, i64, i64)
 DEF_HELPER_4(pm2adda_wx, i64, env, i64, i64, i64)
 DEF_HELPER_4(pm2suba_w, i64, env, i64, i64, i64)
 DEF_HELPER_4(pm2suba_wx, i64, env, i64, i64, i64)
+
+DEF_HELPER_3(pm4add_b, tl, env, tl, tl)
+DEF_HELPER_3(pm4addsu_b, tl, env, tl, tl)
+DEF_HELPER_3(pm4addu_b, tl, env, tl, tl)
+
+DEF_HELPER_4(pm4adda_b, tl, env, tl, tl, tl)
+DEF_HELPER_4(pm4addasu_b, tl, env, tl, tl, tl)
+DEF_HELPER_4(pm4addau_b, tl, env, tl, tl, tl)
+
+DEF_HELPER_3(pm4add_h, i64, env, i64, i64)
+DEF_HELPER_3(pm4addsu_h, i64, env, i64, i64)
+DEF_HELPER_3(pm4addu_h, i64, env, i64, i64)
+
+DEF_HELPER_4(pm4adda_h, i64, env, i64, i64, i64)
+DEF_HELPER_4(pm4addasu_h, i64, env, i64, i64, i64)
+DEF_HELPER_4(pm4addau_h, i64, env, i64, i64, i64)
+
+DEF_HELPER_3(pmulh_h_b0, tl, env, tl, tl)
+DEF_HELPER_3(pmulh_h_b1, tl, env, tl, tl)
+DEF_HELPER_3(pmulhsu_h_b0, tl, env, tl, tl)
+DEF_HELPER_3(pmulhsu_h_b1, tl, env, tl, tl)
+
+DEF_HELPER_4(pmhacc_h_b0, tl, env, tl, tl, tl)
+DEF_HELPER_4(pmhacc_h_b1, tl, env, tl, tl, tl)
+DEF_HELPER_4(pmhaccsu_h_b0, tl, env, tl, tl, tl)
+DEF_HELPER_4(pmhaccsu_h_b1, tl, env, tl, tl, tl)
+
+DEF_HELPER_3(mulh_h0, i32, env, i32, i32)
+DEF_HELPER_3(mulh_h1, i32, env, i32, i32)
+DEF_HELPER_3(mulhsu_h0, i32, env, i32, i32)
+DEF_HELPER_3(mulhsu_h1, i32, env, i32, i32)
+
+DEF_HELPER_3(pmulh_w_h0, i64, env, i64, i64)
+DEF_HELPER_3(pmulh_w_h1, i64, env, i64, i64)
+DEF_HELPER_3(pmulhsu_w_h0, i64, env, i64, i64)
+DEF_HELPER_3(pmulhsu_w_h1, i64, env, i64, i64)
+
+DEF_HELPER_4(mhacc_h0, i32, env, i32, i32, i32)
+DEF_HELPER_4(mhacc_h1, i32, env, i32, i32, i32)
+DEF_HELPER_4(mhaccsu_h0, i32, env, i32, i32, i32)
+DEF_HELPER_4(mhaccsu_h1, i32, env, i32, i32, i32)
+
+DEF_HELPER_4(pmhacc_w_h0, i64, env, i64, i64, i64)
+DEF_HELPER_4(pmhacc_w_h1, i64, env, i64, i64, i64)
+DEF_HELPER_4(pmhaccsu_w_h0, i64, env, i64, i64, i64)
+DEF_HELPER_4(pmhaccsu_w_h1, i64, env, i64, i64, i64)
+
+DEF_HELPER_4(pmqwacc_h, i64, env, i64, i64, i64)
+DEF_HELPER_4(pmqrwacc_h, i64, env, i64, i64, i64)
+DEF_HELPER_4(mqwacc, i64, env, i64, i64, i64)
+DEF_HELPER_4(mqrwacc, i64, env, i64, i64, i64)
+
+DEF_HELPER_3(pwmul_b, i64, env, i64, i64)
+DEF_HELPER_3(pwmulsu_b, i64, env, i64, i64)
+DEF_HELPER_3(pwmulu_b, i64, env, i64, i64)
+DEF_HELPER_3(pwmul_h, i64, env, i64, i64)
+DEF_HELPER_3(pwmulsu_h, i64, env, i64, i64)
+DEF_HELPER_3(pwmulu_h, i64, env, i64, i64)
+
+DEF_HELPER_4(pwmacc_h, i64, env, i64, i64, i64)
+DEF_HELPER_4(pwmaccsu_h, i64, env, i64, i64, i64)
+DEF_HELPER_4(pwmaccu_h, i64, env, i64, i64, i64)
+
+DEF_HELPER_3(wmul, i64, env, i64, i64)
+DEF_HELPER_3(wmulsu, i64, env, i64, i64)
+DEF_HELPER_3(wmulu, i64, env, i64, i64)
+
+DEF_HELPER_4(wmacc, i64, env, i64, i64, i64)
+DEF_HELPER_4(wmaccsu, i64, env, i64, i64, i64)
+DEF_HELPER_4(wmaccu, i64, env, i64, i64, i64)
+
+DEF_HELPER_3(pm2wadd_h, i64, env, i64, i64)
+DEF_HELPER_3(pm2waddsu_h, i64, env, i64, i64)
+DEF_HELPER_3(pm2waddu_h, i64, env, i64, i64)
+DEF_HELPER_3(pm2wadd_hx, i64, env, i64, i64)
+DEF_HELPER_4(pm2wadda_h, i64, env, i64, i64, i64)
+DEF_HELPER_4(pm2waddasu_h, i64, env, i64, i64, i64)
+DEF_HELPER_4(pm2waddau_h, i64, env, i64, i64, i64)
+DEF_HELPER_4(pm2wadda_hx, i64, env, i64, i64, i64)
+
+DEF_HELPER_3(pm2wsub_h, i64, env, i64, i64)
+DEF_HELPER_3(pm2wsub_hx, i64, env, i64, i64)
+DEF_HELPER_4(pm2wsuba_h, i64, env, i64, i64, i64)
+DEF_HELPER_4(pm2wsuba_hx, i64, env, i64, i64, i64)
