@@ -2990,7 +2990,7 @@ target_ulong HELPER(cls)(CPURISCVState *env, target_ulong rs1)
     int32_t hi_bound =  0x3FFFFFFF;
     #endif
 
-    while ( rd < TARGET_LONG_BITS && v >= lo_bound && v <= hi_bound ) {
+    while ( rd < TARGET_LONG_BITS - 1 && v >= lo_bound && v <= hi_bound ) {
         rd = rd + 1;
         v = v << 1;
     }
@@ -3082,7 +3082,7 @@ uint64_t HELPER(clsw)(CPURISCVState *env, uint64_t rs1)
 {
     int32_t rs1_w = rs1 & 0xFFFFFFFF;
     int c = 0;
-    while( c < 32 && rs1_w >= 0xC0000000 && rs1_w <= 0x3FFFFFFF){
+    while( c < 31 && rs1_w >= 0xC0000000 && rs1_w <= 0x3FFFFFFF){
         c = c + 1;
         rs1_w = rs1_w << 1;
     }
