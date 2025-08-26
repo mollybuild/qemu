@@ -4338,19 +4338,19 @@ uint32_t HELPER(nclipri)(CPURISCVState *env, uint64_t s1,
         return result;
     }
 
-    Uint129 right_shift(Uint129 val, uint32_t shamt) {
+    Uint129 right_shift(Uint129 val, uint32_t smt) {
         Uint129 result;
-        if (shamt == 0) {
+        if (smt == 0) {
             return val;
-        } else if (shamt >= 129) {
+        } else if (smt >= 129) {
             result.low = 0;
             result.high = 0;
-        } else if (shamt == 128) {
+        } else if (smt == 128) {
             result.low = val.high;
             result.high = 0;
         } else {
-            result.low = (val.low >> shamt) | ((__uint128_t)val.high << (128 - shamt));
-            result.high = (val.high >> shamt);
+            result.low = (val.low >> smt) | ((__uint128_t)val.high << (128 - smt));
+            result.high = (val.high >> smt);
         }
         return result;
     }
@@ -4469,19 +4469,19 @@ uint32_t HELPER(nclipr)(CPURISCVState *env, uint64_t s1,
         return result;
     }
 
-    Uint129 right_shift(Uint129 val, uint32_t shamt) {
+    Uint129 right_shift(Uint129 val, uint32_t smt) {
         Uint129 result;
-        if (shamt == 0) {
+        if (smt == 0) {
             return val;
-        } else if (shamt >= 129) {
+        } else if (smt >= 129) {
             result.low = 0;
             result.high = 0;
-        } else if (shamt == 128) {
+        } else if (smt == 128) {
             result.low = val.high;
             result.high = 0;
         } else {
-            result.low = (val.low >> shamt) | ((__uint128_t)val.high << (128 - shamt));
-            result.high = (val.high >> shamt);
+            result.low = (val.low >> smt) | ((__uint128_t)val.high << (128 - smt));
+            result.high = (val.high >> smt);
         }
         return result;
     }
