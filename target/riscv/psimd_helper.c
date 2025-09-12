@@ -4583,64 +4583,27 @@ target_ulong HELPER(pmulhu_h)(CPURISCVState *env, target_ulong s1,
     return rd;
 }
 
-/* target_ulong HELPER(pmulq_h)(CPURISCVState *env, target_ulong s1, */
-/*     target_ulong s2) */
-/* { */
-/*     target_ulong rd = 0; */
-
-/*     for (int i = 0; i < sizeof(target_ulong) / 2; i++) { */
-        /* int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF); */
-        /* int16_t s2_h = (int16_t)((s2 >> (i * 16)) & 0xFFFF); */
-        /* uint16_t result = 0; */
-        /* /1* if((s1_h == -32768) && (s2_h == -32768) ) { *1/ */
-        /*     env->vxsat = 1; */
-            /* result = 0x7FFF; */
-        /* }else{ */
-            /* int32_t prod = (int32_t)s1_h * (int32_t)s2_h; */
-            /* result = (prod >> 15) & 0xFFFF; */
-        /* } */
-        /* rd |= ((target_ulong)result) << (i * 16); */
-    /* } */
-    /* return rd; */
-/* } */
-
-target_ulong HELPER(pmulq_h)(CPURISCVState *env, target_ulong rs1,
-	target_ulong rs2)
+target_ulong HELPER(pmulq_h)(CPURISCVState *env, target_ulong s1,
+    target_ulong s2)
 {
-	target_ulong rd = 0;
-	int16_t *rs1_p = (int16_t *)&rs1;
-	int16_t *rs2_p = (int16_t *)&rs2;
-	int32_t *rd_p = (int32_t *)&rd;
-	int16_t op1t, op1b, op2t, op2b;
-	int16_t rest, resb;
-	int i = 0;
-	
-	while(i < TARGET_LONG_SIZE / 2){
-		op1t = rs1_p[i + 1];
-		op2t = rs2_p[i + 2];
-		op1b = rs1_p[i];
-		op2b = rs2_p[i];
+    target_ulong rd = 0;
 
-		if(op1t != INT16_MIN || op2t != INT16_MIN){
-			rest = (op1t * op2t) >> 15;
-		} else {
-			rest = INT16_MAX;
-			env->vxsat = 0x1;
-		}
-
-		if(op1b != INT16_MIN || op2b != INT16_MIN){
-			resb = (op1b * op2b) >> 15;
-		} else {
-			resb = INT16_MAX;
-			env -> vxsat = 0x1;
-		}
-
-		rd_p[i / 2] = (rest << 16) | (resb & 0xFFFF);
-		i = i + 2;
-	}
-
-	return rd;
+    for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
+        int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF);
+        int16_t s2_h = (int16_t)((s2 >> (i * 16)) & 0xFFFF);
+        uint16_t result = 0;
+        if((s1_h == -32768) && (s2_h == -32768) ) {
+            env->vxsat = 1;
+            result = 0x7FFF;
+        }else{
+            int32_t prod = (int32_t)s1_h * (int32_t)s2_h;
+            result = (prod >> 15) & 0xFFFF;
+        }
+        rd |= ((target_ulong)result) << (i * 16);
+    }
+    return rd;
 }
+	
 
 target_ulong HELPER(pmulhr_h)(CPURISCVState *env, target_ulong s1,
     target_ulong s2)
@@ -5005,25 +4968,18 @@ uint64_t HELPER(pmulqr_w)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2)
 {
     uint64_t rd = 0;
-	/* printf("DEBUG: WORKING\n"); */
-	/* fflush(stdout); */
     for (int i = 0; i < 2; i++) {
         int32_t rs1_w = (int32_t)(rs1 >> (i * 32));
         int32_t rs2_w = (int32_t)(rs2 >> (i * 32));
         uint32_t result = 0;
-		/* printf("DEBUG: rs1_w=0x%08X, rs2_w=0x%08X\n", rs1_w, rs2_w); */
         if(rs1_w == INT32_MIN && rs2_w == INT32_MIN) {
             env->vxsat = 1;
             result = 0x7FFFFFFF;
         }else{
             int64_t t = (int64_t)rs1_w * (int64_t)rs2_w + (1LL << 30);
             result = (uint32_t)((uint64_t)t >> 31);
-			/* printf("DEBUG: t=0x%016lX, result=0x%08X \n", t, result); */
-			/* int64_t t =(int64_t)rs1_w * (int64_t)rs2_w; */
-			/* result = (uint32_t)((((uint64_t)t >> 30) + 1) >> 1); */
         }
          rd |= (uint64_t)result << (i * 32);
-		 /* printf("DEBUG: rd=0x%016X \n", rd); */
     }
 
     return rd;
