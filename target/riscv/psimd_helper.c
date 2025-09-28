@@ -3077,7 +3077,7 @@ uint64_t HELPER(clsw)(CPURISCVState *env, uint64_t rs1)
 {
     int32_t rs1_w = rs1 & 0xFFFFFFFF;
     int c = 0;
-    while( c < 31 && rs1_w >= 0xC0000000 && rs1_w <= 0x3FFFFFFF){
+    while( c < 31 && rs1_w >= (int32_t)0xC0000000 && rs1_w <= (int32_t)0x3FFFFFFF){
         c = c + 1;
         rs1_w = rs1_w << 1;
     }
@@ -4544,7 +4544,7 @@ target_ulong HELPER(pmulh_h)(CPURISCVState *env, target_ulong s1,
         int32_t prod = (int32_t)s1_h * (int32_t)s2_h;
         uint16_t high16 = (prod >> 16) & 0xFFFF;
 
-        rd |= ((target_ulong)high16) << (i * 16);
+        rd |= ((target_ulong)high16) << (i * 16);	
     }
     return rd;
 }
@@ -4562,7 +4562,7 @@ target_ulong HELPER(pmulhsu_h)(CPURISCVState *env, target_ulong s1,
         uint16_t high16 = (prod >> 16) & 0xFFFF;
 
         rd |= ((target_ulong)high16) << (i * 16);
-    }
+	 }
     return rd;
 }
 
@@ -4587,7 +4587,6 @@ target_ulong HELPER(pmulq_h)(CPURISCVState *env, target_ulong s1,
     target_ulong s2)
 {
     target_ulong rd = 0;
-
     for (int i = 0; i < sizeof(target_ulong) / 2; i++) {
         int16_t s1_h = (int16_t)((s1 >> (i * 16)) & 0xFFFF);
         int16_t s2_h = (int16_t)((s2 >> (i * 16)) & 0xFFFF);
@@ -4618,7 +4617,7 @@ target_ulong HELPER(pmulhr_h)(CPURISCVState *env, target_ulong s1,
         uint16_t high16 = (prod >> 16) & 0xFFFF;
 
         rd |= ((target_ulong)high16) << (i * 16);
-    }
+	}
     return rd;
 }
 
@@ -4968,6 +4967,7 @@ uint64_t HELPER(pmulqr_w)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2)
 {
     uint64_t rd = 0;
+
     for (int i = 0; i < 2; i++) {
         int32_t rs1_w = (int32_t)(rs1 >> (i * 32));
         int32_t rs2_w = (int32_t)(rs2 >> (i * 32));
@@ -4977,7 +4977,7 @@ uint64_t HELPER(pmulqr_w)(CPURISCVState *env, uint64_t rs1,
             result = 0x7FFFFFFF;
         }else{
             int64_t t = (int64_t)rs1_w * (int64_t)rs2_w + (1LL << 30);
-            result = (uint32_t)((uint64_t)t >> 31);
+            result = (uint32_t)((uint64_t)t >> 31);	
         }
          rd |= (uint64_t)result << (i * 32);
     }
@@ -6457,9 +6457,9 @@ uint64_t HELPER(mulu_w01)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2)
 {
     uint64_t rd = 0;
-    uint32_t s1_w0 = (uint32_t)((rs1 >> 32) & 0xFFFFFFFF);
-	uint32_t s2_w0 = (uint32_t)(rs2 & 0xFFFFFFFF);
-	uint64_t mul = (uint64_t)s1_w0 * (uint64_t)s2_w0;
+    uint32_t s1_w0 = (uint32_t)(rs1 & 0xFFFFFFFF);
+	uint32_t s2_w1 = (uint32_t)((rs2 >> 32) & 0xFFFFFFFF);
+	uint64_t mul = (uint64_t)s1_w0 * (uint64_t)s2_w1;
 	rd = (uint64_t)mul;
     return rd;
 }
@@ -6468,9 +6468,9 @@ uint64_t HELPER(mulu_w11)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2)
 {
     uint64_t rd = 0;
-    uint32_t s1_w0 = (uint32_t)((rs1 >> 32) & 0xFFFFFFFF);
-	uint32_t s2_w0 = (uint32_t)((rs2 >> 32) & 0xFFFFFFFF);
-	uint64_t mul = (uint64_t)s1_w0 * (uint64_t)s2_w0;
+    uint32_t s1_w1 = (uint32_t)((rs1 >> 32) & 0xFFFFFFFF);
+	uint32_t s2_w1 = (uint32_t)((rs2 >> 32) & 0xFFFFFFFF);
+	uint64_t mul = (uint64_t)s1_w1 * (uint64_t)s2_w1;
 	rd = (uint64_t)mul;
     return rd;
 }
@@ -7180,7 +7180,6 @@ uint64_t HELPER(pmulh_w_h0)(CPURISCVState *env, uint64_t rs1,
 		int64_t mul = (int64_t)s1 * (int64_t)s2_h0;
 		rd |= ((uint64_t)(uint32_t)(mul >> 16)) << (i * 32);
 	}
-
     return rd;
 }
 
@@ -7764,6 +7763,6 @@ uint64_t HELPER(pm2wsuba_hx)(CPURISCVState *env, uint64_t rs1,
 	int64_t mul_23 = (int64_t)s1_h2 * (int64_t)s2_h3;
 	int64_t mul_32 = (int64_t)s1_h3 * (int64_t)s2_h2;
     rd = (uint64_t)(d_h + mul_01 - mul_10 + mul_23 - mul_32);
-
-    return rd;
+	
+	return rd;
 }
