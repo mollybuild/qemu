@@ -1117,9 +1117,8 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a) \
     }                                                      \
     TCGv_i32 shamt = tcg_temp_new_i32();                   \
     TCGv_i32 rs2 = get_gpr(ctx, a->rs2, EXT_NONE);         \
-    tcg_gen_andi_i32(shamt, rs2, 0x1F);                    \
     TCGv_i32 dest = dest_gpr(ctx, a->rd);                  \
-    gen_helper_##NAME(dest, tcg_env, s1, shamt);           \
+    gen_helper_##NAME(dest, tcg_env, s1, rs2);             \
     return true;                                           \
 }
 #else
