@@ -989,11 +989,11 @@ uint32_t HELPER(ssh1sadd)(CPURISCVState *env, uint32_t rs1,
     target_long v1 = rs1_p[0];
     target_long v2 = rs2_p[0];
 
-	if ( v1 < 0xC0000000 ){
-	    v1 = 0x80000000;
+	if ( v1 < (int32_t)0xC0000000 ){
+	    v1 = (int32_t)0x80000000;
         env->vxsat = 0x1;
-	}else if ( v1 >= 0x40000000){
-	    v1 = 0x7FFFFFFF;
+	}else if ( v1 >= (int32_t)0x40000000){
+	    v1 = (int32_t)0x7FFFFFFF;
 	    env->vxsat = 0x1;
 	}else{
 	    v1 = v1 < 1;
@@ -2042,8 +2042,8 @@ target_ulong HELPER(pmsltu_h)(CPURISCVState *env, target_ulong rs1,
 
 uint32_t HELPER(sati_32)(CPURISCVState *env, uint32_t rs1,
     uint32_t imm)
-{ 
-    return (uint32_t)signed_saturate(env, rs1, imm + 1);
+{
+    return (uint32_t)signed_saturate(env, (int32_t)rs1, imm + 1);
 }
 
 uint32_t HELPER(usati_32)(CPURISCVState *env, uint32_t rs1,
@@ -2096,7 +2096,7 @@ uint32_t HELPER(ssha)(CPURISCVState *env, uint32_t rs1,
 {
     uint32_t rd = 0;
     int8_t imm = rs2 & 0xFF; //extract rs2[7..0]
-    int64_t xrs1 = (int64_t)rs1;
+    int64_t xrs1 = (int64_t)(int32_t)rs1;
 
     if ( imm <= -32){
         rd = (int32_t) ( xrs1 >> 32 );
@@ -2107,7 +2107,6 @@ uint32_t HELPER(ssha)(CPURISCVState *env, uint32_t rs1,
     }else{
         rd = (int32_t) 0x00000000;
     }
-
     return rd;     
 }
 
@@ -2118,7 +2117,7 @@ uint32_t HELPER(sshar)(CPURISCVState *env, uint32_t rs1,
     int32_t rd = 0;
     int64_t xrd = 0;
     int8_t imm = rs2 & 0xFF; //extract rs2[7..0]
-    int64_t xrs1 = (int64_t)rs1;
+    int64_t xrs1 = (int64_t)(int32_t)rs1;
 
     if ( imm <= -32){
         xrd = (int64_t) ( xrs1 >> 32 );
@@ -3516,13 +3515,13 @@ uint64_t HELPER(pwsla_hs)(CPURISCVState *env, uint64_t rs1,
 uint64_t HELPER(wadd)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2)
 {
-    return (uint64_t)((int64_t)rs1 + (int64_t)rs2);
+    return (uint64_t)((int64_t)(int32_t)rs1 + (int64_t)(int32_t)rs2);
 }
 
 uint64_t HELPER(wadda)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t rd)
 {
-    return (uint64_t)((int64_t)rd+(int64_t)rs1 + (int64_t)rs2);
+    return (uint64_t)((int64_t)rd+(int64_t)(int32_t)rs1 + (int64_t)(int32_t)rs2);
 }
 
 uint64_t HELPER(waddu)(CPURISCVState *env, uint64_t rs1,
@@ -3540,13 +3539,13 @@ uint64_t HELPER(waddau)(CPURISCVState *env, uint64_t rs1,
 uint64_t HELPER(wsub)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2)
 {
-    return (uint64_t)((int64_t)rs1 - (int64_t)rs2);
+    return (uint64_t)((int64_t)(int32_t)rs1 - (int64_t)(int32_t)rs2);
 }
 
 uint64_t HELPER(wsuba)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t rd)
 {
-    return (uint64_t)( (int64_t)rd + (int64_t)rs1 - (int64_t)rs2 );
+    return (uint64_t)( (int64_t)rd + (int64_t)(int32_t)rs1 - (int64_t)(int32_t)rs2 );
 }
 
 uint64_t HELPER(wsubu)(CPURISCVState *env, uint64_t rs1,
@@ -3577,14 +3576,14 @@ uint64_t HELPER(wsll)(CPURISCVState *env, uint64_t rs1,
 uint64_t HELPER(wslai)(CPURISCVState *env, uint64_t rs1,
     uint64_t imm)
 {
-    return (int64_t)rs1 << imm;
+    return (int64_t)(int32_t)rs1 << imm;
 }
 
 uint64_t HELPER(wsla)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2)
 {
     uint8_t imm = rs2 & 0x3F; //extract rs2[5..0]
-    return (int64_t)rs1 << imm;
+    return (int64_t)(int32_t)rs1 << imm;
 }
 
 uint64_t HELPER(wzip8p)(CPURISCVState *env, uint64_t rs1,
@@ -3838,7 +3837,7 @@ uint32_t HELPER(pnclipriu_b)(CPURISCVState *env, uint64_t s1,
 			env->vxsat = 1;
 			result = 0xFF;
 		}else{
-			result = (uint8_t)(shx & 0xFF);
+			result = (uint8_t)(round_shx & 0xFF);
 		}
 		rd |= ((uint32_t)result) << (i * 8);
 	}
@@ -4354,8 +4353,7 @@ uint32_t HELPER(nclipri)(CPURISCVState *env, uint64_t s1,
     __int128_t s1_s128 = (__int128_t)((int64_t)s1);
     Uint129 shx_129bit = left_shift_1(s1_s128);
     Uint129 shx = right_shift(shx_129bit, shamt & 0x3F);
-    int64_t round_shx = (int64_t)(shx.low + 1);
-
+    int64_t round_shx = (int64_t)((shx.low + 1) >> 1);
     if (round_shx < -2147483648) {		//_s 0xFFFFFFFF80000000
         env->vxsat = 1;
         rd = 0x80000000;
@@ -4365,7 +4363,6 @@ uint32_t HELPER(nclipri)(CPURISCVState *env, uint64_t s1,
     } else {
         rd = (uint32_t)round_shx;
     }
-
     return rd;
 }
 
@@ -4485,7 +4482,7 @@ uint32_t HELPER(nclipr)(CPURISCVState *env, uint64_t s1,
     __int128_t s1_s128 = (__int128_t)((int64_t)s1);
     Uint129 shx_129bit = left_shift_1(s1_s128);
     Uint129 shx = right_shift(shx_129bit, shamt & 0x3F);
-    int64_t round_shx = (int64_t)(shx.low + 1);
+    int64_t round_shx = (int64_t)((shx.low + 1) >> 1);
 
     if (round_shx < -2147483648) {		//_s 0xFFFFFFFF80000000
         env->vxsat = 1;
@@ -7367,8 +7364,8 @@ uint64_t HELPER(mqwacc)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t dest)
 {
     uint64_t rd = 0;
-	int64_t s1 = (int64_t)rs1;
-	int64_t s2 = (int64_t)rs2;
+	int64_t s1 = (int64_t)(int32_t)rs1;
+	int64_t s2 = (int64_t)(int32_t)rs2;
 	int64_t d_w = (int64_t)dest;
 	__int128_t mul = (__int128_t)s1 * (__int128_t)s2;
 	rd = (uint64_t)(d_w + (int64_t)(mul >> 31));
@@ -7380,12 +7377,11 @@ uint64_t HELPER(mqrwacc)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t dest)
 {
     uint64_t rd = 0;
-	int64_t s1 = (int64_t)rs1;
-	int64_t s2 = (int64_t)rs2;
+	int64_t s1 = (int64_t)(int32_t)rs1;
+	int64_t s2 = (int64_t)(int32_t)rs2;
 	int64_t d_w = (int64_t)dest;
 	__int128_t mul = (__int128_t)s1 * (__int128_t)s2 + (1LL << 30);
 	rd = (uint64_t)(d_w + (int64_t)(mul >> 31));
-
     return rd;
 }
 
@@ -7521,13 +7517,13 @@ uint64_t HELPER(pwmaccu_h)(CPURISCVState *env, uint64_t rs1,
 uint64_t HELPER(wmul)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2)
 {
-    return (int64_t)rs1 * (int64_t)rs2;
+    return (uint64_t)((int64_t)(int32_t)rs1 * (int64_t)(int32_t)rs2);
 }
 
 uint64_t HELPER(wmulsu)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2)
 {
-    return (int64_t)rs1 * (uint64_t)rs2;
+    return (uint64_t)((int64_t)(int32_t)rs1 * (uint64_t)rs2);
 }
 
 uint64_t HELPER(wmulu)(CPURISCVState *env, uint64_t rs1,
@@ -7539,13 +7535,13 @@ uint64_t HELPER(wmulu)(CPURISCVState *env, uint64_t rs1,
 uint64_t HELPER(wmacc)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t dest)
 {
-    return (int64_t)rs1 * (int64_t)rs2 + (int64_t)dest;
+    return (uint64_t)((int64_t)(int32_t)rs1 * (int64_t)(int32_t)rs2 + (int64_t)dest);
 }
 
 uint64_t HELPER(wmaccsu)(CPURISCVState *env, uint64_t rs1,
     uint64_t rs2, uint64_t dest)
 {
-    return (int64_t)rs1 * (uint64_t)rs2 + (int64_t)dest;
+    return (uint64_t)((int64_t)(int32_t)rs1 * (uint64_t)rs2 + (int64_t)dest);
 }
 
 uint64_t HELPER(wmaccu)(CPURISCVState *env, uint64_t rs1,
