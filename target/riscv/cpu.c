@@ -3281,7 +3281,7 @@ static const TypeInfo riscv_cpu_type_infos[] = {
         .cfg.max_satp_mode = VM_1_10_SV48,
     ),
 	
-	DEFINE_RISCV_CPU(TYPE_RISCV_CPU_THEAD_C910, TYPE_RISCV_DYNAMIC,
+	DEFINE_RISCV_CPU(TYPE_RISCV_CPU_THEAD_C910, TYPE_RISCV_VENDOR_CPU,
 		.misa_mxl_max = MXL_RV64,
 	    .misa_ext = RVG | RVC | RVS | RVU,
 		.priv_spec = PRIV_VERSION_1_12_0,
@@ -3302,12 +3302,6 @@ static const TypeInfo riscv_cpu_type_infos[] = {
 		.cfg.ext_xtheadmempair = true,
 		.cfg.ext_xtheadsync = true,
 		.cfg.pmp = true,
-
-		.cfg.ext_xtheadvector = true,
-		.cfg.ext_xtheadpmu = true,
-		.cfg.ext_xtheadcache = true,
-
-		.cfg.ext_xmae = true,
 
 		.cfg.ext_svinval = true,
 		.cfg.ext_svadu = true,
@@ -3359,8 +3353,6 @@ static const TypeInfo riscv_cpu_type_infos[] = {
 		
 		.cfg.ext_sscofpmf = true,
 		.cfg.ext_sstc = true,
-
-		.cfg.mvendorid = SIFIVE_VENDOR_ID,
 
 		.cfg.max_satp_mode = VM_1_10_SV39,
 	),
