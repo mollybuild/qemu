@@ -3280,6 +3280,90 @@ static const TypeInfo riscv_cpu_type_infos[] = {
         .cfg.pmp = true,
         .cfg.max_satp_mode = VM_1_10_SV48,
     ),
+	
+	DEFINE_RISCV_CPU(TYPE_RISCV_CPU_THEAD_C910, TYPE_RISCV_DYNAMIC,
+		.misa_mxl_max = MXL_RV64,
+	    .misa_ext = RVG | RVC | RVS | RVU,
+		.priv_spec = PRIV_VERSION_1_12_0,
+
+		.cfg.ext_zfa = true,
+		.cfg.ext_zfh = true,
+		.cfg.ext_zfhmin = true,
+
+		.cfg.mmu = true,
+        .cfg.ext_xtheadba = true,	 
+ 		.cfg.ext_xtheadbb = true,
+	    .cfg.ext_xtheadbs = true,
+	 	.cfg.ext_xtheadcmo = true,
+		.cfg.ext_xtheadcondmov = true,
+		.cfg.ext_xtheadfmemidx = true,
+		.cfg.ext_xtheadmac = true,
+		.cfg.ext_xtheadmemidx = true,
+		.cfg.ext_xtheadmempair = true,
+		.cfg.ext_xtheadsync = true,
+		.cfg.pmp = true,
+
+		.cfg.ext_xtheadvector = true,
+		.cfg.ext_xtheadpmu = true,
+		.cfg.ext_xtheadcache = true,
+
+		.cfg.ext_xmae = true,
+
+		.cfg.ext_svinval = true,
+		.cfg.ext_svadu = true,
+		.cfg.ext_zicbom = true,
+		.cfg.ext_zicboz = true,
+
+		.cfg.ext_zba = true,
+		.cfg.ext_zbb = true,
+		.cfg.ext_zbc = true,
+		.cfg.ext_zbs = true,
+
+		.cfg.ext_zknd = true,
+		.cfg.ext_zkne = true,
+		.cfg.ext_zknh = true,
+
+		.cfg.mvendorid = THEAD_VENDOR_ID,
+
+		.cfg.max_satp_mode = VM_1_10_SV39,
+#ifndef CONFIG_USER_ONLY
+		.custom_csrs = th_csr_list,
+#endif	
+	),
+
+	DEFINE_RISCV_CPU(TYPE_RISCV_CPU_SIFIVE_U74, TYPE_RISCV_CPU_SIFIVE_U,
+		.misa_mxl_max = MXL_RV64,
+		.misa_ext = RVI | RVM | RVA | RVF | RVD | RVC | RVS | RVU | RVH,
+		.priv_spec = PRIV_VERSION_1_12_0,
+
+		.cfg.pmp_regions = 16,
+
+		.cfg.ext_zba = true,
+		.cfg.ext_zbb = true,
+		.cfg.ext_zbs = true,
+		.cfg.ext_zic64b = true,
+
+		.cfg.ext_zicbom = true,
+		.cfg.ext_zicboz = true,
+		.cfg.ext_zicbop = true,
+
+		.cfg.ext_svinval = true,
+		.cfg.ext_svadu = true,
+
+		.cfg.ext_zfh = true,
+		.cfg.ext_zfhmin = true,
+		.cfg.ext_zfa = true,
+
+		.cfg.ext_smaia = true,
+		.cfg.ext_ssaia = true,
+		
+		.cfg.ext_sscofpmf = true,
+		.cfg.ext_sstc = true,
+
+		.cfg.mvendorid = SIFIVE_VENDOR_ID,
+
+		.cfg.max_satp_mode = VM_1_10_SV39,
+	),
 
 #if defined(CONFIG_TCG) && !defined(CONFIG_USER_ONLY)
     DEFINE_RISCV_CPU(TYPE_RISCV_CPU_BASE128, TYPE_RISCV_DYNAMIC_CPU,
