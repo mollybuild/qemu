@@ -896,12 +896,8 @@ GEN_SIMD_TRANS_DXS_P(psrl, d, hs)
 GEN_SIMD_TRANS_DXS_P(psra, d, hs)
 GEN_SIMD_TRANS_DXS_P(pssha, d, hs)
 GEN_SIMD_TRANS_DXS_P(psshar, d, hs)
-//GEN_SIMD_TRANS_DWS_P(add)
-//GEN_SIMD_TRANS_DWS_P(sll)
-//GEN_SIMD_TRANS_DWS_P(srl)
-//GEN_SIMD_TRANS_DWS_P(sra)
-//GEN_SIMD_TRANS_DWS_P(ssha)
-//GEN_SIMD_TRANS_DWS_P(sshar)
+GEN_SIMD_TRANS_DWS_P(ssha)
+GEN_SIMD_TRANS_DWS_P(sshar)
 
 GEN_SIMD_TRANS_DX_P(ppairo, d, b)
 GEN_SIMD_TRANS_DX_P(ppairo, d, h)
@@ -1135,6 +1131,248 @@ static bool trans_subd_p(DisasContext *ctx, arg_subd_p * a)
     set_pair_regs(ctx, (a->rd)*2, dest);
 
     return true; 
+}
+
+static bool trans_psext_dw_b(DisasContext *ctx, arg_psext_dw_b * a)
+{
+    REQUIRE_32BIT(ctx);
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);
+
+    tcg_gen_ext8s_tl(dest_0, src1_0);
+    gen_set_gpr(ctx, (a->rd)*2, dest_0);
+
+    tcg_gen_ext8s_tl(dest_1, src1_1);
+    gen_set_gpr(ctx, (a->rd)*2+1, dest_1);
+
+    return true;
+}
+
+static bool trans_psext_dw_h(DisasContext *ctx, arg_psext_dw_h * a)
+{
+    REQUIRE_32BIT(ctx);
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);
+
+    tcg_gen_ext16s_tl(dest_0, src1_0);
+    gen_set_gpr(ctx, (a->rd)*2, dest_0);
+
+    tcg_gen_ext16s_tl(dest_1, src1_1);
+    gen_set_gpr(ctx, (a->rd)*2+1, dest_1);
+
+    return true;
+}
+
+static bool trans_pslli_dw(DisasContext *ctx, arg_pslli_dw *a)
+{
+    REQUIRE_32BIT(ctx);
+    arg_shift a0, a1;
+    a0.rd = (a->rd)*2;
+    a0.rs1 = (a->rs1)*2;
+    a0.shamt = a->imm;
+    a1.rd = (a->rd)*2+1;
+    a1.rs1 = (a->rs1)*2+1;
+    a1.shamt = a->imm;
+
+    gen_shift_imm_fn(ctx, &a0, EXT_NONE, tcg_gen_shli_tl, NULL);
+    gen_shift_imm_fn(ctx, &a1, EXT_NONE, tcg_gen_shli_tl, NULL);
+    
+    return true;
+}
+
+static bool trans_psrli_dw(DisasContext *ctx, arg_psrli_dw *a)
+{
+    REQUIRE_32BIT(ctx);
+    arg_shift a0, a1;
+    a0.rd = (a->rd)*2;
+    a0.rs1 = (a->rs1)*2;
+    a0.shamt = a->imm;
+    a1.rd = (a->rd)*2+1;
+    a1.rs1 = (a->rs1)*2+1;
+    a1.shamt = a->imm;
+
+    gen_shift_imm_fn_per_ol(ctx, &a0, EXT_NONE, tcg_gen_shri_tl, gen_srliw, NULL);
+    gen_shift_imm_fn_per_ol(ctx, &a1, EXT_NONE, tcg_gen_shri_tl, gen_srliw, NULL);
+    
+    return true;
+}
+
+static bool trans_psrai_dw(DisasContext *ctx, arg_psrai_dw *a)
+{
+    REQUIRE_32BIT(ctx);
+    arg_shift a0, a1;
+    a0.rd = (a->rd)*2;
+    a0.rs1 = (a->rs1)*2;
+    a0.shamt = a->imm;
+    a1.rd = (a->rd)*2+1;
+    a1.rs1 = (a->rs1)*2+1;
+    a1.shamt = a->imm;
+
+    gen_shift_imm_fn_per_ol(ctx, &a0, EXT_NONE, tcg_gen_sari_tl, gen_sraiw, NULL);
+    gen_shift_imm_fn_per_ol(ctx, &a1, EXT_NONE, tcg_gen_sari_tl, gen_sraiw, NULL);
+    
+    return true;
+}
+
+static bool trans_pmin_dw(DisasContext *ctx, arg_pmin_dw *a)
+{
+    REQUIRE_32BIT(ctx);
+    REQUIRE_ZBB(ctx);
+    arg_r a0, a1;
+    a0.rd = (a->rd)*2;
+    a0.rs1 = (a->rs1)*2;
+    a0.rs2 = (a->rs2)*2;
+    a1.rd = (a->rd)*2+1;
+    a1.rs1 = (a->rs1)*2+1;
+    a1.rs2 = (a->rs2)*2+1;
+
+    gen_arith(ctx, &a0, EXT_SIGN, tcg_gen_smin_tl, NULL);
+    gen_arith(ctx, &a1, EXT_SIGN, tcg_gen_smin_tl, NULL);
+    
+    return true;
+}
+
+static bool trans_pminu_dw(DisasContext *ctx, arg_pminu_dw *a)
+{
+    REQUIRE_32BIT(ctx);
+    REQUIRE_ZBB(ctx);
+    arg_r a0, a1;
+    a0.rd = (a->rd)*2;
+    a0.rs1 = (a->rs1)*2;
+    a0.rs2 = (a->rs2)*2;
+    a1.rd = (a->rd)*2+1;
+    a1.rs1 = (a->rs1)*2+1;
+    a1.rs2 = (a->rs2)*2+1;
+    
+    gen_arith(ctx, &a0, EXT_SIGN, tcg_gen_umin_tl, NULL);
+    gen_arith(ctx, &a1, EXT_SIGN, tcg_gen_umin_tl, NULL);
+    
+    return true;
+}
+
+static bool trans_pmax_dw(DisasContext *ctx, arg_pmax_dw *a)
+{
+    REQUIRE_32BIT(ctx);
+    REQUIRE_ZBB(ctx);
+    arg_r a0, a1;
+    a0.rd = (a->rd)*2;
+    a0.rs1 = (a->rs1)*2;
+    a0.rs2 = (a->rs2)*2;
+    a1.rd = (a->rd)*2+1;
+    a1.rs1 = (a->rs1)*2+1;
+    a1.rs2 = (a->rs2)*2+1;
+    
+    gen_arith(ctx, &a0, EXT_SIGN, tcg_gen_smax_tl, NULL);
+    gen_arith(ctx, &a1, EXT_SIGN, tcg_gen_smax_tl, NULL);
+    
+    return true;
+}
+
+static bool trans_pmaxu_dw(DisasContext *ctx, arg_pmaxu_dw *a)
+{
+    REQUIRE_32BIT(ctx);
+    REQUIRE_ZBB(ctx);
+    arg_r a0, a1;
+    a0.rd = (a->rd)*2;
+    a0.rs1 = (a->rs1)*2;
+    a0.rs2 = (a->rs2)*2;
+    a1.rd = (a->rd)*2+1;
+    a1.rs1 = (a->rs1)*2+1;
+    a1.rs2 = (a->rs2)*2+1;
+    
+    gen_arith(ctx, &a0, EXT_SIGN, tcg_gen_umax_tl, NULL);
+    gen_arith(ctx, &a1, EXT_SIGN, tcg_gen_umax_tl, NULL);
+    
+    return true;
+}
+
+static bool trans_padd_dws(DisasContext *ctx, arg_padd_dws *a)
+{
+    REQUIRE_32BIT(ctx);
+    arg_r a0, a1;
+    a0.rd = (a->rd)*2;
+    a0.rs1 = (a->rs1)*2;
+    a0.rs2 = a->rs2;
+    a1.rd = (a->rd)*2+1;
+    a1.rs1 = (a->rs1)*2+1;
+    a1.rs2 = a->rs2;
+    
+    gen_arith(ctx, &a0, EXT_NONE, tcg_gen_add_tl, NULL);
+    gen_arith(ctx, &a1, EXT_NONE, tcg_gen_add_tl, NULL);
+
+    return true;
+}
+
+static bool trans_psll_dws(DisasContext *ctx, arg_psll_dws *a)
+{
+    REQUIRE_32BIT(ctx);
+    arg_r a0, a1;
+    a0.rd = (a->rd)*2;
+    a0.rs1 = (a->rs1)*2;
+    a0.rs2 = a->rs2;
+    a1.rd = (a->rd)*2+1;
+    a1.rs1 = (a->rs1)*2+1;
+    a1.rs2 = a->rs2;
+    
+    gen_shift(ctx, &a0, EXT_NONE, tcg_gen_shl_tl, NULL);
+    gen_shift(ctx, &a1, EXT_NONE, tcg_gen_shl_tl, NULL);
+
+    return true;
+}
+
+static bool trans_psrl_dws(DisasContext *ctx, arg_psrl_dws *a)
+{
+    REQUIRE_32BIT(ctx);
+    arg_r a0, a1;
+    a0.rd = (a->rd)*2;
+    a0.rs1 = (a->rs1)*2;
+    a0.rs2 = a->rs2;
+    a1.rd = (a->rd)*2+1;
+    a1.rs1 = (a->rs1)*2+1;
+    a1.rs2 = a->rs2;
+    
+    gen_shift(ctx, &a0, EXT_ZERO, tcg_gen_shr_tl, NULL);
+    gen_shift(ctx, &a1, EXT_ZERO, tcg_gen_shr_tl, NULL);
+
+    return true;
+}
+
+static bool trans_psra_dws(DisasContext *ctx, arg_psra_dws *a)
+{
+    REQUIRE_32BIT(ctx);
+    arg_r a0, a1;
+    a0.rd = (a->rd)*2;
+    a0.rs1 = (a->rs1)*2;
+    a0.rs2 = a->rs2;
+    a1.rd = (a->rd)*2+1;
+    a1.rs1 = (a->rs1)*2+1;
+    a1.rs2 = a->rs2;
+    
+    gen_shift(ctx, &a0, EXT_SIGN, tcg_gen_sar_tl, NULL);
+    gen_shift(ctx, &a1, EXT_SIGN, tcg_gen_sar_tl, NULL);
+
+    return true;
+}
+
+static bool trans_ppaire_dh(DisasContext *ctx, arg_ppaire_dh *a)
+{
+    REQUIRE_32BIT(ctx);
+    REQUIRE_ZBKB(ctx);
+    arg_r a0, a1;
+    a0.rd = (a->rd)*2;
+    a0.rs1 = (a->rs1)*2;
+    a0.rs2 = (a->rs2)*2;
+    a1.rd = (a->rd)*2+1;
+    a1.rs1 = (a->rs1)*2+1;
+    a1.rs2 = (a->rs2)*2+1;
+    
+    gen_arith(ctx, &a0, EXT_NONE, gen_pack, NULL);
+    gen_arith(ctx, &a1, EXT_NONE, gen_pack, NULL);
+    return true;
 }
 
 #if defined(TARGET_RISCV32)
