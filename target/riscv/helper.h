@@ -1295,7 +1295,6 @@ DEF_HELPER_1(ssamoswap_disabled, void, env)
 
 /* Packed SIMD */
 // instructions without multiplications
-//pli_b
 DEF_HELPER_3(padd_bs, tl, env, tl, tl)
 DEF_HELPER_3(padd_b, tl, env, tl, tl)
 DEF_HELPER_3(psub_b, tl, env, tl, tl)
@@ -1317,7 +1316,6 @@ DEF_HELPER_3(predsumu_bs, tl, env, tl, tl)
 
 DEF_HELPER_3(pabdsumu_b, tl, env, tl, tl)
 DEF_HELPER_4(pabdsumau_b, tl, env, tl, tl, tl)
-
 
 DEF_HELPER_3(padd_hs, tl, env, tl, tl)
 DEF_HELPER_3(padd_h, tl, env, tl, tl)
@@ -1347,7 +1345,6 @@ DEF_HELPER_2(psabs_h, tl, env, tl)
 
 DEF_HELPER_3(predsum_hs, tl, env, tl, tl)
 DEF_HELPER_3(predsumu_hs, tl, env, tl, tl)
-
 
 DEF_HELPER_3(sadd, i32, env, i32, i32)
 DEF_HELPER_3(saddu,i32, env, i32, i32)
@@ -1530,7 +1527,6 @@ DEF_HELPER_3(wsll, i64, env, i64, i64)
 DEF_HELPER_3(wslai, i64, env, i64, i64)
 DEF_HELPER_3(wsla, i64, env, i64, i64)
 
-
 DEF_HELPER_3(wzip8p, i64, env, i64, i64)
 DEF_HELPER_3(wzip16p, i64, env, i64, i64)
 
@@ -1584,6 +1580,7 @@ DEF_HELPER_3(nclipr, i32, env, i64, i32)
 DEF_HELPER_3(nclipu, i32, env, i64, i32)
 DEF_HELPER_3(nclipru, i32, env, i64, i32)
 
+//intructions without multiplications
 DEF_HELPER_3(pmulh_h, tl, env, tl, tl)
 DEF_HELPER_3(pmulhsu_h, tl, env, tl, tl)
 DEF_HELPER_3(pmulhu_h, tl, env, tl, tl)
