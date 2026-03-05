@@ -598,7 +598,7 @@ static void riscv_cpu_validate_b(RISCVCPU *cpu)
 
 static void riscv_cpu_validate_p(RISCVCPU *cpu)
 {
-    //do nothing now.
+    //enable sub-extensions here. do nothing now.
 }
 
 /*
@@ -684,6 +684,11 @@ void riscv_cpu_validate_set_extensions(RISCVCPU *cpu, Error **errp)
 
     if (riscv_has_ext(env, RVD) && !riscv_has_ext(env, RVF)) {
         error_setg(errp, "D extension requires F extension");
+        return;
+    }
+
+    if (riscv_has_ext(env, RVP) && !cpu->cfg.ext_zba && !cpu->cfg.ext_zbb) {
+        error_setg(errp, "P extension requires zba and zbb");
         return;
     }
 

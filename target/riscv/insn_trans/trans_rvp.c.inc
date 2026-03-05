@@ -52,6 +52,7 @@ static void get_pair_regs(DisasContext *ctx, TCGv_i64 dst, int src)
 #define GEN_SIMD_TRANS(NAME)                                \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
+   REQUIRE_EXT(ctx, RVP);                                   \
    TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);              \
    TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);              \
    TCGv dest = dest_gpr(ctx, a->rd);                        \
@@ -64,6 +65,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a)  \
 {                                                           \
     REQUIRE_32BIT(ctx);                                     \
+    REQUIRE_EXT(ctx, RVP);                                  \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);             \
     TCGv dest = dest_gpr(ctx, a->rd);                       \
@@ -91,6 +93,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a)  \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a)  \
 {                                                           \
     REQUIRE_64BIT(ctx);                                     \
+    REQUIRE_EXT(ctx, RVP);                                  \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);             \
     TCGv dest = dest_gpr(ctx, a->rd);                       \
@@ -102,6 +105,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a)  \
 #define GEN_SIMD_TRANS_ACC(NAME)                            \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
+    REQUIRE_EXT(ctx, RVP);                                  \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);             \
     TCGv dest = dest_gpr(ctx, a->rd);                       \
@@ -116,6 +120,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_32BIT(ctx);                                     \
+    REQUIRE_EXT(ctx, RVP);                                  \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);             \
     TCGv dest = dest_gpr(ctx, a->rd);                       \
@@ -145,6 +150,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_64BIT(ctx);                                     \
+    REQUIRE_EXT(ctx, RVP);                                  \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);             \
     TCGv dest = dest_gpr(ctx, a->rd);                       \
@@ -158,6 +164,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 #define GEN_SIMD_TRANS_R1(NAME)                             \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
+    REQUIRE_EXT(ctx, RVP);                                  \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv dest = dest_gpr(ctx, a->rd);                       \
     gen_helper_##NAME(dest, tcg_env, src1);                 \
@@ -177,6 +184,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_64BIT(ctx);                                     \
+    REQUIRE_EXT(ctx, RVP);                                  \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv dest = dest_gpr(ctx, a->rd);                       \
     gen_helper_##NAME(dest, tcg_env, src1);                 \
@@ -187,6 +195,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 #define GEN_SIMD_TRANS_IMM(NAME)                            \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
+    REQUIRE_EXT(ctx, RVP);                                  \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv imm = tcg_constant_tl(a->imm);                     \
     TCGv dest = dest_gpr(ctx, a->rd);                       \
@@ -199,6 +208,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_32BIT(ctx);                                     \
+    REQUIRE_EXT(ctx, RVP);                                   \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv imm = tcg_constant_tl(a->imm);                     \
     TCGv dest = dest_gpr(ctx, a->rd);                       \
@@ -226,6 +236,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_64BIT(ctx);                                     \
+    REQUIRE_EXT(ctx, RVP);                                   \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv imm = tcg_constant_tl(a->imm);                     \
     TCGv dest = dest_gpr(ctx, a->rd);                       \
@@ -239,8 +250,9 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_32BIT(ctx);                                     \
-    TCGv_i32 src1 = get_gpr(ctx, a->rs1, EXT_NONE);          \
-    TCGv_i32 src2 = get_gpr(ctx, a->rs2, EXT_NONE);          \
+    REQUIRE_EXT(ctx, RVP);                                  \
+    TCGv_i32 src1 = get_gpr(ctx, a->rs1, EXT_NONE);         \
+    TCGv_i32 src2 = get_gpr(ctx, a->rs2, EXT_NONE);         \
     TCGv_i64 t = tcg_temp_new_i64();                        \
     gen_helper_##NAME(t, tcg_env, src1, src2);              \
     set_pair_regs(ctx, (a->rd)*2, t);                       \
@@ -260,6 +272,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
 {                                                                                               \
     REQUIRE_32BIT(ctx);                                                                         \
+    REQUIRE_EXT(ctx, RVP);                                                                      \
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                           \
     TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);                                           \
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                     \
@@ -283,6 +296,7 @@ static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NA
 #define GEN_SIMD_TRANS_REG_PAIR_3(NAME1, NAME2, NAME3)                                          \
 static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
 {                                                                                               \
+    REQUIRE_EXT(ctx, RVP);                                                                      \
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                           \
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                     \
     TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                         \
@@ -306,6 +320,7 @@ static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NA
 static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)                     \
 {                                                                                           \
     REQUIRE_32BIT(ctx);                                                                     \
+    REQUIRE_EXT(ctx, RVP);                                                                  \
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                       \
     TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);                                       \
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                 \
@@ -330,6 +345,7 @@ static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)         
 static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)                     \
 {                                                                                           \
     REQUIRE_32BIT(ctx);                                                                     \
+    REQUIRE_EXT(ctx, RVP);                                                                  \
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                       \
     TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);                                       \
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                 \
@@ -354,6 +370,7 @@ static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)         
 static bool trans_p##NAME##_dws(DisasContext *ctx, arg_p##NAME##_dws * a)                   \
 {                                                                                           \
     REQUIRE_32BIT(ctx);                                                                     \
+    REQUIRE_EXT(ctx, RVP);                                                                  \
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                       \
     TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);                                       \
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                 \
@@ -378,6 +395,7 @@ static bool trans_p##NAME##_dws(DisasContext *ctx, arg_p##NAME##_dws * a)       
 static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)                     \
 {                                                                                           \
     REQUIRE_32BIT(ctx);                                                                     \
+    REQUIRE_EXT(ctx, RVP);                                                                  \
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                       \
     TCGv imm_0 = tcg_constant_tl(a->imm);                                                   \
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                 \
@@ -402,6 +420,7 @@ static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)         
 static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)                     \
 {                                                                                           \
     REQUIRE_32BIT(ctx);                                                                     \
+    REQUIRE_EXT(ctx, RVP);                                                                  \
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                       \
     TCGv imm_0 = tcg_constant_tl(a->imm);                                                   \
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                 \
@@ -425,6 +444,7 @@ static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)         
 #define GEN_SIMD_TRANS_REG_PAIR_5(NAME1, NAME2, NAME3)                                          \
 static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
 {                                                                                               \
+    REQUIRE_EXT(ctx, RVP);                                                                      \
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                           \
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                     \
     TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                         \
@@ -449,6 +469,7 @@ static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NA
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_32BIT(ctx);                                     \
+    REQUIRE_EXT(ctx, RVP);                                  \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv_i32 imm = tcg_constant_i32(a->imm);                \
     TCGv_i64 t = tcg_temp_new_i64();                        \
@@ -470,6 +491,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a)  \
 {                                                                                                \
     REQUIRE_32BIT(ctx);                                                                          \
+    REQUIRE_EXT(ctx, RVP);                                                                       \
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                            \
     TCGv imm_0 = tcg_constant_tl(a->imm);                                                        \
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                      \
@@ -494,6 +516,7 @@ static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NA
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_32BIT(ctx);                                     \
+    REQUIRE_EXT(ctx, RVP);                                  \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);             \
     TCGv_i64 t = tcg_temp_new_i64();                        \
@@ -520,6 +543,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_32BIT(ctx);                                     \
+    REQUIRE_EXT(ctx, RVP);                                  \
     TCGv_i32 src1_l;                                        \
     TCGv_i32 src1_h;                                        \
     TCGv_i32 src2 = get_gpr(ctx, a->rs2, EXT_NONE);         \
@@ -550,6 +574,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a) \
 {                                                          \
     REQUIRE_32BIT(ctx);                                    \
+    REQUIRE_EXT(ctx, RVP);                                 \
     TCGv_i64 s1 = tcg_temp_new_i64();                      \
     if (a->rs1 == 0) {                                     \
         tcg_gen_mov_i64(s1, 0);                            \
@@ -575,6 +600,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a) \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a) \
 {                                                          \
     REQUIRE_32BIT(ctx);                                    \
+    REQUIRE_EXT(ctx, RVP);                                 \
     TCGv_i64 s1 = tcg_temp_new_i64();                      \
     if (a->rs1 == 0) {                                     \
         tcg_gen_mov_i64(s1, 0);                            \
@@ -599,6 +625,7 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME *a) \
 static bool trans_padd_dw(DisasContext *ctx, arg_padd_dw * a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);
     TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);
@@ -615,6 +642,7 @@ static bool trans_padd_dw(DisasContext *ctx, arg_padd_dw * a)
 static bool trans_psub_dw(DisasContext *ctx, arg_psub_dw * a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);
     TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);
@@ -631,6 +659,7 @@ static bool trans_psub_dw(DisasContext *ctx, arg_psub_dw * a)
 static bool trans_psh1add_dw(DisasContext *ctx, arg_psh1add_dw * a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);
     TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);
@@ -649,6 +678,7 @@ static bool trans_psh1add_dw(DisasContext *ctx, arg_psh1add_dw * a)
 static bool trans_wzip8p(DisasContext *ctx, arg_wzip8p * a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     TCGv_i32 src1 = get_gpr(ctx, a->rs1, EXT_NONE);
     TCGv_i32 src2 = get_gpr(ctx, a->rs2, EXT_NONE);
     TCGv_i64 t = tcg_temp_new_i64();
@@ -673,6 +703,7 @@ static bool trans_wzip8p(DisasContext *ctx, arg_wzip8p * a)
 static bool trans_wzip16p(DisasContext *ctx, arg_wzip16p * a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     TCGv_i32 src1 = get_gpr(ctx, a->rs1, EXT_NONE);
     TCGv_i32 src2 = get_gpr(ctx, a->rs2, EXT_NONE);
     TCGv_i64 t = tcg_temp_new_i64();
@@ -695,6 +726,7 @@ static bool trans_wzip16p(DisasContext *ctx, arg_wzip16p * a)
 
 static bool trans_pli_b(DisasContext *ctx, arg_pli_b *a)
 {
+    REQUIRE_EXT(ctx, RVP);
     int i = 1;
     target_long imm = a->imm;
     while (i < TARGET_LONG_SIZE){
@@ -707,6 +739,7 @@ static bool trans_pli_b(DisasContext *ctx, arg_pli_b *a)
 
 static bool trans_pli_h(DisasContext *ctx, arg_pli_h *a)
 {
+    REQUIRE_EXT(ctx, RVP);
     int i = 1;
     target_long imm = a->imm;
     while (i < TARGET_LONG_SIZE / 2){
@@ -719,6 +752,7 @@ static bool trans_pli_h(DisasContext *ctx, arg_pli_h *a)
 
 static bool trans_plui_h(DisasContext *ctx, arg_plui_h *a)
 {
+    REQUIRE_EXT(ctx, RVP);
     int i = 1;
     target_long imm = a->imm;
     while (i < TARGET_LONG_SIZE / 2){
@@ -732,6 +766,7 @@ static bool trans_plui_h(DisasContext *ctx, arg_plui_h *a)
 static bool trans_pli_w(DisasContext *ctx, arg_pli_w *a)
 {
     REQUIRE_64BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     int i = 1;
     int64_t imm = a->imm;
     while (i < TARGET_LONG_SIZE / 4){
@@ -745,6 +780,7 @@ static bool trans_pli_w(DisasContext *ctx, arg_pli_w *a)
 static bool trans_plui_w(DisasContext *ctx, arg_plui_w *a)
 {
     REQUIRE_64BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     int i = 1;
     int64_t imm = a->imm;
     while (i < TARGET_LONG_SIZE / 4){
@@ -757,6 +793,7 @@ static bool trans_plui_w(DisasContext *ctx, arg_plui_w *a)
 
 static bool trans_pli_db(DisasContext *ctx, arg_pli_db *a)
 {
+    REQUIRE_EXT(ctx, RVP);
     int i = 1;
     target_long imm = a->imm;
     while (i < TARGET_LONG_SIZE){
@@ -770,6 +807,7 @@ static bool trans_pli_db(DisasContext *ctx, arg_pli_db *a)
 
 static bool trans_pli_dh(DisasContext *ctx, arg_pli_dh *a)
 {
+    REQUIRE_EXT(ctx, RVP);
     int i = 1;
     target_long imm = a->imm;
     while (i < TARGET_LONG_SIZE / 2){
@@ -783,6 +821,7 @@ static bool trans_pli_dh(DisasContext *ctx, arg_pli_dh *a)
 
 static bool trans_plui_dh(DisasContext *ctx, arg_plui_dh *a)
 {
+    REQUIRE_EXT(ctx, RVP);
     int i = 1;
     target_long imm = a->imm;
     while (i < TARGET_LONG_SIZE / 2){
@@ -797,6 +836,7 @@ static bool trans_plui_dh(DisasContext *ctx, arg_plui_dh *a)
 static bool trans_addd_p(DisasContext *ctx, arg_addd_p * a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     TCGv_i64 src1 = tcg_temp_new_i64();
     TCGv_i64 src2 = tcg_temp_new_i64();
     TCGv_i64 dest = tcg_temp_new_i64();
@@ -812,6 +852,7 @@ static bool trans_addd_p(DisasContext *ctx, arg_addd_p * a)
 static bool trans_subd_p(DisasContext *ctx, arg_subd_p * a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     TCGv_i64 src1 = tcg_temp_new_i64();
     TCGv_i64 src2 = tcg_temp_new_i64();
     TCGv_i64 dest = tcg_temp_new_i64();
@@ -827,6 +868,7 @@ static bool trans_subd_p(DisasContext *ctx, arg_subd_p * a)
 static bool trans_psext_dw_b(DisasContext *ctx, arg_psext_dw_b * a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);
     TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);
@@ -844,6 +886,7 @@ static bool trans_psext_dw_b(DisasContext *ctx, arg_psext_dw_b * a)
 static bool trans_psext_dw_h(DisasContext *ctx, arg_psext_dw_h * a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);
     TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);
     TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);
@@ -861,6 +904,7 @@ static bool trans_psext_dw_h(DisasContext *ctx, arg_psext_dw_h * a)
 static bool trans_pslli_dw(DisasContext *ctx, arg_pslli_dw *a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     arg_shift a0, a1;
     a0.rd = (a->rd)*2;
     a0.rs1 = (a->rs1)*2;
@@ -878,6 +922,7 @@ static bool trans_pslli_dw(DisasContext *ctx, arg_pslli_dw *a)
 static bool trans_psrli_dw(DisasContext *ctx, arg_psrli_dw *a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     arg_shift a0, a1;
     a0.rd = (a->rd)*2;
     a0.rs1 = (a->rs1)*2;
@@ -895,6 +940,7 @@ static bool trans_psrli_dw(DisasContext *ctx, arg_psrli_dw *a)
 static bool trans_psrai_dw(DisasContext *ctx, arg_psrai_dw *a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     arg_shift a0, a1;
     a0.rd = (a->rd)*2;
     a0.rs1 = (a->rs1)*2;
@@ -912,6 +958,7 @@ static bool trans_psrai_dw(DisasContext *ctx, arg_psrai_dw *a)
 static bool trans_pmin_dw(DisasContext *ctx, arg_pmin_dw *a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     REQUIRE_ZBB(ctx);
     arg_r a0, a1;
     a0.rd = (a->rd)*2;
@@ -930,6 +977,7 @@ static bool trans_pmin_dw(DisasContext *ctx, arg_pmin_dw *a)
 static bool trans_pminu_dw(DisasContext *ctx, arg_pminu_dw *a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     REQUIRE_ZBB(ctx);
     arg_r a0, a1;
     a0.rd = (a->rd)*2;
@@ -948,6 +996,7 @@ static bool trans_pminu_dw(DisasContext *ctx, arg_pminu_dw *a)
 static bool trans_pmax_dw(DisasContext *ctx, arg_pmax_dw *a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     REQUIRE_ZBB(ctx);
     arg_r a0, a1;
     a0.rd = (a->rd)*2;
@@ -966,6 +1015,7 @@ static bool trans_pmax_dw(DisasContext *ctx, arg_pmax_dw *a)
 static bool trans_pmaxu_dw(DisasContext *ctx, arg_pmaxu_dw *a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     REQUIRE_ZBB(ctx);
     arg_r a0, a1;
     a0.rd = (a->rd)*2;
@@ -984,6 +1034,7 @@ static bool trans_pmaxu_dw(DisasContext *ctx, arg_pmaxu_dw *a)
 static bool trans_padd_dws(DisasContext *ctx, arg_padd_dws *a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     arg_r a0, a1;
     a0.rd = (a->rd)*2;
     a0.rs1 = (a->rs1)*2;
@@ -1001,6 +1052,7 @@ static bool trans_padd_dws(DisasContext *ctx, arg_padd_dws *a)
 static bool trans_psll_dws(DisasContext *ctx, arg_psll_dws *a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     arg_r a0, a1;
     a0.rd = (a->rd)*2;
     a0.rs1 = (a->rs1)*2;
@@ -1018,6 +1070,7 @@ static bool trans_psll_dws(DisasContext *ctx, arg_psll_dws *a)
 static bool trans_psrl_dws(DisasContext *ctx, arg_psrl_dws *a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     arg_r a0, a1;
     a0.rd = (a->rd)*2;
     a0.rs1 = (a->rs1)*2;
@@ -1035,6 +1088,7 @@ static bool trans_psrl_dws(DisasContext *ctx, arg_psrl_dws *a)
 static bool trans_psra_dws(DisasContext *ctx, arg_psra_dws *a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     arg_r a0, a1;
     a0.rd = (a->rd)*2;
     a0.rs1 = (a->rs1)*2;
@@ -1052,6 +1106,7 @@ static bool trans_psra_dws(DisasContext *ctx, arg_psra_dws *a)
 static bool trans_ppaire_dh(DisasContext *ctx, arg_ppaire_dh *a)
 {
     REQUIRE_32BIT(ctx);
+    REQUIRE_EXT(ctx, RVP);
     REQUIRE_ZBKB(ctx);
     arg_r a0, a1;
     a0.rd = (a->rd)*2;
