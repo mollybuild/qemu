@@ -239,14 +239,10 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_32BIT(ctx);                                     \
-    TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
-    TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);             \
-    TCGv_i64 rs1_64 = tcg_temp_new_i64();                   \
-    TCGv_i64 rs2_64 = tcg_temp_new_i64();                   \
-    tcg_gen_extu_tl_i64(rs1_64, src1);                      \
-    tcg_gen_extu_tl_i64(rs2_64, src2);                      \
+    TCGv_i32 src1 = get_gpr(ctx, a->rs1, EXT_NONE);          \
+    TCGv_i32 src2 = get_gpr(ctx, a->rs2, EXT_NONE);          \
     TCGv_i64 t = tcg_temp_new_i64();                        \
-    gen_helper_##NAME(t, tcg_env, rs1_64, rs2_64);          \
+    gen_helper_##NAME(t, tcg_env, src1, src2);              \
     set_pair_regs(ctx, (a->rd)*2, t);                       \
     return true;                                            \
 }
@@ -454,11 +450,9 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_32BIT(ctx);                                     \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
-    TCGv_i64 rs1_64 = tcg_temp_new_i64();                   \
-    tcg_gen_extu_tl_i64(rs1_64, src1);                      \
-    TCGv_i64 imm = tcg_constant_i64(a->imm);                \
+    TCGv_i32 imm = tcg_constant_i32(a->imm);                \
     TCGv_i64 t = tcg_temp_new_i64();                        \
-    gen_helper_##NAME(t, tcg_env, rs1_64, imm);             \
+    gen_helper_##NAME(t, tcg_env, src1, imm);               \
     set_pair_regs(ctx, (a->rd)*2, t);                       \
     return true;                                            \
 }
@@ -502,17 +496,13 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
     REQUIRE_32BIT(ctx);                                     \
     TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);             \
     TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);             \
-    TCGv_i64 rs1_64 = tcg_temp_new_i64();                   \
-    TCGv_i64 rs2_64 = tcg_temp_new_i64();                   \
-    tcg_gen_extu_tl_i64(rs1_64, src1);                      \
-    tcg_gen_extu_tl_i64(rs2_64, src2);                      \
     TCGv_i64 t = tcg_temp_new_i64();                        \
     if(a->rd == 0){                                         \
         tcg_gen_movi_i64(t, 0);                             \
     }else{                                                  \
         get_pair_regs(ctx, t, (a->rd)*2);                   \
     }                                                       \
-    gen_helper_##NAME(t, tcg_env, rs1_64, rs2_64, t);       \
+    gen_helper_##NAME(t, tcg_env, src1, src2, t);           \
     set_pair_regs(ctx, (a->rd)*2, t);                       \
     return true;                                            \
 }
@@ -655,45 +645,53 @@ static bool trans_psh1add_dw(DisasContext *ctx, arg_psh1add_dw * a)
 }
 
 /* wzip8p and wzip16p need to verify rd is not zero register in trans functions */
+#if defined(TARGET_RISCV32)
 static bool trans_wzip8p(DisasContext *ctx, arg_wzip8p * a)
 {
     REQUIRE_32BIT(ctx);
-    TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);
-    TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);
-    TCGv_i64 rs1_64 = tcg_temp_new_i64();
-    TCGv_i64 rs2_64 = tcg_temp_new_i64();
-    tcg_gen_extu_tl_i64(rs1_64, src1);
-    tcg_gen_extu_tl_i64(rs2_64, src2);
+    TCGv_i32 src1 = get_gpr(ctx, a->rs1, EXT_NONE);
+    TCGv_i32 src2 = get_gpr(ctx, a->rs2, EXT_NONE);
     TCGv_i64 t = tcg_temp_new_i64();
     if(a->rd == 0){
         return true;
     }else{
         get_pair_regs(ctx, t, (a->rd)*2);
     }
-    gen_helper_wzip8p(t, tcg_env, rs1_64, rs2_64);
+    gen_helper_wzip8p(t, tcg_env, src1, src2);
     set_pair_regs(ctx, (a->rd)*2, t);
     return true;
 }
+#else
+static bool trans_wzip8p(DisasContext *ctx, arg_wzip8p * a)
+{
+    REQUIRE_32BIT(ctx);
+    return true;
+}
+#endif
 
+#if defined(TARGET_RISCV32)
 static bool trans_wzip16p(DisasContext *ctx, arg_wzip16p * a)
 {
     REQUIRE_32BIT(ctx);
-    TCGv src1 = get_gpr(ctx, a->rs1, EXT_NONE);
-    TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);
-    TCGv_i64 rs1_64 = tcg_temp_new_i64();
-    TCGv_i64 rs2_64 = tcg_temp_new_i64();
-    tcg_gen_extu_tl_i64(rs1_64, src1);
-    tcg_gen_extu_tl_i64(rs2_64, src2);
+    TCGv_i32 src1 = get_gpr(ctx, a->rs1, EXT_NONE);
+    TCGv_i32 src2 = get_gpr(ctx, a->rs2, EXT_NONE);
     TCGv_i64 t = tcg_temp_new_i64();
     if(a->rd == 0){
         return true;
     }else{
         get_pair_regs(ctx, t, (a->rd)*2);
     }
-    gen_helper_wzip16p(t, tcg_env, rs1_64, rs2_64);
+    gen_helper_wzip16p(t, tcg_env, src1, src2);
     set_pair_regs(ctx, (a->rd)*2, t);
     return true;
 }
+#else
+static bool trans_wzip16p(DisasContext *ctx, arg_wzip16p * a)
+{
+    REQUIRE_32BIT(ctx);
+    return true;
+}
+#endif
 
 static bool trans_pli_b(DisasContext *ctx, arg_pli_b *a)
 {
