@@ -1,8 +1,7 @@
 /*
  * RISC-V Packed SIMD Extension Helpers for QEMU.
  *
- * Copyright (C) 2024 PLCT Lab.
- * Written by Codethink Ltd and SiFive.
+ * Copyright (C) 2026 PLCT Lab.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
