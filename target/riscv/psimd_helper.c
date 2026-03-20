@@ -639,8 +639,8 @@ uint64_t HELPER(pssubu_w)(CPURISCVState *env, uint64_t rs1, uint64_t rs2)
     for (int i = 0; i < elems; i++) {
         uint32_t e1 = EXTRACT32(rs1, i);
         uint32_t e2 = EXTRACT32(rs2, i);
-        uint64_t diff = e1 - e2;
-        uint32_t res = unsigned_saturate_w(diff, &sat);
+        uint32_t res = (e1 >= e2) ? (e1 - e2) : 0;
+        if (e1 < e2) sat =1;
         rd = INSERT32(rd, res, i);
     }
     
@@ -3309,8 +3309,7 @@ target_ulong HELPER(psext_h_b)(CPURISCVState *env, target_ulong rs1)
     for (int i = 0; i < elems; i++) {
         uint16_t e1 = EXTRACT16(rs1, i);
         int8_t b0 = (int8_t)(e1 & 0xFF);
-        int8_t b1 = (int8_t)((e1 >> 8) & 0xFF);
-        uint16_t res = ((uint16_t)(int16_t)b1 << 8) | (uint16_t)(int16_t)b0;
+        int16_t res = (int16_t)b0;
         rd = INSERT16(rd, res, i);
     }
     return rd;
@@ -3416,9 +3415,9 @@ uint64_t HELPER(unzip8p)(CPURISCVState *env, uint64_t rs1, uint64_t rs2)
     uint64_t rd = 0;
     
     for (int i = 0; i < 4; i++) {
-        uint8_t b1 = EXTRACT8(rs1, 4 + i);
-        uint8_t b2 = EXTRACT8(rs2, 4 + i);
-        rd = (rd << 8) | ((uint64_t)b2 << 32) | b1;
+        uint64_t b1 = EXTRACT8(rs1, 2*i) << 8*i;
+        uint64_t b2 = EXTRACT8(rs2, 2*i) << (32+8*i);
+        rd = rd | b2 | b1;
     }
     
     return rd;
@@ -3432,9 +3431,9 @@ uint64_t HELPER(unzip8hp)(CPURISCVState *env, uint64_t rs1, uint64_t rs2)
     uint64_t rd = 0;
     
     for (int i = 0; i < 4; i++) {
-        uint8_t b1 = EXTRACT8(rs1, i * 2 + 1);
-        uint8_t b2 = EXTRACT8(rs2, i * 2 + 1);
-        rd = (rd << 8) | ((uint64_t)b2 << 32) | b1;
+        uint64_t b1 = EXTRACT8(rs1, 2*i+1) << 8*i;
+        uint64_t b2 = EXTRACT8(rs2, 2*i+1) << (32+8*i);
+        rd = rd | b2 | b1;
     }
     
     return rd;
@@ -3479,10 +3478,10 @@ uint64_t HELPER(unzip16p)(CPURISCVState *env, uint64_t rs1, uint64_t rs2)
 {
     uint64_t rd = 0;
     
-    for (int i = 0; i < 2; i++) {
-        uint16_t h1 = EXTRACT16(rs1, 2 + i);
-        uint16_t h2 = EXTRACT16(rs2, 2 + i);
-        rd = (rd << 16) | ((uint64_t)h2 << 32) | h1;
+        for (int i = 0; i < 2; i++) {
+        uint64_t b1 = EXTRACT16(rs1, 2*i) << 16*i;
+        uint64_t b2 = EXTRACT16(rs2, 2*i) << (32+16*i);
+        rd = rd | b2 | b1;
     }
     
     return rd;
@@ -3496,9 +3495,9 @@ uint64_t HELPER(unzip16hp)(CPURISCVState *env, uint64_t rs1, uint64_t rs2)
     uint64_t rd = 0;
     
     for (int i = 0; i < 2; i++) {
-        uint16_t h1 = EXTRACT16(rs1, i * 2 + 1);
-        uint16_t h2 = EXTRACT16(rs2, i * 2 + 1);
-        rd = (rd << 16) | ((uint64_t)h2 << 32) | h1;
+        uint64_t b1 = EXTRACT16(rs1, 2*i+1) << 16*i;
+        uint64_t b2 = EXTRACT16(rs2, 2*i+1) << (32+16*i);
+        rd = rd | b2 | b1;
     }
     
     return rd;
@@ -4126,9 +4125,9 @@ uint64_t HELPER(wzip8p)(CPURISCVState *env, uint32_t rs1, uint32_t rs2)
     uint64_t rd = 0;
     
     for (int i = 0; i < 4; i++) {
-        uint8_t b1 = EXTRACT8(rs1, i);
-        uint8_t b2 = EXTRACT8(rs2, i);
-        rd = (rd << 16) | ((uint16_t)b2 << 8) | b1;
+        uint64_t b1 = (uint64_t)EXTRACT8(rs1, i) << 16*i;
+        uint64_t b2 = (uint64_t)EXTRACT8(rs2, i) << (16*i + 8);
+        rd = rd | b2 | b1;
     }
     
     return rd;
@@ -4142,9 +4141,9 @@ uint64_t HELPER(wzip16p)(CPURISCVState *env, uint32_t rs1, uint32_t rs2)
     uint64_t rd = 0;
     
     for (int i = 0; i < 2; i++) {
-        uint16_t h1 = EXTRACT16(rs1, i);
-        uint16_t h2 = EXTRACT16(rs2, i);
-        rd = (rd << 32) | ((uint32_t)h2 << 16) | h1;
+        uint64_t h1 = (uint64_t)EXTRACT16(rs1, i) << (32*i);
+        uint64_t h2 = (uint64_t)EXTRACT16(rs2, i) << (32*i + 16);
+        rd = rd | h2 | h1;
     }
     
     return rd;
@@ -8521,7 +8520,7 @@ uint64_t HELPER(pwmacc_h)(CPURISCVState *env, uint32_t rs1, uint32_t rs2, uint64
         int32_t d_w = (int32_t)EXTRACT32(dest, i);
         int32_t prod = (int32_t)s1_h * (int32_t)s2_h;
         uint32_t res = (uint32_t)(d_w + prod);
-        rd = INSERT32(rd, res, i);
+        rd |= ((uint64_t)res) << (i * 32);
     }
     return rd;
 }
@@ -8539,7 +8538,7 @@ uint64_t HELPER(pwmaccsu_h)(CPURISCVState *env, uint32_t rs1, uint32_t rs2, uint
         int32_t d_w = (int32_t)EXTRACT32(dest, i);
         int32_t prod = (int32_t)s1_h * (uint32_t)s2_h;
         uint32_t res = (uint32_t)(d_w + prod);
-        rd = INSERT32(rd, res, i);
+        rd |= ((uint64_t)res) << (i * 32);
     }
     return rd;
 }
@@ -8557,7 +8556,7 @@ uint64_t HELPER(pwmaccu_h)(CPURISCVState *env, uint32_t rs1, uint32_t rs2, uint6
         uint32_t d_w = EXTRACT32(dest, i);
         uint32_t prod = (uint32_t)s1_h * (uint32_t)s2_h;
         uint32_t res = d_w + prod;
-        rd = INSERT32(rd, res, i);
+        rd |= ((uint64_t)res) << (i * 32);
     }
     return rd;
 }
