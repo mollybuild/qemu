@@ -687,8 +687,8 @@ void riscv_cpu_validate_set_extensions(RISCVCPU *cpu, Error **errp)
         return;
     }
 
-    if (riscv_has_ext(env, RVP) && !cpu->cfg.ext_zba && !cpu->cfg.ext_zbb) {
-        error_setg(errp, "P extension requires zba and zbb");
+    if (riscv_has_ext(env, RVP) && !(cpu->cfg.ext_zba && cpu->cfg.ext_zbb && cpu->cfg.ext_zbkb)) {
+        error_setg(errp, "P extension requires zba, zbb and zbkb extensions");
         return;
     }
 
