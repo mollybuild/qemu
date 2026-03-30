@@ -341,31 +341,6 @@ static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)                      
 #endif
 
 #if defined(TARGET_RISCV32)
-#define GEN_SIMD_TRANS_REG_PAIR_DW_2(NAME)                                                  \
-static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)                     \
-{                                                                                           \
-    REQUIRE_32BIT(ctx);                                                                     \
-    REQUIRE_EXT(ctx, RVP);                                                                  \
-    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                       \
-    TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);                                       \
-    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                 \
-    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                     \
-    TCGv src2_1 = get_gpr(ctx, (a->rs2)*2+1, EXT_NONE);                                     \
-    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                               \
-    gen_helper_##NAME##_32(dest_0, tcg_env, src1_0, src2_0);                                \
-    gen_helper_##NAME##_32(dest_1, tcg_env, src1_1, src2_1);                                \
-    return true;                                                                            \
-}
-#else
-#define GEN_SIMD_TRANS_REG_PAIR_DW_2(NAME)                                                  \
-static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)                     \
-{                                                                                           \
-    REQUIRE_32BIT(ctx);                                                                     \
-    return true;                                                                            \
-}
-#endif
-
-#if defined(TARGET_RISCV32)
 #define GEN_SIMD_TRANS_REG_PAIR_DWS(NAME)                                                   \
 static bool trans_p##NAME##_dws(DisasContext *ctx, arg_p##NAME##_dws * a)                   \
 {                                                                                           \
@@ -416,8 +391,8 @@ static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)         
 #endif
 
 #if defined(TARGET_RISCV32)
-#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(NAME)                                              \
-static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)                     \
+#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(INSN, HELPER)                                      \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)                                  \
 {                                                                                           \
     REQUIRE_32BIT(ctx);                                                                     \
     REQUIRE_EXT(ctx, RVP);                                                                  \
@@ -427,13 +402,13 @@ static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)         
     TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                     \
     TCGv imm_1 = tcg_constant_tl(a->imm);                                                   \
     TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                               \
-    gen_helper_##NAME##_32(dest_0, tcg_env, src1_0, imm_0);                                 \
-    gen_helper_##NAME##_32(dest_1, tcg_env, src1_1, imm_1);                                 \
+    gen_helper_##HELPER##_32(dest_0, tcg_env, src1_0, imm_0);                               \
+    gen_helper_##HELPER##_32(dest_1, tcg_env, src1_1, imm_1);                               \
     return true;                                                                            \
 }
 #else
-#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(NAME)                                              \
-static bool trans_p##NAME##_dw(DisasContext *ctx, arg_p##NAME##_dw * a)                     \
+#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(INSN, HELPER)                                      \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)                                  \
 {                                                                                           \
     REQUIRE_32BIT(ctx);                                                                     \
     return true;                                                                            \
@@ -1420,10 +1395,10 @@ GEN_SIMD_TRANS_REG_PAIR_2(pmaxu, d, h)
 GEN_SIMD_TRANS_REG_PAIR_2(pmseq, d, h)
 GEN_SIMD_TRANS_REG_PAIR_2(pmslt, d, h)
 GEN_SIMD_TRANS_REG_PAIR_2(pmsltu, d, h)
-GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(sati)
-GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(usati)
+GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(psati_dw, sati)
+GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(pusati_dw, usati)
 GEN_SIMD_TRANS_REG_PAIR_DW_IMM(sslai)
-GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(srari)
+GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(psrari_dw, srari)
 GEN_SIMD_TRANS_REG_PAIR_DW(pmseq_dw, mseq)
 GEN_SIMD_TRANS_REG_PAIR_DW(pmslt_dw, mslt)
 GEN_SIMD_TRANS_REG_PAIR_DW(pmsltu_dw, msltu)
