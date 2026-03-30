@@ -357,7 +357,7 @@ static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)                      
     return true;                                                                            \
 }
 #else
-#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM(NAME)                                                \
+#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM(INSN, HELPER)                                        \
 static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)                                  \
 {                                                                                           \
     REQUIRE_32BIT(ctx);                                                                     \
