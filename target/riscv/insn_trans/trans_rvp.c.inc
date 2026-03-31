@@ -268,149 +268,149 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 #endif
 
 #if defined(TARGET_RISCV32)
-#define GEN_SIMD_TRANS_REG_PAIR_2(NAME1, NAME2, NAME3)                                          \
-static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
-{                                                                                               \
-    REQUIRE_32BIT(ctx);                                                                         \
-    REQUIRE_EXT(ctx, RVP);                                                                      \
-    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                           \
-    TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);                                           \
-    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                     \
-    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                         \
-    TCGv src2_1 = get_gpr(ctx, (a->rs2)*2+1, EXT_NONE);                                         \
-    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                                   \
-    gen_helper_##NAME1##_##NAME3(dest_0, tcg_env, src1_0, src2_0);                              \
-    gen_helper_##NAME1##_##NAME3(dest_1, tcg_env, src1_1, src2_1);                              \
-    return true;                                                                                \
+#define GEN_SIMD_TRANS_REG_PAIR_2(INSN, HELPER)                \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN * a)    \
+{                                                              \
+    REQUIRE_32BIT(ctx);                                        \
+    REQUIRE_EXT(ctx, RVP);                                     \
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);          \
+    TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);          \
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                    \
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);        \
+    TCGv src2_1 = get_gpr(ctx, (a->rs2)*2+1, EXT_NONE);        \
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                  \
+    gen_helper_##HELPER(dest_0, tcg_env, src1_0, src2_0);      \
+    gen_helper_##HELPER(dest_1, tcg_env, src1_1, src2_1);      \
+    return true;                                               \
 }
 #else
-#define GEN_SIMD_TRANS_REG_PAIR_2(NAME1, NAME2, NAME3)                                          \
-static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
-{                                                                                               \
-    REQUIRE_32BIT(ctx);                                                                         \
-    return true;                                                                                \
+#define GEN_SIMD_TRANS_REG_PAIR_2(INSN, HELPER)                \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN * a)    \
+{                                                              \
+    REQUIRE_32BIT(ctx);                                        \
+    return true;                                               \
 }
 #endif
 
 #if defined(TARGET_RISCV32)
-#define GEN_SIMD_TRANS_REG_PAIR_3(NAME1, NAME2, NAME3)                                          \
-static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
-{                                                                                               \
-    REQUIRE_EXT(ctx, RVP);                                                                      \
-    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                           \
-    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                     \
-    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                         \
-    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                                   \
-    TCGv src2   = get_gpr(ctx, a->rs2, EXT_NONE);                                               \
-    gen_helper_##NAME1##_##NAME3(dest_0, tcg_env, src1_0, src2);                                \
-    gen_helper_##NAME1##_##NAME3(dest_1, tcg_env, src1_1, src2);                                \
-    return true;                                                                                \
+#define GEN_SIMD_TRANS_REG_PAIR_3(INSN, HELPER)                \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN * a)    \
+{                                                              \
+    REQUIRE_EXT(ctx, RVP);                                     \
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);          \
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                    \
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);        \
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                  \
+    TCGv src2   = get_gpr(ctx, a->rs2, EXT_NONE);              \
+    gen_helper_##HELPER(dest_0, tcg_env, src1_0, src2);        \
+    gen_helper_##HELPER(dest_1, tcg_env, src1_1, src2);        \
+    return true;                                               \
 }
 #else
-#define GEN_SIMD_TRANS_REG_PAIR_3(NAME1, NAME2, NAME3)                                          \
-static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
-{                                                                                               \
-    REQUIRE_32BIT(ctx);                                                                         \
-    return true;                                                                                \
+#define GEN_SIMD_TRANS_REG_PAIR_3(INSN, HELPER)                \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN * a)    \
+{                                                              \
+    REQUIRE_32BIT(ctx);                                        \
+    return true;                                               \
 }
 #endif
 
 #if defined(TARGET_RISCV32)
-#define GEN_SIMD_TRANS_REG_PAIR_DW(INSN, HELPER)                                            \
-static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)                                  \
-{                                                                                           \
-    REQUIRE_32BIT(ctx);                                                                     \
-    REQUIRE_EXT(ctx, RVP);                                                                  \
-    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                       \
-    TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);                                       \
-    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                 \
-    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                     \
-    TCGv src2_1 = get_gpr(ctx, (a->rs2)*2+1, EXT_NONE);                                     \
-    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                               \
-    gen_helper_##HELPER(dest_0, tcg_env, src1_0, src2_0);                                   \
-    gen_helper_##HELPER(dest_1, tcg_env, src1_1, src2_1);                                   \
-    return true;                                                                            \
+#define GEN_SIMD_TRANS_REG_PAIR_DW(INSN, HELPER)               \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)     \
+{                                                              \
+    REQUIRE_32BIT(ctx);                                        \
+    REQUIRE_EXT(ctx, RVP);                                     \
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);          \
+    TCGv src2_0 = get_gpr(ctx, (a->rs2)*2, EXT_NONE);          \
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                    \
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);        \
+    TCGv src2_1 = get_gpr(ctx, (a->rs2)*2+1, EXT_NONE);        \
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                  \
+    gen_helper_##HELPER(dest_0, tcg_env, src1_0, src2_0);      \
+    gen_helper_##HELPER(dest_1, tcg_env, src1_1, src2_1);      \
+    return true;                                               \
 }
 #else
-#define GEN_SIMD_TRANS_REG_PAIR_DW(INSN, HELPER)                                            \
-static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)                                  \
-{                                                                                           \
-    REQUIRE_32BIT(ctx);                                                                     \
-    return true;                                                                            \
+#define GEN_SIMD_TRANS_REG_PAIR_DW(INSN, HELPER)               \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)     \
+{                                                              \
+    REQUIRE_32BIT(ctx);                                        \
+    return true;                                               \
 }
 #endif
 
 #if defined(TARGET_RISCV32)
-#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM(INSN, HELPER)                                        \
-static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)                                  \
-{                                                                                           \
-    REQUIRE_32BIT(ctx);                                                                     \
-    REQUIRE_EXT(ctx, RVP);                                                                  \
-    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                       \
-    TCGv imm_0 = tcg_constant_tl(a->imm);                                                   \
-    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                 \
-    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                     \
-    TCGv imm_1 = tcg_constant_tl(a->imm);                                                   \
-    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                               \
-    gen_helper_##HELPER(dest_0, tcg_env, src1_0, imm_0);                                    \
-    gen_helper_##HELPER(dest_1, tcg_env, src1_1, imm_1);                                    \
-    return true;                                                                            \
+#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM(INSN, HELPER)           \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)     \
+{                                                              \
+    REQUIRE_32BIT(ctx);                                        \
+    REQUIRE_EXT(ctx, RVP);                                     \
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);          \
+    TCGv imm_0 = tcg_constant_tl(a->imm);                      \
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                    \
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);        \
+    TCGv imm_1 = tcg_constant_tl(a->imm);                      \
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                  \
+    gen_helper_##HELPER(dest_0, tcg_env, src1_0, imm_0);       \
+    gen_helper_##HELPER(dest_1, tcg_env, src1_1, imm_1);       \
+    return true;                                               \
 }
 #else
-#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM(INSN, HELPER)                                        \
-static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)                                  \
-{                                                                                           \
-    REQUIRE_32BIT(ctx);                                                                     \
-    return true;                                                                            \
+#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM(INSN, HELPER)           \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)     \
+{                                                              \
+    REQUIRE_32BIT(ctx);                                        \
+    return true;                                               \
 }
 #endif
 
 #if defined(TARGET_RISCV32)
-#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(INSN, HELPER)                                      \
-static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)                                  \
-{                                                                                           \
-    REQUIRE_32BIT(ctx);                                                                     \
-    REQUIRE_EXT(ctx, RVP);                                                                  \
-    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                       \
-    TCGv imm_0 = tcg_constant_tl(a->imm);                                                   \
-    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                 \
-    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                     \
-    TCGv imm_1 = tcg_constant_tl(a->imm);                                                   \
-    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                               \
-    gen_helper_##HELPER##_32(dest_0, tcg_env, src1_0, imm_0);                               \
-    gen_helper_##HELPER##_32(dest_1, tcg_env, src1_1, imm_1);                               \
-    return true;                                                                            \
+#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(INSN, HELPER)         \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)     \
+{                                                              \
+    REQUIRE_32BIT(ctx);                                        \
+    REQUIRE_EXT(ctx, RVP);                                     \
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);          \
+    TCGv imm_0 = tcg_constant_tl(a->imm);                      \
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                    \
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);        \
+    TCGv imm_1 = tcg_constant_tl(a->imm);                      \
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                  \
+    gen_helper_##HELPER##_32(dest_0, tcg_env, src1_0, imm_0);  \
+    gen_helper_##HELPER##_32(dest_1, tcg_env, src1_1, imm_1);  \
+    return true;                                               \
 }
 #else
-#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(INSN, HELPER)                                      \
-static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)                                  \
-{                                                                                           \
-    REQUIRE_32BIT(ctx);                                                                     \
-    return true;                                                                            \
+#define GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(INSN, HELPER)         \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN *a)     \
+{                                                              \
+    REQUIRE_32BIT(ctx);                                        \
+    return true;                                               \
 }
 #endif
 
 #if defined(TARGET_RISCV32)
-#define GEN_SIMD_TRANS_REG_PAIR_5(NAME1, NAME2, NAME3)                                          \
-static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
-{                                                                                               \
-    REQUIRE_EXT(ctx, RVP);                                                                      \
-    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                           \
-    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                     \
-    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                         \
-    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                                   \
-    gen_helper_##NAME1##_##NAME3(dest_0, tcg_env, src1_0);                                      \
-    gen_helper_##NAME1##_##NAME3(dest_1, tcg_env, src1_1);                                      \
-    gen_set_gpr(ctx, (a->rd)*2, dest_0);                                                        \
-    gen_set_gpr(ctx, (a->rd)*2+1, dest_1);                                                      \
-    return true;                                                                                \
+#define GEN_SIMD_TRANS_REG_PAIR_5(INSN, HELPER)                \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN * a)    \
+{                                                              \
+    REQUIRE_EXT(ctx, RVP);                                     \
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);          \
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                    \
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);        \
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                  \
+    gen_helper_##HELPER(dest_0, tcg_env, src1_0);              \
+    gen_helper_##HELPER(dest_1, tcg_env, src1_1);              \
+    gen_set_gpr(ctx, (a->rd)*2, dest_0);                       \
+    gen_set_gpr(ctx, (a->rd)*2+1, dest_1);                     \
+    return true;                                               \
 }
 #else
-#define GEN_SIMD_TRANS_REG_PAIR_5(NAME1, NAME2, NAME3)                                          \
-static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a) \
-{                                                                                               \
-    REQUIRE_32BIT(ctx);                                                                         \
-    return true;                                                                                \
+#define GEN_SIMD_TRANS_REG_PAIR_5(INSN, HELPER)                \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN * a)    \
+{                                                              \
+    REQUIRE_32BIT(ctx);                                        \
+    return true;                                               \
 }
 #endif
 
@@ -437,27 +437,27 @@ static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 #endif
 
 #if defined(TARGET_RISCV32)
-#define GEN_SIMD_TRANS_REG_PAIR_IMM_2(NAME1, NAME2, NAME3)                                       \
-static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a)  \
-{                                                                                                \
-    REQUIRE_32BIT(ctx);                                                                          \
-    REQUIRE_EXT(ctx, RVP);                                                                       \
-    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);                                            \
-    TCGv imm_0 = tcg_constant_tl(a->imm);                                                        \
-    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                                                      \
-    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);                                          \
-    TCGv imm_1 = tcg_constant_tl(a->imm);                                                        \
-    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                                                    \
-    gen_helper_##NAME1##_##NAME3(dest_0, tcg_env, src1_0, imm_0);                                \
-    gen_helper_##NAME1##_##NAME3(dest_1, tcg_env, src1_1, imm_1);                                \
-    return true;                                                                                 \
+#define GEN_SIMD_TRANS_REG_PAIR_IMM_2(INSN, HELPER)          \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN * a)  \
+{                                                            \
+    REQUIRE_32BIT(ctx);                                      \
+    REQUIRE_EXT(ctx, RVP);                                   \
+    TCGv src1_0 = get_gpr(ctx, (a->rs1)*2, EXT_NONE);        \
+    TCGv imm_0 = tcg_constant_tl(a->imm);                    \
+    TCGv dest_0 = dest_gpr(ctx, (a->rd)*2);                  \
+    TCGv src1_1 = get_gpr(ctx, (a->rs1)*2+1, EXT_NONE);      \
+    TCGv imm_1 = tcg_constant_tl(a->imm);                    \
+    TCGv dest_1 = dest_gpr(ctx, (a->rd)*2+1);                \
+    gen_helper_##HELPER(dest_0, tcg_env, src1_0, imm_0);     \
+    gen_helper_##HELPER(dest_1, tcg_env, src1_1, imm_1);     \
+    return true;                                             \
 }
 #else
-#define GEN_SIMD_TRANS_REG_PAIR_IMM_2(NAME1, NAME2, NAME3)                                       \
-static bool trans_##NAME1##_##NAME2##NAME3(DisasContext *ctx, arg_##NAME1##_##NAME2##NAME3 * a)  \
-{                                                                                                \
-    REQUIRE_32BIT(ctx);                                                                          \
-    return true;                                                                                 \
+#define GEN_SIMD_TRANS_REG_PAIR_IMM_2(INSN, HELPER)          \
+static bool trans_##INSN(DisasContext *ctx, arg_##INSN * a)  \
+{                                                            \
+    REQUIRE_32BIT(ctx);                                      \
+    return true;                                             \
 }
 #endif
 
@@ -1301,40 +1301,40 @@ GEN_SIMD_TRANS_REG_PAIR_1(wsll)
 GEN_SIMD_TRANS_REG_PAIR_IMM(wslai)
 GEN_SIMD_TRANS_REG_PAIR_1(wsla)
 
-GEN_SIMD_TRANS_REG_PAIR_2(padd, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(psub, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(psadd, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(psaddu, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pssub, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pssubu, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(paadd, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(paaddu, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pasub, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pasubu, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pabd, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pabdu, d, b)
-GEN_SIMD_TRANS_REG_PAIR_5(psabs, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(padd, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(psub, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(psadd, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(psaddu, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pssub, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pssubu, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(paadd, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(paaddu, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pasub, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pasubu, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(psh1add, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pssh1sadd, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pas, d, hx)
-GEN_SIMD_TRANS_REG_PAIR_2(psa, d, hx)
-GEN_SIMD_TRANS_REG_PAIR_2(psas, d, hx)
-GEN_SIMD_TRANS_REG_PAIR_2(pssa, d, hx)
-GEN_SIMD_TRANS_REG_PAIR_2(paas, d, hx)
-GEN_SIMD_TRANS_REG_PAIR_2(pasa, d, hx)
-GEN_SIMD_TRANS_REG_PAIR_2(pabd, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pabdu, d, h)
-GEN_SIMD_TRANS_REG_PAIR_5(psabs, d, h)
+GEN_SIMD_TRANS_REG_PAIR_2(padd_db, padd_b)
+GEN_SIMD_TRANS_REG_PAIR_2(psub_db, psub_b)
+GEN_SIMD_TRANS_REG_PAIR_2(psadd_db, psadd_b)
+GEN_SIMD_TRANS_REG_PAIR_2(psaddu_db, psaddu_db)
+GEN_SIMD_TRANS_REG_PAIR_2(pssub_db, pssub_db)
+GEN_SIMD_TRANS_REG_PAIR_2(pssubu_db, pssubu_db)
+GEN_SIMD_TRANS_REG_PAIR_2(paadd_db, paadd_b)
+GEN_SIMD_TRANS_REG_PAIR_2(paaddu_db, paaddu_db)
+GEN_SIMD_TRANS_REG_PAIR_2(pasub_db, pasub_db)
+GEN_SIMD_TRANS_REG_PAIR_2(pasubu_db, pasubu_b)
+GEN_SIMD_TRANS_REG_PAIR_2(pabd_db, pabd_b)
+GEN_SIMD_TRANS_REG_PAIR_2(pabdu_db, pabdu_b)
+GEN_SIMD_TRANS_REG_PAIR_5(psabs_db, psabs_b)
+GEN_SIMD_TRANS_REG_PAIR_2(padd_dh, padd_h)
+GEN_SIMD_TRANS_REG_PAIR_2(psub_dh, psub_h)
+GEN_SIMD_TRANS_REG_PAIR_2(psadd_dh, psadd_h)
+GEN_SIMD_TRANS_REG_PAIR_2(psaddu_dh, psaddu_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pssub_dh, pssub_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pssubu_dh, pssubu_h)
+GEN_SIMD_TRANS_REG_PAIR_2(paadd_dh, paadd_h)
+GEN_SIMD_TRANS_REG_PAIR_2(paaddu_dh, paaddu_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pasub_dh, pasub_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pasubu_dh, pasubu_h)
+GEN_SIMD_TRANS_REG_PAIR_2(psh1add_dh, psh1add_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pssh1sadd_dh, pssh1sadd_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pas_dhx, pas_hx)
+GEN_SIMD_TRANS_REG_PAIR_2(psa_dhx, psa_hx)
+GEN_SIMD_TRANS_REG_PAIR_2(psas_dhx, psas_hx)
+GEN_SIMD_TRANS_REG_PAIR_2(pssa_dhx, pssa_hx)
+GEN_SIMD_TRANS_REG_PAIR_2(paas_dhx, paas_hx)
+GEN_SIMD_TRANS_REG_PAIR_2(pasa_dhx, pasa_hx)
+GEN_SIMD_TRANS_REG_PAIR_2(pabd_dh, pabd_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pabdu_dh, pabdu_h)
+GEN_SIMD_TRANS_REG_PAIR_5(psabs_dh, psabs_h)
 GEN_SIMD_TRANS_REG_PAIR_DW(psadd_dw, sadd)
 GEN_SIMD_TRANS_REG_PAIR_DW(psaddu_dw, saddu)
 GEN_SIMD_TRANS_REG_PAIR_DW(pssub_dw, ssub)
@@ -1345,31 +1345,31 @@ GEN_SIMD_TRANS_REG_PAIR_DW(pasub_dw, asub)
 GEN_SIMD_TRANS_REG_PAIR_DW(pasubu_dw, asubu)
 GEN_SIMD_TRANS_REG_PAIR_DW(pssh1sadd_dw, ssh1sadd)
 
-GEN_SIMD_TRANS_REG_PAIR_IMM_2(pslli, d, b)
-GEN_SIMD_TRANS_REG_PAIR_IMM_2(psrli, d, b)
-GEN_SIMD_TRANS_REG_PAIR_IMM_2(psrai, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pmin, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pminu, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pmax, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pmaxu, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pmseq, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pmslt, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(pmsltu, d, b)
-GEN_SIMD_TRANS_REG_PAIR_5(psext, d, h_b)
-GEN_SIMD_TRANS_REG_PAIR_IMM_2(psati, d, h)
-GEN_SIMD_TRANS_REG_PAIR_IMM_2(pusati, d, h)
-GEN_SIMD_TRANS_REG_PAIR_IMM_2(pslli, d, h)
-GEN_SIMD_TRANS_REG_PAIR_IMM_2(psrli, d, h)
-GEN_SIMD_TRANS_REG_PAIR_IMM_2(psrai, d, h)
-GEN_SIMD_TRANS_REG_PAIR_IMM_2(psslai, d, h)
-GEN_SIMD_TRANS_REG_PAIR_IMM_2(psrari, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pmin, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pminu, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pmax, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pmaxu, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pmseq, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pmslt, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(pmsltu, d, h)
+GEN_SIMD_TRANS_REG_PAIR_IMM_2(pslli_db, pslli_b)
+GEN_SIMD_TRANS_REG_PAIR_IMM_2(psrli_db, psrli_b)
+GEN_SIMD_TRANS_REG_PAIR_IMM_2(psrai_db, psrai_b)
+GEN_SIMD_TRANS_REG_PAIR_2(pmin_db, pmin_b)
+GEN_SIMD_TRANS_REG_PAIR_2(pminu_db, pminu_b)
+GEN_SIMD_TRANS_REG_PAIR_2(pmax_db, pmax_b)
+GEN_SIMD_TRANS_REG_PAIR_2(pmaxu_db, pmaxu_b)
+GEN_SIMD_TRANS_REG_PAIR_2(pmseq_db, pmseq_b)
+GEN_SIMD_TRANS_REG_PAIR_2(pmslt_db, pmslt_b)
+GEN_SIMD_TRANS_REG_PAIR_2(pmsltu_db, pmsltu_b)
+GEN_SIMD_TRANS_REG_PAIR_5(psext_dh_b, psext_h_b)
+GEN_SIMD_TRANS_REG_PAIR_IMM_2(psati_dh, psati_h)
+GEN_SIMD_TRANS_REG_PAIR_IMM_2(pusati_dh, pusati_h)
+GEN_SIMD_TRANS_REG_PAIR_IMM_2(pslli_dh, pslli_h)
+GEN_SIMD_TRANS_REG_PAIR_IMM_2(psrli_dh, psrli_h)
+GEN_SIMD_TRANS_REG_PAIR_IMM_2(psrai_dh, psrai_h)
+GEN_SIMD_TRANS_REG_PAIR_IMM_2(psslai_dh, psslai_h)
+GEN_SIMD_TRANS_REG_PAIR_IMM_2(psrari_dh, psrari_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pmin_dh, pmin_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pminu_dh, pminu_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pmax_dh, pmax_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pmaxu_dh, pmaxu_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pmseq_dh, pmseq_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pmslt_dh, pmslt_h)
+GEN_SIMD_TRANS_REG_PAIR_2(pmsltu_dh, pmsltu_h)
 GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(psati_dw, sati)
 GEN_SIMD_TRANS_REG_PAIR_DW_IMM_2(pusati_dw, usati)
 GEN_SIMD_TRANS_REG_PAIR_DW_IMM(psslai_dw, sslai)
@@ -1378,25 +1378,25 @@ GEN_SIMD_TRANS_REG_PAIR_DW(pmseq_dw, mseq)
 GEN_SIMD_TRANS_REG_PAIR_DW(pmslt_dw, mslt)
 GEN_SIMD_TRANS_REG_PAIR_DW(pmsltu_dw, msltu)
 
-GEN_SIMD_TRANS_REG_PAIR_3(padd, d, bs)
-GEN_SIMD_TRANS_REG_PAIR_3(psll, d, bs)
-GEN_SIMD_TRANS_REG_PAIR_3(psra, d, bs)
-GEN_SIMD_TRANS_REG_PAIR_3(padd, d, hs)
-GEN_SIMD_TRANS_REG_PAIR_3(psll, d, hs)
-GEN_SIMD_TRANS_REG_PAIR_3(psrl, d, hs)
-GEN_SIMD_TRANS_REG_PAIR_3(psra, d, hs)
-GEN_SIMD_TRANS_REG_PAIR_3(pssha, d, hs)
-GEN_SIMD_TRANS_REG_PAIR_3(psshar, d, hs)
+GEN_SIMD_TRANS_REG_PAIR_3(padd_dbs, padd_bs)
+GEN_SIMD_TRANS_REG_PAIR_3(psll_dbs, psll_bs)
+GEN_SIMD_TRANS_REG_PAIR_3(psra_dbs, psra_bs)
+GEN_SIMD_TRANS_REG_PAIR_3(padd_dhs, padd_hs)
+GEN_SIMD_TRANS_REG_PAIR_3(psll_dhs, psll_hs)
+GEN_SIMD_TRANS_REG_PAIR_3(psrl_dhs, psrl_hs)
+GEN_SIMD_TRANS_REG_PAIR_3(psra_dhs, psra_hs)
+GEN_SIMD_TRANS_REG_PAIR_3(pssha_dhs, pssha_hs)
+GEN_SIMD_TRANS_REG_PAIR_3(psshar_dhs, psshar_hs)
 GEN_SIMD_TRANS_REG_PAIR_DW(pssha_dws, ssha)
 GEN_SIMD_TRANS_REG_PAIR_DW(psshar_dws, sshar)
 
-GEN_SIMD_TRANS_REG_PAIR_2(ppairo, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(ppairo, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(ppaire, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(ppaireo, d, b)
-GEN_SIMD_TRANS_REG_PAIR_2(ppaireo, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(ppairoe, d, h)
-GEN_SIMD_TRANS_REG_PAIR_2(ppairoe, d, b)
+GEN_SIMD_TRANS_REG_PAIR_2(ppairo_db, ppairo_b)
+GEN_SIMD_TRANS_REG_PAIR_2(ppairo_dh, ppairo_h)
+GEN_SIMD_TRANS_REG_PAIR_2(ppaire_db, ppaire_b)
+GEN_SIMD_TRANS_REG_PAIR_2(ppaireo_db, ppaireo_b)
+GEN_SIMD_TRANS_REG_PAIR_2(ppaireo_dh, ppaireo_h)
+GEN_SIMD_TRANS_REG_PAIR_2(ppairoe_dh, ppairoe_h)
+GEN_SIMD_TRANS_REG_PAIR_2(ppairoe_db, ppairoe_b)
 
 GEN_SIMD_TRANS_REG_PAIR_PREDSUM(predsum_dbs)
 GEN_SIMD_TRANS_REG_PAIR_PREDSUM(predsumu_dbs)
