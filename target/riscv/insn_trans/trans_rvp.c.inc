@@ -596,3 +596,15 @@ GEN_SIMD_TRANS_64(pasubu_w)
 GEN_SIMD_TRANS_32(asub)
 GEN_SIMD_TRANS_32(asubu)
 
+/* Packed SIMD - Absolute Value and Difference Operations */
+GEN_SIMD_TRANS_R1(psabs_b)
+GEN_SIMD_TRANS_R1(psabs_h)
+GEN_SIMD_TRANS_R1(abs)
+GEN_SIMD_TRANS_R1_64(absw)
+GEN_SIMD_TRANS(pabd_b)
+GEN_SIMD_TRANS(pabdu_b)
+GEN_SIMD_TRANS(pabd_h)
+GEN_SIMD_TRANS(pabdu_h)
+GEN_SIMD_TRANS(pabdsumu_b)
+GEN_SIMD_TRANS_ACC(pabdsumau_b)
+

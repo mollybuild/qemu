@@ -1317,3 +1317,217 @@ uint32_t HELPER(asubu)(CPURISCVState *env, uint32_t rs1, uint32_t rs2)
     return (uint32_t)((a - b) >> 1);
 }
 
+/* =========================================================================
+ * Absolute Value Operations
+ * ========================================================================= */
+
+/**
+ * PSABS.B - Packed 8-bit absolute value
+ * For each byte: rd[i] = abs(rs1[i]), saturate if MIN
+ */
+target_ulong HELPER(psabs_b)(CPURISCVState *env, target_ulong rs1)
+{
+    target_ulong rd = 0;
+    int elems = ELEMS_B(rd);
+    int sat = 0;
+
+    for (int i = 0; i < elems; i++) {
+        int8_t e1 = (int8_t)EXTRACT8(rs1, i);
+        int8_t res;
+
+        if (e1 == INT8_MIN) {
+            res = INT8_MAX;
+            sat = 1;
+        } else if (e1 < 0) {
+            res = -e1;
+        } else {
+            res = e1;
+        }
+
+        rd = INSERT8(rd, res, i);
+    }
+
+    if (sat) {
+        env->vxsat = 1;
+    }
+    return rd;
+}
+
+/**
+ * PSABS.H - Packed 16-bit absolute value
+ * For each halfword: rd[i] = abs(rs1[i]), saturate if MIN
+ */
+target_ulong HELPER(psabs_h)(CPURISCVState *env, target_ulong rs1)
+{
+    target_ulong rd = 0;
+    int elems = ELEMS_H(rd);
+    int sat = 0;
+
+    for (int i = 0; i < elems; i++) {
+        int16_t e1 = (int16_t)EXTRACT16(rs1, i);
+        int16_t res;
+
+        if (e1 == INT16_MIN) {
+            res = INT16_MAX;
+            sat = 1;
+        } else if (e1 < 0) {
+            res = -e1;
+        } else {
+            res = e1;
+        }
+
+        rd = INSERT16(rd, res, i);
+    }
+
+    if (sat) {
+        env->vxsat = 1;
+    }
+    return rd;
+}
+
+/**
+ * ABS - 32/64-bit scalar absolute value
+ */
+target_ulong HELPER(abs)(CPURISCVState *env, target_ulong rs1)
+{
+    target_long a = (target_long)rs1;
+    return (a < 0) ? (target_ulong)(-a) : rs1;
+}
+
+/**
+ * ABSW - Absolute value of low 32 bits (RV64)
+ */
+uint64_t HELPER(absw)(CPURISCVState *env, uint64_t rs1)
+{
+    int32_t a = (int32_t)EXTRACT32(rs1, 0);
+    uint32_t res;
+
+    if (a == INT32_MIN) {
+        res = 0x80000000;
+    } else if (a < 0) {
+        res = (uint32_t)(-a);
+    } else {
+        res = (uint32_t)a;
+    }
+
+    return (uint64_t)res;
+}
+
+
+/* =========================================================================
+ * Absolute Difference Operations
+ * ========================================================================= */
+
+/**
+ * PABD.B - Packed 8-bit signed absolute difference
+ * For each byte: rd[i] = |rs1[i] - rs2[i]|
+ */
+target_ulong HELPER(pabd_b)(CPURISCVState *env, target_ulong rs1, target_ulong rs2)
+{
+    target_ulong rd = 0;
+    int elems = ELEMS_B(rd);
+
+    for (int i = 0; i < elems; i++) {
+        int8_t e1 = (int8_t)EXTRACT8(rs1, i);
+        int8_t e2 = (int8_t)EXTRACT8(rs2, i);
+        int16_t diff = (int16_t)e1 - (int16_t)e2;
+        uint8_t res = (diff >= 0) ? (uint8_t)diff : (uint8_t)(-diff);
+        rd = INSERT8(rd, res, i);
+    }
+    return rd;
+}
+
+/**
+ * PABDU.B - Packed 8-bit unsigned absolute difference
+ * For each byte: rd[i] = |rs1[i] - rs2[i]|
+ */
+target_ulong HELPER(pabdu_b)(CPURISCVState *env, target_ulong rs1, target_ulong rs2)
+{
+    target_ulong rd = 0;
+    int elems = ELEMS_B(rd);
+
+    for (int i = 0; i < elems; i++) {
+        uint8_t e1 = EXTRACT8(rs1, i);
+        uint8_t e2 = EXTRACT8(rs2, i);
+        uint8_t res = (e1 > e2) ? (e1 - e2) : (e2 - e1);
+        rd = INSERT8(rd, res, i);
+    }
+    return rd;
+}
+
+/**
+ * PABD.H - Packed 16-bit signed absolute difference
+ * For each halfword: rd[i] = |rs1[i] - rs2[i]|
+ */
+target_ulong HELPER(pabd_h)(CPURISCVState *env, target_ulong rs1, target_ulong rs2)
+{
+    target_ulong rd = 0;
+    int elems = ELEMS_H(rd);
+
+    for (int i = 0; i < elems; i++) {
+        int16_t e1 = (int16_t)EXTRACT16(rs1, i);
+        int16_t e2 = (int16_t)EXTRACT16(rs2, i);
+        int32_t diff = (int32_t)e1 - (int32_t)e2;
+        uint16_t res = (diff >= 0) ? (uint16_t)diff : (uint16_t)(-diff);
+        rd = INSERT16(rd, res, i);
+    }
+    return rd;
+}
+
+/**
+ * PABDU.H - Packed 16-bit unsigned absolute difference
+ * For each halfword: rd[i] = |rs1[i] - rs2[i]|
+ */
+target_ulong HELPER(pabdu_h)(CPURISCVState *env, target_ulong rs1, target_ulong rs2)
+{
+    target_ulong rd = 0;
+    int elems = ELEMS_H(rd);
+
+    for (int i = 0; i < elems; i++) {
+        uint16_t e1 = EXTRACT16(rs1, i);
+        uint16_t e2 = EXTRACT16(rs2, i);
+        uint16_t res = (e1 > e2) ? (e1 - e2) : (e2 - e1);
+        rd = INSERT16(rd, res, i);
+    }
+    return rd;
+}
+
+/**
+ * PABDSUMU.B - Sum of unsigned absolute differences
+ * Returns sum(|rs1[i] - rs2[i]|) for all bytes
+ */
+target_ulong HELPER(pabdsumu_b)(CPURISCVState *env, target_ulong rs1, target_ulong rs2)
+{
+    target_ulong sum = 0;
+    int elems = ELEMS_B(rs1);
+
+    for (int i = 0; i < elems; i++) {
+        uint8_t e1 = EXTRACT8(rs1, i);
+        uint8_t e2 = EXTRACT8(rs2, i);
+        uint8_t diff = (e1 > e2) ? (e1 - e2) : (e2 - e1);
+        sum += diff;
+    }
+
+    return sum;
+}
+
+/**
+ * PABDSUMAU.B - Accumulated sum of unsigned absolute differences
+ * rd = rd + sum(|rs1[i] - rs2[i]|)
+ */
+target_ulong HELPER(pabdsumau_b)(CPURISCVState *env, target_ulong rs1,
+                                 target_ulong rs2, target_ulong rd)
+{
+    target_ulong sum = rd;
+    int elems = ELEMS_B(rs1);
+
+    for (int i = 0; i < elems; i++) {
+        uint8_t e1 = EXTRACT8(rs1, i);
+        uint8_t e2 = EXTRACT8(rs2, i);
+        uint8_t diff = (e1 > e2) ? (e1 - e2) : (e2 - e1);
+        sum += diff;
+    }
+
+    return sum;
+}
+

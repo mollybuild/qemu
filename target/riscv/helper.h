@@ -1351,3 +1351,15 @@ DEF_HELPER_3(pasubu_w, i64, env, i64, i64)
 DEF_HELPER_3(asub, i32, env, i32, i32)
 DEF_HELPER_3(asubu, i32, env, i32, i32)
 
+/* Packed SIMD - Absolute Value and Difference Operations */
+DEF_HELPER_2(psabs_b, tl, env, tl)
+DEF_HELPER_2(psabs_h, tl, env, tl)
+DEF_HELPER_2(abs, tl, env, tl)
+DEF_HELPER_2(absw, i64, env, i64)
+DEF_HELPER_3(pabd_b, tl, env, tl, tl)
+DEF_HELPER_3(pabdu_b, tl, env, tl, tl)
+DEF_HELPER_3(pabd_h, tl, env, tl, tl)
+DEF_HELPER_3(pabdu_h, tl, env, tl, tl)
+DEF_HELPER_3(pabdsumu_b, tl, env, tl, tl)
+DEF_HELPER_4(pabdsumau_b, tl, env, tl, tl, tl)
+
