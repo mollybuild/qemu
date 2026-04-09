@@ -6953,7 +6953,7 @@ target_ulong HELPER(pm2sub_h)(CPURISCVState *env, target_ulong rs1, target_ulong
 
 /**
  * PM2SUB.HX - Subtract cross products horizontally
- * For each word: rd[i] = rs1[2i+1] * rs2[2i] - rs1[2i] * rs2[2i+1]
+ * For each word: rd[i] = rs1[2i] * rs2[2i+1] - rs1[2i+1] * rs2[2i]
  */
 target_ulong HELPER(pm2sub_hx)(CPURISCVState *env, target_ulong rs1, target_ulong rs2)
 {
@@ -6965,9 +6965,9 @@ target_ulong HELPER(pm2sub_hx)(CPURISCVState *env, target_ulong rs1, target_ulon
         int16_t s1_h1 = (int16_t)EXTRACT16(rs1, i * 2 + 1);
         int16_t s2_h0 = (int16_t)EXTRACT16(rs2, i * 2);
         int16_t s2_h1 = (int16_t)EXTRACT16(rs2, i * 2 + 1);
-        int32_t prod10 = (int32_t)s1_h1 * (int32_t)s2_h0;
         int32_t prod01 = (int32_t)s1_h0 * (int32_t)s2_h1;
-        uint32_t diff = (uint32_t)(prod10 - prod01);
+        int32_t prod10 = (int32_t)s1_h1 * (int32_t)s2_h0;
+        uint32_t diff = (uint32_t)(prod01 - prod10);
         rd = INSERT32(rd, diff, i);
     }
     return rd;
@@ -7184,9 +7184,9 @@ uint64_t HELPER(pm2sub_wx)(CPURISCVState *env, uint64_t rs1, uint64_t rs2)
     int32_t s1_w1 = (int32_t)EXTRACT32(rs1, 1);
     int32_t s2_w0 = (int32_t)EXTRACT32(rs2, 0);
     int32_t s2_w1 = (int32_t)EXTRACT32(rs2, 1);
-    int64_t prod10 = (int64_t)s1_w1 * (int64_t)s2_w0;
     int64_t prod01 = (int64_t)s1_w0 * (int64_t)s2_w1;
-    return (uint64_t)(prod10 - prod01);
+    int64_t prod10 = (int64_t)s1_w1 * (int64_t)s2_w0;
+    return (uint64_t)(prod01 - prod10);
 }
 
 /**
