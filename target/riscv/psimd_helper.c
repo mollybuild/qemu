@@ -2513,7 +2513,7 @@ target_ulong HELPER(psshar_hs)(CPURISCVState *env, target_ulong rs1, target_ulon
             /* Right shift with rounding */
             int right = -shamt;
             if (right >= 16) {
-                res = (e1 < 0) ? -1 : 0;
+                res = 0;
             } else {
                 int32_t rounded = ((e1 >> (right - 1)) + 1) >> 1;
                 res = (int16_t)rounded;
@@ -2550,7 +2550,7 @@ uint64_t HELPER(psshar_ws)(CPURISCVState *env, uint64_t rs1, uint64_t rs2)
         } else {
             int right = -shamt;
             if (right >= 32) {
-                res = (e1 < 0) ? -1 : 0;
+                res = 0;
             } else {
                 int64_t rounded = ((e1 >> (right - 1)) + 1) >> 1;
                 res = (int32_t)rounded;
