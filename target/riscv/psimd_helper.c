@@ -2546,13 +2546,25 @@ target_ulong HELPER(psshar_hs)(CPURISCVState *env,
 
         if (shamt >= 0) {
             /* Left shift with saturation */
-            int32_t shifted = (int32_t)e1 << shamt;
-            res = signed_saturate_h(shifted, &sat);
+            if (shamt >= 16) {
+                if (e1 == 0) {
+                    res = 0;
+                } else if (e1 > 0) {
+                    res = SAT_MAX_H;
+                    sat = 1;
+                } else {
+                    res = SAT_MIN_H;
+                    sat = 1;
+                }
+            } else {
+                int32_t shifted = (int32_t)e1 * (1 << shamt);
+                res = signed_saturate_h(shifted, &sat);
+            }
         } else {
             /* Right shift with rounding */
             int right = -shamt;
             if (right >= 16) {
-                res = (e1 < 0) ? -1 : 0;
+                res = 0;
             } else {
                 int32_t rounded = ((e1 >> (right - 1)) + 1) >> 1;
                 res = (int16_t)rounded;
@@ -2585,12 +2597,24 @@ uint64_t HELPER(psshar_ws)(CPURISCVState *env, uint64_t rs1, uint64_t rs2)
         int32_t res;
 
         if (shamt >= 0) {
-            int64_t shifted = (int64_t)e1 << shamt;
-            res = signed_saturate_w(shifted, &sat);
+            if (shamt >= 32) {
+                if (e1 == 0) {
+                    res = 0;
+                } else if (e1 > 0) {
+                    res = SAT_MAX_W;
+                    sat = 1;
+                } else {
+                    res = SAT_MIN_W;
+                    sat = 1;
+                }
+            } else {
+                int64_t shifted = (int64_t)e1 * (1LL << shamt);
+                res = signed_saturate_w(shifted, &sat);
+            }
         } else {
             int right = -shamt;
             if (right >= 32) {
-                res = (e1 < 0) ? -1 : 0;
+                res = 0;
             } else {
                 int64_t rounded = ((e1 >> (right - 1)) + 1) >> 1;
                 res = (int32_t)rounded;
