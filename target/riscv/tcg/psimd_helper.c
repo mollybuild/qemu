@@ -158,7 +158,7 @@ static inline target_ulong psimd_abdsumu_b(target_ulong rs1,
 #define PSIMD_DO_LT_MASK(N, M) ((N) < (M) ? -1 : 0)
 #define PSIMD_DO_MIN(N, M) ((N) < (M) ? (N) : (M))
 #define PSIMD_DO_MAX(N, M) ((N) > (M) ? (N) : (M))
-#define PSIMD_DO_SLL(N, M) ((N) << (M))
+#define PSIMD_DO_SLL(N, M) ((uint64_t)(N) << (M))
 #define PSIMD_DO_SRL(N, M) ((N) >> (M))
 #define PSIMD_DO_SRA(N, M) ((N) >> (M))
 
@@ -230,7 +230,7 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2)              \
                                                                           \
     for (int i = 0; i < elems; i++) {                                     \
         ETYPE e1 = (ETYPE)EXTRACT(rs1, i);                                \
-        WTYPE shifted = (WTYPE)e1 << shamt;                               \
+        WTYPE shifted = (WTYPE)e1 * ((WTYPE)1 << shamt);                 \
         ETYPE res = SAT_FN(shifted, &sat);                                \
         rd = INSERT(rd, res, i);                                          \
     }                                                                     \
@@ -356,7 +356,7 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2)              \
             shifted = (e1 < 0) ? (SAT_MIN) : (SAT_MAX);                   \
             sat = 1;                                                      \
         } else {                                                          \
-            shifted = (WTYPE)e1 << (SHAMT);                               \
+            shifted = (WTYPE)e1 * ((WTYPE)1 << (SHAMT));                 \
         }                                                                 \
                                                                           \
         WTYPE sum = shifted + e2;                                         \
@@ -377,8 +377,9 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE imm)              \
     RTYPE rd = 0;                                                         \
     int elems = ELEMS(rd);                                                \
     int range = (imm & (IMMMASK)) + 1;                                    \
-    WTYPE max = ((WTYPE)1 << (range - 1)) - 1;                            \
-    WTYPE min = -((WTYPE)1 << (range - 1));                               \
+    uint64_t sign = UINT64_C(1) << (range - 1);                           \
+    WTYPE max = (WTYPE)(sign - 1);                                       \
+    WTYPE min = (range == 64) ? INT64_MIN : -(WTYPE)sign;                \
     int sat = 0;                                                          \
                                                                           \
     for (int i = 0; i < elems; i++) {                                     \
@@ -498,7 +499,8 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2)              \
         ETYPE res;                                                        \
                                                                           \
         if (shamt >= 0) {                                                 \
-            WTYPE shifted = (WTYPE)e1 << shamt;                           \
+            int left = (shamt >= (BITS)) ? (BITS) : shamt;               \
+            WTYPE shifted = (WTYPE)e1 * ((WTYPE)1 << left);              \
             res = SAT_FN(shifted, &sat);                                  \
         } else {                                                          \
             int right = -shamt;                                           \
@@ -551,7 +553,7 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2)              \
             if (right >= (BITS)) {                                        \
                 res = 0;                                                  \
             } else {                                                      \
-                WTYPE rounded = ((e1 >> (right - 1)) + 1) >> 1;           \
+                WTYPE rounded = (((WTYPE)e1 >> (right - 1)) + 1) >> 1;    \
                 res = (ETYPE)rounded;                                     \
             }                                                             \
         }                                                                 \
@@ -649,7 +651,7 @@ uint64_t HELPER(NAME)(CPURISCVState *env, uint64_t rs1, uint64_t rs2)     \
     int8_t shamt = (int8_t)(rs2 & 0xff);                                 \
                                                                           \
     if (shamt >= 0) {                                                     \
-        return (uint64_t)(a << shamt);                                    \
+        return (shamt >= 64) ? 0 : (uint64_t)a << shamt;                 \
     }                                                                     \
                                                                           \
     int right = -shamt;                                                   \
@@ -691,8 +693,8 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2)              \
         ETYPE s1_hi = (ETYPE)EXTRACT(rs1, i + 1);                         \
         ETYPE s2_lo = (ETYPE)EXTRACT(rs2, i);                             \
         ETYPE s2_hi = (ETYPE)EXTRACT(rs2, i + 1);                         \
-        ETYPE res_lo = OP_LO(s1_lo, s2_hi);                               \
-        ETYPE res_hi = OP_HI(s1_hi, s2_lo);                               \
+        RTYPE res_lo = OP_LO((RTYPE)s1_lo, (RTYPE)s2_hi);                 \
+        RTYPE res_hi = OP_HI((RTYPE)s1_hi, (RTYPE)s2_lo);                 \
         rd = INSERT(rd, res_lo, i);                                       \
         rd = INSERT(rd, res_hi, i + 1);                                   \
     }                                                                     \
@@ -750,12 +752,12 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2)              \
                          INIT)                                            \
 RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2)              \
 {                                                                         \
-    SUMTYPE sum = (INIT);                                                 \
+    uint64_t sum = (uint64_t)(INIT);                                     \
     int elems = ELEMS(rs1);                                               \
                                                                           \
     for (int i = 0; i < elems; i++) {                                     \
         ETYPE e1 = (ETYPE)EXTRACT(rs1, i);                                \
-        sum += e1;                                                        \
+        sum += (uint64_t)(SUMTYPE)e1;                                    \
     }                                                                     \
                                                                           \
     return (RTYPE)sum;                                                    \
@@ -961,7 +963,7 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2, RTYPE dest)  \
         DTYPE d = (DTYPE)EXTRACT(dest, i);                                \
         PTYPE prod = OP(e1, e2) + (ROUND);                                \
         HTYPE high = (HTYPE)(prod >> (SHIFT));                            \
-        OTYPE res = (OTYPE)(high + d);                                    \
+        OTYPE res = (OTYPE)high + (OTYPE)d;                              \
         rd = INSERT(rd, res, i);                                          \
     }                                                                     \
     return rd;                                                            \
@@ -982,7 +984,7 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2, RTYPE dest)  \
         DTYPE d = (DTYPE)EXTRACT1(dest, i);                               \
         PTYPE prod = OP(e1, e2);                                          \
         HTYPE high = (HTYPE)(prod >> (SHIFT));                            \
-        OTYPE res = (OTYPE)(high + d);                                    \
+        OTYPE res = (OTYPE)high + (OTYPE)d;                              \
         rd = INSERT(rd, res, i);                                          \
     }                                                                     \
     return rd;                                                            \
@@ -1002,7 +1004,7 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2, RTYPE dest)  \
         E2TYPE e2 = (E2TYPE)EXTRACT(rs2, i * (SCALE) + (OFFSET2));        \
         DTYPE d = (DTYPE)EXTRACTD(dest, i);                               \
         PTYPE mul = OP(e1, e2);                                           \
-        rd = INSERT(rd, (OTYPE)(d + mul), i);                             \
+        rd = INSERT(rd, (OTYPE)d + (OTYPE)mul, i);                       \
     }                                                                     \
     return rd;                                                            \
 }
@@ -1051,7 +1053,7 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2, RTYPE dest)  \
         DTYPE d = (DTYPE)EXTRACTD(dest, i);                               \
         PTYPE prod = OP(e1, e2) + (ROUND);                                \
         STYPE scaled = (STYPE)(((__int128_t)prod) >> (SHIFT));            \
-        rd = INSERT(rd, (OTYPE)(d + scaled), i);                          \
+        rd = INSERT(rd, (OTYPE)d + (OTYPE)scaled, i);                    \
     }                                                                     \
     return rd;                                                            \
 }
@@ -1095,7 +1097,7 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2, RTYPE dest)  \
         PTYPE prod1 = OP(s1_1, s2_1) + (ROUND);                          \
         STYPE scaled0 = (STYPE)(((__int128_t)prod0) >> (SHIFT));          \
         STYPE scaled1 = (STYPE)(((__int128_t)prod1) >> (SHIFT));          \
-        rd = INSERT(rd, (OTYPE)(d + scaled0 + scaled1), i);               \
+        rd = INSERT(rd, (OTYPE)d + (OTYPE)scaled0 + (OTYPE)scaled1, i);  \
     }                                                                     \
     return rd;                                                            \
 }
@@ -1124,7 +1126,8 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2)              \
         E2TYPE s2_1 = (E2TYPE)EXTRACT(rs2, i * (SCALE) + (OFFSET21));     \
         PTYPE prod0 = OP(s1_0, s2_0);                                     \
         PTYPE prod1 = OP(s1_1, s2_1);                                     \
-        rd = INSERT(rd, (OTYPE)COMBINE(0, prod0, prod1), i);              \
+        rd = INSERT(rd, COMBINE((OTYPE)0, (OTYPE)prod0,                  \
+                                (OTYPE)prod1), i);                        \
     }                                                                     \
     return rd;                                                            \
 }
@@ -1179,7 +1182,8 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2, RTYPE dest)  \
         DTYPE d = (DTYPE)EXTRACTD(dest, i);                               \
         PTYPE prod0 = OP(s1_0, s2_0);                                     \
         PTYPE prod1 = OP(s1_1, s2_1);                                     \
-        rd = INSERT(rd, (OTYPE)COMBINE(d, prod0, prod1), i);              \
+        rd = INSERT(rd, COMBINE((OTYPE)d, (OTYPE)prod0,                  \
+                                (OTYPE)prod1), i);                        \
     }                                                                     \
     return rd;                                                            \
 }
@@ -1200,7 +1204,8 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2)              \
                          (E2TYPE)EXTRACT(rs2, i * (SCALE) + 2));         \
         PTYPE prod3 = OP((E1TYPE)EXTRACT(rs1, i * (SCALE) + 3),          \
                          (E2TYPE)EXTRACT(rs2, i * (SCALE) + 3));         \
-        rd = INSERT(rd, (OTYPE)(prod0 + prod1 + prod2 + prod3), i);       \
+        rd = INSERT(rd, (OTYPE)prod0 + (OTYPE)prod1 +                   \
+                        (OTYPE)prod2 + (OTYPE)prod3, i);                  \
     }                                                                     \
     return rd;                                                            \
 }
@@ -1223,7 +1228,8 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2, RTYPE dest)  \
                          (E2TYPE)EXTRACT(rs2, i * (SCALE) + 2));         \
         PTYPE prod3 = OP((E1TYPE)EXTRACT(rs1, i * (SCALE) + 3),          \
                          (E2TYPE)EXTRACT(rs2, i * (SCALE) + 3));         \
-        rd = INSERT(rd, (OTYPE)(d + prod0 + prod1 + prod2 + prod3), i);   \
+        rd = INSERT(rd, (OTYPE)d + (OTYPE)prod0 + (OTYPE)prod1 +        \
+                        (OTYPE)prod2 + (OTYPE)prod3, i);                  \
     }                                                                     \
     return rd;                                                            \
 }
@@ -1260,7 +1266,7 @@ uint64_t HELPER(NAME)(CPURISCVState *env, uint32_t rs1, uint32_t rs2,     \
         ETYPE e1 = (ETYPE)((rs1 >> (i * (IBITS))) & (IMASK));             \
         ETYPE e2 = (ETYPE)((rs2 >> (i * (IBITS))) & (IMASK));             \
         WTYPE acc = (WTYPE)((dest >> (i * (OBITS))) & (OMASK));           \
-        WTYPE res = OP(acc, (WTYPE)e1, (WTYPE)e2);                        \
+        OTYPE res = OP((OTYPE)acc, (OTYPE)e1, (OTYPE)e2);                \
         rd |= ((uint64_t)(OTYPE)res) << (i * (OBITS));                    \
     }                                                                     \
     return rd;                                                            \
@@ -1294,7 +1300,7 @@ uint64_t HELPER(NAME)(CPURISCVState *env, uint32_t rs1, uint32_t rs2,     \
         E2TYPE e2 = (E2TYPE)EXTRACT(rs2, i);                              \
         DTYPE d = (DTYPE)EXTRACTD(dest, i);                               \
         PTYPE prod = OP(e1, e2);                                          \
-        rd |= ((uint64_t)(OTYPE)(d + prod)) << (i * (OBITS));             \
+        rd |= ((uint64_t)((OTYPE)d + (OTYPE)prod)) << (i * (OBITS));     \
     }                                                                     \
     return rd;                                                            \
 }
@@ -1313,7 +1319,8 @@ uint64_t HELPER(NAME)(CPURISCVState *env, uint32_t rs1, uint32_t rs2,     \
         DTYPE d = (DTYPE)EXTRACTD(dest, i);                               \
         PTYPE prod = OP(e1, e2) + (ROUND);                                \
         STYPE scaled = (STYPE)(((__int128_t)prod) >> (SHIFT));            \
-        rd |= ((uint64_t)(OTYPE)(d + scaled)) << (i * (OBITS));           \
+        rd |= ((uint64_t)((OTYPE)d + (OTYPE)scaled))                     \
+              << (i * (OBITS));                                          \
     }                                                                     \
     return rd;                                                            \
 }
@@ -1330,7 +1337,7 @@ uint64_t HELPER(NAME)(CPURISCVState *env, uint32_t rs1, uint32_t rs2)     \
     PTYPE prod0 = OP(s1_0, s2_0);                                        \
     PTYPE prod1 = OP(s1_1, s2_1);                                        \
                                                                           \
-    return (uint64_t)COMBINE(0, prod0, prod1);                            \
+    return COMBINE(UINT64_C(0), (uint64_t)prod0, (uint64_t)prod1);       \
 }
 
 #define GEN_PSIMD_DW_2WAY_MUL_ACC(NAME, E1TYPE, E2TYPE, DTYPE, PTYPE,     \
@@ -1347,7 +1354,7 @@ uint64_t HELPER(NAME)(CPURISCVState *env, uint32_t rs1, uint32_t rs2,     \
     PTYPE prod0 = OP(s1_0, s2_0);                                        \
     PTYPE prod1 = OP(s1_1, s2_1);                                        \
                                                                           \
-    return (uint64_t)COMBINE(d, prod0, prod1);                            \
+    return COMBINE((uint64_t)d, (uint64_t)prod0, (uint64_t)prod1);       \
 }
 
 #define GEN_PSIMD_WIDEN_SHIFT(NAME, ETYPE, WTYPE, OTYPE, ELEMS, IBITS,    \
@@ -1359,7 +1366,7 @@ uint64_t HELPER(NAME)(CPURISCVState *env, uint32_t rs1, uint32_t rs2)     \
                                                                           \
     for (int i = 0; i < (ELEMS); i++) {                                   \
         ETYPE e1 = (ETYPE)((rs1 >> (i * (IBITS))) & (IMASK));             \
-        WTYPE res = (WTYPE)e1 << shamt;                                   \
+        WTYPE res = (WTYPE)e1 * ((WTYPE)1 << shamt);                     \
         rd |= ((uint64_t)(OTYPE)res) << (i * (OBITS));                    \
     }                                                                     \
     return rd;                                                            \
@@ -1572,8 +1579,7 @@ uint32_t HELPER(NAME)(CPURISCVState *env, uint64_t s1, uint32_t shamt)    \
 #define GEN_PSIMD_NARROW_SRA(NAME)                                        \
 uint32_t HELPER(NAME)(CPURISCVState *env, uint64_t s1, uint32_t shamt)    \
 {                                                                         \
-    __int128_t s1_s128 = (__int128_t)((int64_t)s1);                       \
-    __int128_t s1_s96 = (s1_s128 << 32) >> 32;                            \
+    __int128_t s1_s96 = (int64_t)s1;                                     \
                                                                           \
     return (uint32_t)(s1_s96 >> (shamt & 0x3F)) & 0xFFFFFFFF;             \
 }
@@ -1581,8 +1587,7 @@ uint32_t HELPER(NAME)(CPURISCVState *env, uint64_t s1, uint32_t shamt)    \
 #define GEN_PSIMD_NARROW_RNDSRA(NAME)                                     \
 uint32_t HELPER(NAME)(CPURISCVState *env, uint64_t s1, uint32_t shamt)    \
 {                                                                         \
-    __int128_t s1_s128 = (__int128_t)((int64_t)s1);                       \
-    __int128_t s1_s96 = (s1_s128 << 32) >> 32;                            \
+    __int128_t s1_s96 = (int64_t)s1;                                     \
     __uint128_t shx_97bit = ((__uint128_t)s1_s96 << 1);                   \
     uint64_t shx = (uint64_t)(shx_97bit >> (shamt & 0x3F)) & 0x1FFFFFFFF; \
                                                                           \
@@ -1952,11 +1957,11 @@ GEN_PSIMD_BINOP(msltu, uint32_t, uint32_t, uint32_t,
 GEN_PSIMD_SHIFTOP(pslli_b, target_ulong, uint8_t, uint8_t,
                   EXTRACT8, INSERT8, ELEMS_B, 0x07, PSIMD_DO_SLL)
 GEN_PSIMD_SHIFTOP(psll_bs, target_ulong, uint8_t, uint8_t,
-                  EXTRACT8, INSERT8, ELEMS_B, 0x07, PSIMD_DO_SLL)
+                  EXTRACT8, INSERT8, ELEMS_B, 0x1f, PSIMD_DO_SLL)
 GEN_PSIMD_SHIFTOP(pslli_h, target_ulong, uint16_t, uint16_t,
                   EXTRACT16, INSERT16, ELEMS_H, 0x0f, PSIMD_DO_SLL)
 GEN_PSIMD_SHIFTOP(psll_hs, target_ulong, uint16_t, uint16_t,
-                  EXTRACT16, INSERT16, ELEMS_H, 0x0f, PSIMD_DO_SLL)
+                  EXTRACT16, INSERT16, ELEMS_H, 0x1f, PSIMD_DO_SLL)
 GEN_PSIMD_SHIFTOP(pslli_w, uint64_t, uint32_t, uint32_t,
                   EXTRACT32, INSERT32, ELEMS_W, 0x1f, PSIMD_DO_SLL)
 GEN_PSIMD_SHIFTOP(psll_ws, uint64_t, uint32_t, uint32_t,
@@ -1965,11 +1970,11 @@ GEN_PSIMD_SHIFTOP(psll_ws, uint64_t, uint32_t, uint32_t,
 GEN_PSIMD_SHIFTOP(psrli_b, target_ulong, uint8_t, uint8_t,
                   EXTRACT8, INSERT8, ELEMS_B, 0x07, PSIMD_DO_SRL)
 GEN_PSIMD_SHIFTOP(psrl_bs, target_ulong, uint8_t, uint8_t,
-                  EXTRACT8, INSERT8, ELEMS_B, 0x07, PSIMD_DO_SRL)
+                  EXTRACT8, INSERT8, ELEMS_B, 0x1f, PSIMD_DO_SRL)
 GEN_PSIMD_SHIFTOP(psrli_h, target_ulong, uint16_t, uint16_t,
                   EXTRACT16, INSERT16, ELEMS_H, 0x0f, PSIMD_DO_SRL)
 GEN_PSIMD_SHIFTOP(psrl_hs, target_ulong, uint16_t, uint16_t,
-                  EXTRACT16, INSERT16, ELEMS_H, 0x0f, PSIMD_DO_SRL)
+                  EXTRACT16, INSERT16, ELEMS_H, 0x1f, PSIMD_DO_SRL)
 GEN_PSIMD_SHIFTOP(psrli_w, uint64_t, uint32_t, uint32_t,
                   EXTRACT32, INSERT32, ELEMS_W, 0x1f, PSIMD_DO_SRL)
 GEN_PSIMD_SHIFTOP(psrl_ws, uint64_t, uint32_t, uint32_t,
@@ -1978,11 +1983,11 @@ GEN_PSIMD_SHIFTOP(psrl_ws, uint64_t, uint32_t, uint32_t,
 GEN_PSIMD_SHIFTOP(psrai_b, target_ulong, int8_t, uint8_t,
                   EXTRACT8, INSERT8, ELEMS_B, 0x07, PSIMD_DO_SRA)
 GEN_PSIMD_SHIFTOP(psra_bs, target_ulong, int8_t, uint8_t,
-                  EXTRACT8, INSERT8, ELEMS_B, 0x07, PSIMD_DO_SRA)
+                  EXTRACT8, INSERT8, ELEMS_B, 0x1f, PSIMD_DO_SRA)
 GEN_PSIMD_SHIFTOP(psrai_h, target_ulong, int16_t, uint16_t,
                   EXTRACT16, INSERT16, ELEMS_H, 0x0f, PSIMD_DO_SRA)
 GEN_PSIMD_SHIFTOP(psra_hs, target_ulong, int16_t, uint16_t,
-                  EXTRACT16, INSERT16, ELEMS_H, 0x0f, PSIMD_DO_SRA)
+                  EXTRACT16, INSERT16, ELEMS_H, 0x1f, PSIMD_DO_SRA)
 GEN_PSIMD_SHIFTOP(psrai_w, uint64_t, int32_t, uint32_t,
                   EXTRACT32, INSERT32, ELEMS_W, 0x1f, PSIMD_DO_SRA)
 GEN_PSIMD_SHIFTOP(psra_ws, uint64_t, int32_t, uint32_t,
@@ -2023,7 +2028,7 @@ uint64_t HELPER(srari_64)(CPURISCVState *env, uint64_t rs1, uint64_t imm)
         return rs1;
     }
 
-    return (uint64_t)(((a >> (shamt - 1)) + 1) >> 1);
+    return (uint64_t)((((__int128_t)a >> (shamt - 1)) + 1) >> 1);
 }
 
 /* Variable shift operations (with saturation and rounding) */
@@ -2042,35 +2047,9 @@ GEN_PSIMD_VAR_SSHAR(psshar_ws, uint64_t, int32_t, int64_t,
 
 GEN_PSIMD_VAR_SSHA(ssha, uint32_t, int32_t, int64_t,
                    EXTRACT32, INSERT32, ELEMS_W, 32, signed_saturate_w)
-
-/**
- * SSHAR - 32-bit scalar variable shift with rounding and saturation
- */
-uint32_t HELPER(sshar)(CPURISCVState *env, uint32_t rs1, uint32_t rs2)
-{
-    int32_t a = (int32_t)rs1;
-    int8_t shamt = (int8_t)(rs2 & 0xFF);
-    int sat = 0;
-    int32_t res;
-
-    if (shamt >= 0) {
-        int64_t shifted = (int64_t)a << shamt;
-        res = signed_saturate_w(shifted, &sat);
-    } else {
-        int right = -shamt;
-        if (right >= 32) {
-            res = (a < 0) ? -1 : 0;
-        } else {
-            int64_t rounded = ((a >> (right - 1)) + 1) >> 1;
-            res = (int32_t)rounded;
-        }
-    }
-
-    if (sat) {
-        env->vxsat = 1;
-    }
-    return (uint32_t)res;
-}
+GEN_PSIMD_VAR_SSHAR(sshar, uint32_t, int32_t, int64_t,
+                    EXTRACT32, INSERT32, ELEMS_W, 32, SAT_MIN_W, SAT_MAX_W,
+                    signed_saturate_w)
 
 GEN_PSIMD_VAR_SRA64(sha, PSIMD_DO_SRA64)
 GEN_PSIMD_VAR_SRA64(shar, PSIMD_DO_RNDSRA64)
@@ -2246,7 +2225,9 @@ target_ulong HELPER(slx)(CPURISCVState *env, target_ulong rs1,
     target_ulong xrs1 = 0;
     target_ulong xrd = 0;
 
-    if (shamt <= TARGET_LONG_BITS) {
+    if (shamt == 0) {
+        xrd = rd;
+    } else if (shamt <= TARGET_LONG_BITS) {
         xrs1 = rs1 >> (TARGET_LONG_BITS - shamt);
         xrd = (rd << shamt) + xrs1;
     } else {
@@ -2266,7 +2247,9 @@ target_ulong HELPER(srx)(CPURISCVState *env, target_ulong rs1,
     target_ulong xrs1 = 0;
     target_ulong xrd = 0;
 
-    if (shamt <= TARGET_LONG_BITS) {
+    if (shamt == 0) {
+        xrd = rd;
+    } else if (shamt <= TARGET_LONG_BITS) {
         xrs1 = rs1 << (TARGET_LONG_BITS - shamt);
         xrd = (rd >> shamt) + xrs1;
     } else {
