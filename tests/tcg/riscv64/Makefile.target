@@ -2,8 +2,24 @@
 # RISC-V specific tweaks
 
 VPATH += $(SRC_PATH)/tests/tcg/riscv64
+VPATH += $(SRC_PATH)/tests/tcg/riscv
 TESTS += test-div
 TESTS += noexec
+
+LLVM_P_TOOLCHAIN ?= /opt/llvm/bin
+RISCV_GNU_TOOLCHAIN ?= /opt/riscv
+
+TESTS += psimd-rv64
+psimd-rv64: psimd-rv64.S \
+	$(SRC_PATH)/tests/tcg/riscv/psimd-common.S \
+	$(SRC_PATH)/tests/tcg/riscv/psimd-test-macros.inc
+psimd-rv64: CC = $(LLVM_P_TOOLCHAIN)/clang -target riscv64-unknown-linux-gnu
+psimd-rv64: CFLAGS += --sysroot=$(RISCV_GNU_TOOLCHAIN)/sysroot
+psimd-rv64: CFLAGS += --gcc-toolchain=$(RISCV_GNU_TOOLCHAIN) -fuse-ld=lld
+psimd-rv64: CFLAGS += -menable-experimental-extensions
+psimd-rv64: CFLAGS += -march=rv64gp0p19 -mabi=lp64d
+run-psimd-rv64: QEMU_OPTS += \
+	-cpu rv64,x-p=true,zmmul=true,zba=true,zbb=true
 
 # Disable compressed instructions for test-noc
 TESTS += test-noc

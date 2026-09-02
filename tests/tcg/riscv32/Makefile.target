@@ -1,0 +1,20 @@
+# -*- Mode: makefile -*-
+# RISC-V specific tweaks
+
+VPATH += $(SRC_PATH)/tests/tcg/riscv32
+VPATH += $(SRC_PATH)/tests/tcg/riscv
+
+LLVM_P_TOOLCHAIN ?= /opt/llvm/bin
+RISCV_GNU_TOOLCHAIN ?= /opt/riscv
+
+TESTS += psimd-rv32
+psimd-rv32: psimd-rv32.S \
+	$(SRC_PATH)/tests/tcg/riscv/psimd-common.S \
+	$(SRC_PATH)/tests/tcg/riscv/psimd-test-macros.inc
+psimd-rv32: CC = $(LLVM_P_TOOLCHAIN)/clang -target riscv32-unknown-linux-gnu
+psimd-rv32: CFLAGS += --sysroot=$(RISCV_GNU_TOOLCHAIN)/sysroot
+psimd-rv32: CFLAGS += --gcc-toolchain=$(RISCV_GNU_TOOLCHAIN) -fuse-ld=lld
+psimd-rv32: CFLAGS += -menable-experimental-extensions
+psimd-rv32: CFLAGS += -march=rv32gp0p19 -mabi=ilp32
+run-psimd-rv32: QEMU_OPTS += \
+	-cpu rv32,x-p=true,zmmul=true,zba=true,zbb=true
