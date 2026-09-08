@@ -713,9 +713,11 @@ RTYPE HELPER(NAME)(CPURISCVState *env, RTYPE rs1, RTYPE rs2)              \
     return rd;                                                            \
 }
 
-#define PSIMD_DO_SRA64(A, B) ((A) >> (B))
+#define PSIMD_DO_SRA64(A, B)                                             \
+    (((B) >= 64) ? ((A) < 0 ? (int64_t)-1 : 0) : ((A) >> (B)))
 #define PSIMD_DO_RNDSRA64(A, B)                                          \
-    ((int64_t)((((__int128_t)(A) >> ((B) - 1)) + 1) >> 1))
+    (((B) >= 64) ? 0 :                                                   \
+     (int64_t)((((__int128_t)(A) >> ((B) - 1)) + 1) >> 1))
 
 /*
  * Generate a signed 64-bit bidirectional-shift helper.  rs1 is the signed
@@ -733,9 +735,6 @@ uint64_t HELPER(NAME)(CPURISCVState *env, uint64_t rs1, uint64_t rs2)     \
     }                                                                     \
                                                                           \
     int right = -shamt;                                                   \
-    if (right >= 64) {                                                    \
-        return (a < 0) ? (uint64_t)-1 : 0;                               \
-    }                                                                     \
     return (uint64_t)RIGHT_OP(a, right);                                  \
 }
 
@@ -3450,10 +3449,10 @@ GEN_PSIMD_NCLIPRU(nclipru)
 
 GEN_PSIMD_WIDEN_QMUL_ACC(pmqwacc_h, int16_t, int32_t, int64_t,
                          int32_t, uint32_t, 2, EXTRACT16, EXTRACT32,
-                         2, 0, 15, 0, 32, PSIMD_MUL_S64)
+                         1, 0, 15, 0, 32, PSIMD_MUL_S64)
 GEN_PSIMD_WIDEN_QMUL_ACC(pmqrwacc_h, int16_t, int32_t, int64_t,
                          int32_t, uint32_t, 2, EXTRACT16, EXTRACT32,
-                         2, 0, 15, 1LL << 14, 32, PSIMD_MUL_S64)
+                         1, 0, 15, 1LL << 14, 32, PSIMD_MUL_S64)
 
 GEN_PSIMD_WIDEN_MUL(pwmul_b, int8_t, int8_t, int16_t, uint16_t,
                     4, EXTRACT8, 16, PSIMD_MUL_S32)

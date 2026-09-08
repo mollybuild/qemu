@@ -6,6 +6,10 @@
 static void set_pair_regs(DisasContext *ctx, int dst, TCGv_i64 src)
 {
 #if defined(TARGET_RISCV32)
+    if (dst == 0) {
+        return;
+    }
+
     TCGv_i64 tl_64 = tcg_temp_new_i64();
     TCGv_i64 th_64 = tcg_temp_new_i64();
     TCGv_i32 tl_32 = tcg_temp_new_i32();
@@ -96,14 +100,14 @@ do {                                                        \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_32BIT(ctx);                                     \
-    return true;                                           \
+    return false;                                          \
 }
 
 #define GEN_SIMD_TRANS_UNAVAILABLE_64(NAME)                 \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_64BIT(ctx);                                     \
-    return true;                                           \
+    return false;                                           \
 }
 
 #define GEN_SIMD_TRANS(NAME)                                \
@@ -391,15 +395,24 @@ static bool trans_##INSN(DisasContext *ctx, arg_##INSN * a)    \
     if (VXSAT && !prepare_rvp_vxsat(ctx)) {                    \
         return false;                                          \
     }                                                          \
-    TCGv src1_0 = get_gpr(ctx, (a->rs1) * 2, EXT_NONE);        \
-    TCGv dest_0 = dest_gpr(ctx, (a->rd) * 2);                    \
-    TCGv src1_1 = get_gpr(ctx, (a->rs1) * 2 + 1, EXT_NONE);        \
-    TCGv dest_1 = dest_gpr(ctx, (a->rd) * 2 + 1);                  \
-    TCGv src2   = get_gpr(ctx, a->rs2, EXT_NONE);              \
+    TCGv src1_0;                                                \
+    TCGv src1_1;                                                \
+    if (a->rs1 == 0) {                                          \
+        src1_0 = tcg_constant_tl(0);                            \
+        src1_1 = tcg_constant_tl(0);                            \
+    } else {                                                    \
+        src1_0 = get_gpr(ctx, (a->rs1) * 2, EXT_NONE);          \
+        src1_1 = get_gpr(ctx, (a->rs1) * 2 + 1, EXT_NONE);      \
+    }                                                           \
+    TCGv dest_0 = tcg_temp_new();                               \
+    TCGv dest_1 = tcg_temp_new();                               \
+    TCGv src2 = get_gpr(ctx, a->rs2, EXT_NONE);                 \
     gen_helper_##HELPER(dest_0, tcg_env, src1_0, src2);        \
     gen_helper_##HELPER(dest_1, tcg_env, src1_1, src2);        \
-    gen_set_gpr(ctx, (a->rd) * 2, dest_0);                     \
-    gen_set_gpr(ctx, (a->rd) * 2 + 1, dest_1);                 \
+    if (a->rd != 0) {                                          \
+        gen_set_gpr(ctx, (a->rd) * 2, dest_0);                 \
+        gen_set_gpr(ctx, (a->rd) * 2 + 1, dest_1);             \
+    }                                                           \
     return true;                                              \
 }
 
@@ -711,7 +724,23 @@ GEN_SIMD_TRANS_64(ppairo_w)
 GEN_SIMD_TRANS_R1(psext_h_b)
 GEN_SIMD_TRANS_R1_64(psext_w_b)
 GEN_SIMD_TRANS_R1_64(psext_w_h)
-GEN_SIMD_TRANS_R1(rev)
+#if defined(TARGET_RISCV32)
+static bool trans_rev_32(DisasContext *ctx, arg_rev_32 * a)
+{
+    REQUIRE_32BIT(ctx);
+    GEN_SIMD_TRANS_R1_BODY(rev, false);
+}
+
+GEN_SIMD_TRANS_UNAVAILABLE_64(rev_64)
+#else
+GEN_SIMD_TRANS_UNAVAILABLE_32(rev_32)
+
+static bool trans_rev_64(DisasContext *ctx, arg_rev_64 * a)
+{
+    REQUIRE_64BIT(ctx);
+    GEN_SIMD_TRANS_R1_BODY(rev, false);
+}
+#endif
 GEN_SIMD_TRANS_R1_64(rev16)
 GEN_SIMD_TRANS_64(zip8p)
 GEN_SIMD_TRANS_64(zip8hp)
@@ -1364,26 +1393,39 @@ GEN_DW_PAIR_ARITH(pminu_dw, REQUIRE_ZBB(ctx); , EXT_SIGN, tcg_gen_umin_tl)
 GEN_DW_PAIR_ARITH(pmax_dw, REQUIRE_ZBB(ctx); , EXT_SIGN, tcg_gen_smax_tl)
 GEN_DW_PAIR_ARITH(pmaxu_dw, REQUIRE_ZBB(ctx); , EXT_SIGN, tcg_gen_umax_tl)
 
-#define GEN_DWS_REG_OP(NAME, GEN, EXT, OP)                  \
+#define GEN_DWS_REG_OP(NAME, EXT, MASK_SHIFT, OP)           \
 static bool trans_##NAME(DisasContext *ctx, arg_##NAME * a) \
 {                                                           \
     REQUIRE_32BIT(ctx);                                     \
     REQUIRE_RVP(ctx);                                       \
-    arg_r a0, a1;                                           \
-    a0.rd = (a->rd) * 2;                                    \
-    a0.rs1 = (a->rs1) * 2;                                  \
-    a0.rs2 = a->rs2;                                        \
-    a1.rd = (a->rd) * 2 + 1;                                \
-    a1.rs1 = (a->rs1) * 2 + 1;                              \
-    a1.rs2 = a->rs2;                                        \
-    GEN(ctx, &a0, EXT, OP, NULL);                           \
-    GEN(ctx, &a1, EXT, OP, NULL);                           \
+    TCGv src1_0;                                            \
+    TCGv src1_1;                                            \
+    if (a->rs1 == 0) {                                      \
+        src1_0 = tcg_constant_tl(0);                        \
+        src1_1 = tcg_constant_tl(0);                        \
+    } else {                                                \
+        src1_0 = get_gpr(ctx, (a->rs1) * 2, EXT);           \
+        src1_1 = get_gpr(ctx, (a->rs1) * 2 + 1, EXT);       \
+    }                                                       \
+    TCGv src2 = tcg_temp_new();                             \
+    tcg_gen_mov_tl(src2, get_gpr(ctx, a->rs2, EXT_NONE));  \
+    if (MASK_SHIFT) {                                       \
+        tcg_gen_andi_tl(src2, src2, 31);                    \
+    }                                                       \
+    TCGv dest_0 = tcg_temp_new();                           \
+    TCGv dest_1 = tcg_temp_new();                           \
+    OP(dest_0, src1_0, src2);                               \
+    OP(dest_1, src1_1, src2);                               \
+    if (a->rd != 0) {                                       \
+        gen_set_gpr(ctx, (a->rd) * 2, dest_0);              \
+        gen_set_gpr(ctx, (a->rd) * 2 + 1, dest_1);          \
+    }                                                       \
     return true;                                            \
 }
 
-GEN_DWS_REG_OP(padd_dws, gen_arith, EXT_NONE, tcg_gen_add_tl)
-GEN_DWS_REG_OP(psll_dws, gen_shift, EXT_NONE, tcg_gen_shl_tl)
-GEN_DWS_REG_OP(psrl_dws, gen_shift, EXT_ZERO, tcg_gen_shr_tl)
-GEN_DWS_REG_OP(psra_dws, gen_shift, EXT_SIGN, tcg_gen_sar_tl)
+GEN_DWS_REG_OP(padd_dws, EXT_NONE, false, tcg_gen_add_tl)
+GEN_DWS_REG_OP(psll_dws, EXT_NONE, true, tcg_gen_shl_tl)
+GEN_DWS_REG_OP(psrl_dws, EXT_ZERO, true, tcg_gen_shr_tl)
+GEN_DWS_REG_OP(psra_dws, EXT_SIGN, true, tcg_gen_sar_tl)
 
 GEN_DW_PAIR_ARITH(ppaire_dh, , EXT_NONE, gen_pack)
