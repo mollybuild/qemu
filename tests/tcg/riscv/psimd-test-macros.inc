@@ -19,34 +19,66 @@
 .Lpass\@:
 .endm
 
-/* Emit once, after main.  Returning from here returns from main. */
+/* Linux syscall numbers are shared by RV32 and RV64. */
+#define PSIMD_NR_WRITE 64
+#define PSIMD_NR_EXIT  93
+
+.macro PSIMD_TEST_EXIT status
+    li      a0, \status
+    li      a7, PSIMD_NR_EXIT
+    ecall
+.endm
+
+/*
+ * Emit once, after _start.  Keep diagnostics independent of libc by filling
+ * fixed-width decimal fields and writing the message directly to stdout.
+ */
 .macro PSIMD_DEFINE_FAILURE_HANDLER
-    .section .rodata
-.Lpsimd_fail_format:
-    .asciz  "PSIMD FAIL: case=%ld subcase=%ld\n"
+    .section .data
+.Lpsimd_fail_message:
+    .ascii  "PSIMD FAIL: case=00000 subcase=00000\n"
+.Lpsimd_fail_message_end:
 
     .text
     .balign 4
     .type psimd_test_fail, @function
 psimd_test_fail:
-    addi    sp, sp, -16
-#if __riscv_xlen == 32
-    sw      ra, 12(sp)
-#else
-    sd      ra, 8(sp)
-#endif
-    mv      a2, a1
-    mv      a1, a0
-    la      a0, .Lpsimd_fail_format
-    call    printf
+    la      t0, .Lpsimd_fail_message
+    li      t1, 10
+
+    /* Fill the five case digits from right to left. */
+    addi    t2, t0, 21
+    li      t3, 5
+.Lpsimd_case_loop:
+    remu    t4, a0, t1
+    addi    t4, t4, '0'
+    sb      t4, 0(t2)
+    divu    a0, a0, t1
+    addi    t2, t2, -1
+    addi    t3, t3, -1
+    bnez    t3, .Lpsimd_case_loop
+
+    /* Fill the five subcase digits from right to left. */
+    addi    t2, t0, 35
+    li      t3, 5
+.Lpsimd_subcase_loop:
+    remu    t4, a1, t1
+    addi    t4, t4, '0'
+    sb      t4, 0(t2)
+    divu    a1, a1, t1
+    addi    t2, t2, -1
+    addi    t3, t3, -1
+    bnez    t3, .Lpsimd_subcase_loop
+
     li      a0, 1
-#if __riscv_xlen == 32
-    lw      ra, 12(sp)
-#else
-    ld      ra, 8(sp)
-#endif
-    addi    sp, sp, 16
-    ret
+    la      a1, .Lpsimd_fail_message
+    li      a2, .Lpsimd_fail_message_end - .Lpsimd_fail_message
+    li      a7, PSIMD_NR_WRITE
+    ecall
+
+    li      a0, 1
+    li      a7, PSIMD_NR_EXIT
+    ecall
     .size psimd_test_fail, .-psimd_test_fail
 .endm
 

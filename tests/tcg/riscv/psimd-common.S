@@ -37,12 +37,12 @@
     TEST_PSIMD_RR_VXSAT_STATE 3, psadd.b, 0, 0, 0, 1, 1
 
     /* PSATI.H width=5: exact bounds and values outside both bounds. */
-    TEST_PSIMD_RI_VXSAT 4, psati.h, 0x7fff8000, 4, 0x000ffff0
-    TEST_PSIMD_RI_VXSAT_STATE 4, psati.h, 0x000ffff0, 4, \
+    TEST_PSIMD_RI_VXSAT 4, psati.h, 0x7fff8000, 5, 0x000ffff0
+    TEST_PSIMD_RI_VXSAT_STATE 4, psati.h, 0x000ffff0, 5, \
                                0x000ffff0, 0, 0
-    TEST_PSIMD_RI_VXSAT_STATE 4, psati.h, 0x0010ffef, 4, \
+    TEST_PSIMD_RI_VXSAT_STATE 4, psati.h, 0x0010ffef, 5, \
                                0x000ffff0, 0, 1
-    TEST_PSIMD_RI_VXSAT_STATE 4, psati.h, 0x7fff8000, 15, \
+    TEST_PSIMD_RI_VXSAT_STATE 4, psati.h, 0x7fff8000, 16, \
                                0x7fff8000, 0, 0
 
     /* PMHACC.H: nonzero rd, zero products, and signed-negative inputs. */
@@ -239,8 +239,8 @@
     TEST_PSIMD_RR_SET 299, mslt, 0x80000000, 0x7fffffff, -1
     TEST_PSIMD_RR_SET 300, msltu, 0x80000000, 0x7fffffff, 0
 
-    TEST_PSIMD_SAT_RI_SET 313, sati, 4, 15, 15, 16, 15, -17, -16
-    TEST_PSIMD_RI_VXSAT_STATE 313, sati, 0x7fffffff, 31, \
+    TEST_PSIMD_SAT_RI_SET 313, sati, 5, 15, 15, 16, 15, -17, -16
+    TEST_PSIMD_RI_VXSAT_STATE 313, sati, 0x7fffffff, 32, \
                                0x7fffffff, 0, 0
     TEST_PSIMD_SAT_RI_SET 314, pusati.h, 4, 0x000f0000, \
                            0x000f0000, 0x00100010, 0x000f000f, -1, 0
@@ -270,6 +270,20 @@
                           0xbfffbfff, 1, 0x80008000
     TEST_PSIMD_RR_VXSAT_STATE 329, psshar.hs, 0x0003fffc, -1, \
                                0x0002fffe, 0, 0
+
+    /* Unsigned variable shifts: saturating left and logical rounded right. */
+    TEST_PSIMD_SAT_RR_SET 600, psshl.hs, \
+                          0x7ffe4000, 1, 0xfffc8000, \
+                          0x80004001, 1, 0xffff8002, \
+                          0xffff0001, 1, 0xffff0002
+    TEST_PSIMD_RR_VXSAT_STATE 600, psshl.hs, \
+                               0x80017fff, -1, 0x40003fff, 0, 0
+    TEST_PSIMD_SAT_RR_SET 601, psshlr.hs, \
+                          0x7ffe4000, 1, 0xfffc8000, \
+                          0x80004001, 1, 0xffff8002, \
+                          0xffff0001, 1, 0xffff0002
+    TEST_PSIMD_RR_VXSAT_STATE 601, psshlr.hs, \
+                               0x80030002, -1, 0x40020001, 0, 0
 
     TEST_PSIMD_SAT_RR_SET 332, ssha, 1, 1, 2, \
                           0x40000000, 1, 0x7fffffff, \
@@ -383,14 +397,14 @@
     TEST_PSIMD_RR_VXSAT_STATE 3, psadd.b, 0, 0, 0, 1, 1
 
     /* PSATI.H width=5: exact bounds and values outside both bounds. */
-    TEST_PSIMD_RI_VXSAT 4, psati.h, 0x000ffff07fff8000, 4, \
+    TEST_PSIMD_RI_VXSAT 4, psati.h, 0x000ffff07fff8000, 5, \
                         0x000ffff0000ffff0
-    TEST_PSIMD_RI_VXSAT_STATE 4, psati.h, 0x000ffff0000ffff0, 4, \
+    TEST_PSIMD_RI_VXSAT_STATE 4, psati.h, 0x000ffff0000ffff0, 5, \
                                0x000ffff0000ffff0, 0, 0
-    TEST_PSIMD_RI_VXSAT_STATE 4, psati.h, 0x0010ffef0010ffef, 4, \
+    TEST_PSIMD_RI_VXSAT_STATE 4, psati.h, 0x0010ffef0010ffef, 5, \
                                0x000ffff0000ffff0, 0, 1
     TEST_PSIMD_RI_VXSAT_STATE 4, psati.h, \
-                               0x7fff80007fff8000, 15, \
+                               0x7fff80007fff8000, 16, \
                                0x7fff80007fff8000, 0, 0
 
     /* PMHACC.H: nonzero rd, zero products, and signed-negative inputs. */
@@ -769,10 +783,10 @@
     TEST_PSIMD_R 301, clsw, 0, 31
     TEST_PSIMD_R 301, clsw, 0xffffffff, 31
 
-    TEST_PSIMD_SAT_RI_SET 313, sati, 4, 15, 15, 16, 15, -17, -16
-    TEST_PSIMD_RI_VXSAT_STATE 313, sati, 0x7fffffffffffffff, 63, \
+    TEST_PSIMD_SAT_RI_SET 313, sati, 5, 15, 15, 16, 15, -17, -16
+    TEST_PSIMD_RI_VXSAT_STATE 313, sati, 0x7fffffffffffffff, 64, \
                                0x7fffffffffffffff, 0, 0
-    TEST_PSIMD_SAT_RI_SET 316, psati.w, 4, \
+    TEST_PSIMD_SAT_RI_SET 316, psati.w, 5, \
                            0x0000000ffffffff0, \
                            0x0000000ffffffff0, \
                            0x0000001000000010, \
@@ -780,7 +794,7 @@
                            0xffffffefffffffef, \
                            0xfffffff0fffffff0
     TEST_PSIMD_RI_VXSAT_STATE 316, psati.w, \
-                               0x7fffffff80000000, 31, \
+                               0x7fffffff80000000, 32, \
                                0x7fffffff80000000, 0, 0
     TEST_PSIMD_SAT_RI_SET 314, pusati.h, 4, \
                            0x000f0000000f0000, \
@@ -840,6 +854,29 @@
     TEST_PSIMD_RR_VXSAT_STATE 329, psshar.hs, \
                                0x0003fffc0003fffc, -1, \
                                0x0002fffe0002fffe, 0, 0
+
+    /* Unsigned variable shifts: saturating left and logical rounded right. */
+    TEST_PSIMD_SAT_RR_SET 600, psshl.hs, \
+                          0x000100027ffe4000, 1, \
+                          0x00020004fffc8000, \
+                          0x8000400180004001, 1, \
+                          0xffff8002ffff8002, \
+                          0xffff0001ffff0001, 1, \
+                          0xffff0002ffff0002
+    TEST_PSIMD_RR_VXSAT_STATE 600, psshl.hs, \
+                               0x80017fff00030002, -1, \
+                               0x40003fff00010001, 0, 0
+    TEST_PSIMD_SAT_RR_SET 601, psshlr.hs, \
+                          0x0003000420001000, 1, \
+                          0x0006000840002000, \
+                          0x8000400180004001, 1, \
+                          0xffff8002ffff8002, \
+                          0xffff0001ffff0001, 1, \
+                          0xffff0002ffff0002
+    TEST_PSIMD_RR_VXSAT_STATE 601, psshlr.hs, \
+                               0x8003000200030002, -1, \
+                               0x4002000100020001, 0, 0
+
     TEST_PSIMD_SAT_RR_SET 336, pssha.ws, \
                           0x00000001ffffffff, 1, \
                           0x00000002fffffffe, \

@@ -5,9 +5,9 @@
 
     .text
     .balign 4
-    .globl main
-    .type main, @function
-main:
+    .globl _start
+    .type _start, @function
+_start:
 #include "psimd-common.S"
 
     /*
@@ -510,30 +510,13 @@ main:
     /* SPEC: rounding -1 by XLEN yields zero; kept last as a bug detector. */
     TEST_PSIMD_RR 591, shar, -1, -64, 0
 
-/*
- * Disabled until the configured assembler accepts the latest SPEC names.
- * Expected values below are derived from P-ext-proposal.adoc, not QEMU.
- */
-#if 0
-    TEST_PSIMD_SAT_RR_SET 600, psshl.hs, \
-        0x000100027ffe4000, 1, 0x00020004fffc8000, \
-        0x8000400180004001, 1, 0xffff8002ffff8002, \
-        0xffff0001ffff0001, 1, 0xffff0002ffff0002
-    TEST_PSIMD_RR_VXSAT_STATE 600, psshl.hs, \
-        0x80017fff00030002, -1, 0x40003fff00010001, 0, 0
+    /* P v0.21 variable-shift and narrowing mnemonics. */
     TEST_PSIMD_SAT_RR_SET 608, psshl.ws, \
         0x400000007ffffffe, 1, 0x80000000fffffffc, \
         0x8000000040000001, 1, 0xffffffff80000002, \
         0xffffffff00000001, 1, 0xffffffff00000002
     TEST_PSIMD_RR_VXSAT_STATE 608, psshl.ws, \
         0x800000017fffffff, -1, 0x400000003fffffff, 0, 0
-    TEST_PSIMD_SAT_RR_SET 601, psshlr.hs, \
-        0x000100027ffe40000003000420001000, 1, \
-        0x00020004fffc80000006000840002000, \
-        0x8000400180004001, 1, 0xffff8002ffff8002, \
-        0xffff0001ffff0001, 1, 0xffff0002ffff0002
-    TEST_PSIMD_RR_VXSAT_STATE 601, psshlr.hs, \
-        0x8003000200030002, -1, 0x4002000100020001, 0, 0
     TEST_PSIMD_SAT_RR_SET 609, psshlr.ws, \
         0x400000007ffffffe, 1, 0x80000000fffffffc, \
         0x8000000040000001, 1, 0xffffffff80000002, \
@@ -583,11 +566,8 @@ main:
         0x00000000ffffffff, 1, 0x00000001ffffffff, \
         0x0000000100000000, 0x0000000100000000, -1, \
         -1, -1, -1
-#endif
-
-    li      a0, 0
-    ret
-    .size main, .-main
+    PSIMD_TEST_EXIT 0
+    .size _start, .-_start
 
     PSIMD_DEFINE_FAILURE_HANDLER
 

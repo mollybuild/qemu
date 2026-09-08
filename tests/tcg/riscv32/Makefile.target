@@ -4,17 +4,26 @@
 VPATH += $(SRC_PATH)/tests/tcg/riscv32
 VPATH += $(SRC_PATH)/tests/tcg/riscv
 
-LLVM_P_TOOLCHAIN ?= /opt/llvm/bin
-RISCV_GNU_TOOLCHAIN ?= /opt/riscv
+# Export PSIMD_CC=/path/to/clang to enable these freestanding tests without
+# making the P-aware compiler the CC for every RISC-V TCG test.
+PSIMD_CFLAGS = --target=riscv32-unknown-linux-gnu \
+	-Wall -Werror -O0 -g -Wno-error=unused-command-line-argument \
+	-menable-experimental-extensions -march=rv32gp0p21 -mabi=ilp32
+PSIMD_LDFLAGS = -nostdlib -static -fuse-ld=lld -Wl,-e,_start
 
+ifneq ($(strip $(PSIMD_CC)),)
 TESTS += psimd-rv32
+endif
+
 psimd-rv32: psimd-rv32.S \
 	$(SRC_PATH)/tests/tcg/riscv/psimd-common.S \
 	$(SRC_PATH)/tests/tcg/riscv/psimd-test-macros.inc
-psimd-rv32: CC = $(LLVM_P_TOOLCHAIN)/clang -target riscv32-unknown-linux-gnu
-psimd-rv32: CFLAGS += --sysroot=$(RISCV_GNU_TOOLCHAIN)/sysroot
-psimd-rv32: CFLAGS += --gcc-toolchain=$(RISCV_GNU_TOOLCHAIN) -fuse-ld=lld
-psimd-rv32: CFLAGS += -menable-experimental-extensions
-psimd-rv32: CFLAGS += -march=rv32gp0p19 -mabi=ilp32
+ifeq ($(strip $(PSIMD_CC)),)
+	$(error Set PSIMD_CC to a Clang with RISC-V P extension support)
+else
+	$(call quiet-command,$(PSIMD_CC) $(PSIMD_CFLAGS) -Wa$(COMMA)--noexecstack \
+		$< -o $@ $(PSIMD_LDFLAGS),CC,$@)
+endif
+
 run-psimd-rv32: QEMU_OPTS += \
 	-cpu rv32,x-p=true,zmmul=true,zba=true,zbb=true

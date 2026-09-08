@@ -6,18 +6,27 @@ VPATH += $(SRC_PATH)/tests/tcg/riscv
 TESTS += test-div
 TESTS += noexec
 
-LLVM_P_TOOLCHAIN ?= /opt/llvm/bin
-RISCV_GNU_TOOLCHAIN ?= /opt/riscv
+# Export PSIMD_CC=/path/to/clang to enable these freestanding tests without
+# making the P-aware compiler the CC for every RISC-V TCG test.
+PSIMD_CFLAGS = --target=riscv64-unknown-linux-gnu \
+	-Wall -Werror -O0 -g -Wno-error=unused-command-line-argument \
+	-menable-experimental-extensions -march=rv64gp0p21 -mabi=lp64d
+PSIMD_LDFLAGS = -nostdlib -static -fuse-ld=lld -Wl,-e,_start
 
+ifneq ($(strip $(PSIMD_CC)),)
 TESTS += psimd-rv64
+endif
+
 psimd-rv64: psimd-rv64.S \
 	$(SRC_PATH)/tests/tcg/riscv/psimd-common.S \
 	$(SRC_PATH)/tests/tcg/riscv/psimd-test-macros.inc
-psimd-rv64: CC = $(LLVM_P_TOOLCHAIN)/clang -target riscv64-unknown-linux-gnu
-psimd-rv64: CFLAGS += --sysroot=$(RISCV_GNU_TOOLCHAIN)/sysroot
-psimd-rv64: CFLAGS += --gcc-toolchain=$(RISCV_GNU_TOOLCHAIN) -fuse-ld=lld
-psimd-rv64: CFLAGS += -menable-experimental-extensions
-psimd-rv64: CFLAGS += -march=rv64gp0p19 -mabi=lp64d
+ifeq ($(strip $(PSIMD_CC)),)
+	$(error Set PSIMD_CC to a Clang with RISC-V P extension support)
+else
+	$(call quiet-command,$(PSIMD_CC) $(PSIMD_CFLAGS) -Wa$(COMMA)--noexecstack \
+		$< -o $@ $(PSIMD_LDFLAGS),CC,$@)
+endif
+
 run-psimd-rv64: QEMU_OPTS += \
 	-cpu rv64,x-p=true,zmmul=true,zba=true,zbb=true
 

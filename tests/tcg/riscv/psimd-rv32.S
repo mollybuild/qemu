@@ -5,9 +5,9 @@
 
     .text
     .balign 4
-    .globl main
-    .type main, @function
-main:
+    .globl _start
+    .type _start, @function
+_start:
 #include "psimd-common.S"
 
     TEST_PSIMD_PAIR_RR 7, padd.db, 0x7f120003, 0xff780001, \
@@ -1107,6 +1107,34 @@ main:
     TEST_PSIMD_PAIR_SCALAR_RR_SET 566, padd.dws, \
         0x80000001, 0x7fffffff, 0x80000000, 1, 0xffffffff
 
+    /* Pair selector zero supplies an all-zero source, including X1. */
+    addi    sp, sp, -16
+    sw      ra, 12(sp)
+    li      ra, 0x12345678
+    li      a4, 0x80
+    padd.dbs a0, zero, a4
+    mv      t4, a0
+    mv      t5, a1
+    lw      ra, 12(sp)
+    addi    sp, sp, 16
+    li      t0, 0x80808080
+    PSIMD_FAIL_IF_NE t4, t0, 564
+    PSIMD_FAIL_IF_NE t5, t0, 564
+
+    /* Pair destination selector zero must suppress the write to X1 too. */
+    addi    sp, sp, -16
+    sw      ra, 12(sp)
+    li      ra, 0x12345678
+    li      a2, 0x01020304
+    li      a3, 0x05060708
+    li      a4, 1
+    padd.dbs zero, a2, a4
+    mv      t4, ra
+    lw      ra, 12(sp)
+    addi    sp, sp, 16
+    li      t0, 0x12345678
+    PSIMD_FAIL_IF_NE t4, t0, 564
+
     /* Q15 lanes and Q31 scalar terms accumulate into an RV32 register pair. */
     TEST_PSIMD_WIDE_ACC_RR_SET 482, pmqwacc.h, \
         0x7ffffffd, 0xfffffffd, 0x80004001, 0x80004000, \
@@ -1132,24 +1160,7 @@ main:
     /* LLVM RV32 encodes REV as 0x69f...; catches decoder-version skew. */
     TEST_PSIMD_R_SET 598, rev, 0x01234567, 0xe6a2c480
 
-/*
- * Disabled until the configured assembler accepts the latest SPEC names.
- * Expected values below are derived from P-ext-proposal.adoc, not QEMU.
- */
-#if 0
-    TEST_PSIMD_SAT_RR_SET 600, psshl.hs, \
-        0x000100027ffe4000, 1, 0x00020004fffc8000, \
-        0x80004001, 1, 0xffff8002, \
-        0xffff0001, 1, 0xffff0002
-    TEST_PSIMD_RR_VXSAT_STATE 600, psshl.hs, \
-        0x80017fff, -1, 0x40003fff, 0, 0
-    TEST_PSIMD_SAT_RR_SET 601, psshlr.hs, \
-        0x000100027ffe4000, 1, 0x00020004fffc8000, \
-        0x80004001, 1, 0xffff8002, \
-        0xffff0001, 1, 0xffff0002
-    TEST_PSIMD_RR_VXSAT_STATE 601, psshlr.hs, \
-        0x80030002, -1, 0x40020001, 0, 0
-
+    /* P v0.21 variable-shift mnemonics. */
     TEST_PSIMD_SAT_RR_SET 602, sshl, \
         0x40000000, 1, 0x80000000, \
         0x80000000, 1, -1, -1, 1, -1
@@ -1183,11 +1194,8 @@ main:
         0x80000000, 0, -1, 0, -1, 0, -1, 0
     TEST_PSIMD_PAIR_SHIFT_RR_VXSAT_STATE 607, psshlr.dws, \
         0x80000003, 2, -1, 0x40000002, 1, 0, 0
-#endif
-
-    li      a0, 0
-    ret
-    .size main, .-main
+    PSIMD_TEST_EXIT 0
+    .size _start, .-_start
 
     PSIMD_DEFINE_FAILURE_HANDLER
 
